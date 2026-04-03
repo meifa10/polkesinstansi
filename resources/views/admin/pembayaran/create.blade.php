@@ -16,7 +16,7 @@
     {{-- ================= ALERT ERROR ================= --}}
     @if ($errors->any())
         <div class="bg-red-100 text-red-700 p-4 rounded-lg text-sm">
-            <ul class="list-disc pl-5">
+            <ul class="list-disc pl-5 space-y-1">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
@@ -40,10 +40,12 @@
         <h3 class="font-semibold mb-3">Ringkasan Pemeriksaan</h3>
 
         @if($pendaftaran->rekamMedis)
-            <p><strong>Keluhan:</strong> {{ $pendaftaran->rekamMedis->keluhan }}</p>
-            <p><strong>Diagnosis:</strong> {{ $pendaftaran->rekamMedis->diagnosis }}</p>
-            <p><strong>Tindakan:</strong> {{ $pendaftaran->rekamMedis->tindakan }}</p>
-            <p><strong>Resep:</strong> {{ $pendaftaran->rekamMedis->resep }}</p>
+            <div class="space-y-1">
+                <p><strong>Keluhan:</strong> {{ $pendaftaran->rekamMedis->keluhan }}</p>
+                <p><strong>Diagnosis:</strong> {{ $pendaftaran->rekamMedis->diagnosis }}</p>
+                <p><strong>Tindakan:</strong> {{ $pendaftaran->rekamMedis->tindakan }}</p>
+                <p><strong>Resep:</strong> {{ $pendaftaran->rekamMedis->resep }}</p>
+            </div>
         @else
             <p class="text-yellow-600">
                 ⚠ Rekam medis belum tersedia.
@@ -54,22 +56,24 @@
     {{-- ================= FORM PEMBAYARAN ================= --}}
     <form method="POST"
           action="{{ route('admin.pembayaran.store') }}"
-          class="bg-white rounded-xl shadow p-6 space-y-4">
+          class="bg-white rounded-xl shadow p-6 space-y-5">
         @csrf
 
         <input type="hidden" name="pendaftaran_id" value="{{ $pendaftaran->id }}">
 
-        {{-- METODE --}}
+        {{-- METODE PEMBAYARAN --}}
         <div>
             <label class="block text-sm font-semibold mb-1">
                 Metode Pembayaran
             </label>
+
             <select id="metode"
                     name="metode"
-                    class="w-full border rounded-lg p-2"
+                    class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-emerald-500"
                     required>
                 <option value="">-- Pilih Metode --</option>
                 <option value="tunai">Tunai</option>
+                <option value="transfer">Transfer</option>
                 <option value="bpjs"
                     {{ $pendaftaran->jenis_pasien === 'jkn' ? 'selected' : '' }}>
                     BPJS
@@ -87,7 +91,7 @@
             <input type="text"
                    id="biaya_display"
                    placeholder="Rp 0"
-                   class="w-full border rounded-lg p-2">
+                   class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-emerald-500">
 
             {{-- INPUT ASLI KE DB --}}
             <input type="hidden"
@@ -95,20 +99,20 @@
                    id="total_biaya">
 
             <p class="text-xs text-gray-500 mt-1">
-                * BPJS otomatis Rp 0 dan tidak dapat diubah
+                * Jika BPJS dipilih, biaya otomatis Rp 0 dan tidak dapat diubah
             </p>
         </div>
 
         {{-- AKSI --}}
-        <div class="flex justify-end gap-2 pt-4">
+        <div class="flex justify-end gap-3 pt-4">
             <a href="{{ route('admin.data_pasien.detail', $pendaftaran->no_identitas) }}"
-               class="px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-50">
+               class="px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-50 transition">
                 Batal
             </a>
 
             <button type="submit"
                     class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700
-                           text-white rounded-lg font-semibold">
+                           text-white rounded-lg font-semibold transition">
                 Simpan Pembayaran
             </button>
         </div>
@@ -142,13 +146,17 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             display.removeAttribute('readonly');
             display.classList.remove('bg-gray-100');
-            display.value = '';
-            hidden.value = '';
+
+            if (metode.value === '') {
+                display.value = '';
+                hidden.value = '';
+            }
         }
     }
 
     metode.addEventListener('change', toggleBPJS);
-    toggleBPJS(); // auto run saat load
+    toggleBPJS();
 });
 </script>
+
 @endsection

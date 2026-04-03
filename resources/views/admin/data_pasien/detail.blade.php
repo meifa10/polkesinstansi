@@ -22,10 +22,14 @@
     </h2>
 
     @forelse($kunjungan as $k)
+
     <div class="bg-white rounded-xl shadow p-6 flex justify-between items-center">
+
+        {{-- DATA KUNJUNGAN --}}
         <div>
             <p><strong>Tanggal:</strong> {{ $k->created_at->format('d M Y') }}</p>
             <p><strong>Poli:</strong> {{ $k->poli }}</p>
+
             <p><strong>Status Kunjungan:</strong>
                 <span class="uppercase font-semibold">
                     {{ $k->status }}
@@ -33,11 +37,16 @@
             </p>
         </div>
 
+
+        {{-- PEMBAYARAN --}}
         <div class="text-right space-y-2">
+
+            {{-- ================= JIKA SUDAH ADA PEMBAYARAN ================= --}}
             @if($k->pembayaran)
 
-                {{-- ================= SUDAH LUNAS ================= --}}
+                {{-- SUDAH LUNAS --}}
                 @if($k->pembayaran->status === 'lunas')
+
                     <span class="inline-block px-4 py-2 bg-green-100 text-green-700 rounded-lg text-sm font-semibold">
                         ✔ LUNAS
                     </span>
@@ -48,11 +57,13 @@
                         {{ \Carbon\Carbon::parse($k->pembayaran->tanggal_bayar)->format('d M Y H:i') }}
                     </p>
 
-                {{-- ================= BELUM LUNAS ================= --}}
+
+                {{-- BELUM LUNAS --}}
                 @else
 
                     {{-- BPJS --}}
                     @if($k->pembayaran->metode === 'bpjs')
+
                         <form method="POST"
                               action="{{ route('admin.pembayaran.lunasi', $k->pembayaran->id) }}">
                             @csrf
@@ -62,8 +73,10 @@
                             </button>
                         </form>
 
+
                     {{-- TUNAI --}}
                     @elseif($k->pembayaran->metode === 'tunai')
+
                         <form method="POST"
                               action="{{ route('admin.pembayaran.lunasi', $k->pembayaran->id) }}">
                             @csrf
@@ -73,30 +86,42 @@
                             </button>
                         </form>
 
-                    {{-- TRANSFER / QRIS --}}
+
+                    {{-- MIDTRANS / ONLINE --}}
                     @else
-                        <a href="{{ route('admin.pembayaran.qris', $k->pembayaran->id) }}"
-                           class="inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm">
-                            Bayar via QRIS
-                        </a>
+
+                        <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-lg text-sm font-semibold">
+                            Menunggu Pembayaran Pasien
+                        </span>
+
                     @endif
 
                 @endif
 
+
             {{-- ================= BELUM ADA PEMBAYARAN ================= --}}
             @else
+
                 <a href="{{ route('admin.pembayaran.create', $k->id) }}"
                    class="inline-block px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm">
                     + Buat Pembayaran
                 </a>
+
             @endif
+
         </div>
+
     </div>
+
     @empty
+
         <div class="bg-yellow-100 text-yellow-800 p-4 rounded">
             Belum ada kunjungan pasien.
         </div>
+
     @endforelse
+
+
 
     {{-- ================= RIWAYAT REKAM MEDIS ================= --}}
     <h2 class="text-xl font-semibold text-gray-800 mt-6">
@@ -104,18 +129,39 @@
     </h2>
 
     @forelse($rekamMedis as $rm)
+
         <div class="bg-white rounded-xl shadow p-5">
+
             <p><strong>Tanggal:</strong> {{ $rm->created_at->format('d M Y') }}</p>
-            <p><strong>Poli:</strong> {{ $rm->pendaftaran->poli }}</p>
-            <p><strong>Keluhan:</strong> {{ $rm->keluhan }}</p>
-            <p><strong>Diagnosis:</strong> {{ $rm->diagnosis }}</p>
-            <p><strong>Tindakan:</strong> {{ $rm->tindakan }}</p>
-            <p><strong>Resep:</strong> {{ $rm->resep }}</p>
+
+            <p><strong>Poli:</strong>
+                {{ $rm->pendaftaran->poli ?? '-' }}
+            </p>
+
+            <p><strong>Keluhan:</strong>
+                {{ $rm->keluhan }}
+            </p>
+
+            <p><strong>Diagnosis:</strong>
+                {{ $rm->diagnosis }}
+            </p>
+
+            <p><strong>Tindakan:</strong>
+                {{ $rm->tindakan }}
+            </p>
+
+            <p><strong>Resep:</strong>
+                {{ $rm->resep }}
+            </p>
+
         </div>
+
     @empty
+
         <div class="bg-yellow-100 text-yellow-800 p-4 rounded">
             Belum ada rekam medis.
         </div>
+
     @endforelse
 
 </div>

@@ -59,9 +59,6 @@ Route::middleware(['auth', 'role:admin'])
         Route::get('/pemeriksaan', [PemeriksaanController::class, 'index'])
             ->name('pemeriksaan');
 
-        Route::get('/pembayaran', [PembayaranController::class, 'index'])
-            ->name('pembayaran');
-
         Route::get('/laporan', [LaporanController::class, 'index'])
             ->name('laporan');
     });
@@ -225,19 +222,6 @@ Route::middleware(['auth','role:admin'])
     Route::post('/pembayaran/{pembayaran}/lunasi',
         [PembayaranController::class,'lunasi'])
         ->name('admin.pembayaran.lunasi');
-
-    // 🔥 QRIS DEMO
-    Route::get('/pembayaran/{pembayaran}/qris',
-        [PembayaranController::class,'qris'])
-        ->name('admin.pembayaran.qris');
-
-    Route::post('/pembayaran/{pembayaran}/qris-success',
-        [PembayaranController::class,'qrisSuccess'])
-        ->name('admin.pembayaran.qris.success');
-
-    Route::post('/pembayaran/{pembayaran}/qris-failed',
-        [PembayaranController::class,'qrisFailed'])
-        ->name('admin.pembayaran.qris.failed');
 });
 
 // laporan 
