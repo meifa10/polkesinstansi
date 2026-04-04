@@ -19,7 +19,7 @@ class DataPasienController extends Controller
     {
         /**
          * =========================
-         * BASE QUERY (FIXED)
+         * BASE QUERY (FIX FULL GROUP BY)
          * =========================
          */
         $query = PendaftaranPoli::leftJoin(
@@ -39,7 +39,7 @@ class DataPasienController extends Controller
 
         /**
          * =========================
-         * SEARCH
+         * SEARCH (AMAN UNTUK GROUP BY)
          * =========================
          */
         if ($request->filled('q')) {
@@ -47,30 +47,30 @@ class DataPasienController extends Controller
             $search = trim($request->q);
 
             $query->where(function ($q) use ($search) {
-                $q->where('pendaftaran_poli.nama_pasien', 'like', '%' . $search . '%')
-                  ->orWhere('pendaftaran_poli.no_identitas', 'like', '%' . $search . '%')
-                  ->orWhere('pendaftaran_poli.jenis_pasien', 'like', '%' . $search . '%');
+                $q->where('pendaftaran_poli.nama_pasien', 'like', "%{$search}%")
+                  ->orWhere('pendaftaran_poli.no_identitas', 'like', "%{$search}%")
+                  ->orWhere('pendaftaran_poli.jenis_pasien', 'like', "%{$search}%");
             });
         }
 
         /**
          * =========================
-         * GROUPING (FIX UTAMA)
+         * GROUP BY (WAJIB)
          * =========================
          */
         $pasien = $query
-            ->groupBy('no_identitas')
+            ->groupByRaw('COALESCE(pendaftaran_poli.no_identitas, CONCAT("TEMP-", pendaftaran_poli.id))')
             ->orderByDesc('terakhir_kunjungan')
             ->get();
 
         /**
          * =========================
-         * STATUS ADMIN
+         * STATUS ADMINISTRASI
          * =========================
          */
         $pasien->transform(function ($p) {
 
-            // HANDLE TEMP (no_identitas NULL)
+            // Kalau TEMP (tidak ada identitas)
             if (str_starts_with($p->no_identitas, 'TEMP-')) {
                 $p->status_admin = 'belum_tagihan';
                 return $p;
