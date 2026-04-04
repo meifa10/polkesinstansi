@@ -15,42 +15,61 @@ class PemeriksaanController extends Controller
      */
     public function index(Request $request)
     {
+        // ✅ BASE QUERY
         $query = RekamMedis::with([
             'pendaftaran',
             'dokter'
         ])->latest();
 
         /**
-         * 🔍 SEARCH
-         * - Nama Pasien
-         * - Poli
-         * - Dokter
-         * - Diagnosis
-         * - Tindakan
+         * =========================
+         * 🔍 SEARCH (FIXED)
+         * =========================
          */
         if ($request->filled('q')) {
-            $query->where(function ($q) use ($request) {
 
-                // search di tabel rekam_medis
-                $q->where('diagnosis', 'like', '%' . $request->q . '%')
-                  ->orWhere('tindakan', 'like', '%' . $request->q . '%');
+            $search = $request->q;
 
-            })->orWhereHas('pendaftaran', function ($q) use ($request) {
+            $query->where(function ($main) use ($search) {
 
-                // search di pendaftaran_poli
-                $q->where('nama_pasien', 'like', '%' . $request->q . '%')
-                  ->orWhere('poli', 'like', '%' . $request->q . '%');
+                /**
+                 * 1️⃣ SEARCH DI REKAM MEDIS
+                 */
+                $main->where(function ($q) use ($search) {
+                    $q->where('diagnosis', 'like', '%' . $search . '%')
+                      ->orWhere('tindakan', 'like', '%' . $search . '%');
+                });
 
-            })->orWhereHas('dokter', function ($q) use ($request) {
+                /**
+                 * 2️⃣ SEARCH DI PENDAFTARAN (PASIEN & POLI)
+                 */
+                $main->orWhereHas('pendaftaran', function ($q) use ($search) {
+                    $q->where('nama_pasien', 'like', '%' . $search . '%')
+                      ->orWhere('poli', 'like', '%' . $search . '%');
+                });
 
-                // search di users (dokter)
-                $q->where('name', 'like', '%' . $request->q . '%');
+                /**
+                 * 3️⃣ SEARCH DI DOKTER
+                 */
+                $main->orWhereHas('dokter', function ($q) use ($search) {
+                    $q->where('name', 'like', '%' . $search . '%');
+                });
 
             });
         }
 
+        /**
+         * =========================
+         * EXECUTE QUERY
+         * =========================
+         */
         $pemeriksaan = $query->get();
 
+        /**
+         * =========================
+         * RETURN VIEW
+         * =========================
+         */
         return view('admin.pemeriksaan.index', compact('pemeriksaan'));
     }
 }

@@ -13,51 +13,62 @@ class DataPasienController extends Controller
     /**
      * =========================
      * LIST DATA PASIEN (ADMIN)
-     * + SEARCH
+     * + SEARCH + AGREGASI BENAR
      * =========================
      */
     public function index(Request $request)
     {
         /**
-         * 1️⃣ Query dasar pasien unik
+         * =========================
+         * BASE QUERY (JOIN REKAM MEDIS)
+         * =========================
          */
-        $query = PendaftaranPoli::whereNotNull('no_identitas')
+        $query = PendaftaranPoli::whereNotNull('pendaftaran_poli.no_identitas')
+            ->leftJoin('rekam_medis', 'rekam_medis.pendaftaran_id', '=', 'pendaftaran_poli.id')
             ->select(
-                'nama_pasien',
-                'no_identitas',
-                'jenis_pasien',
-                'tanggal_lahir'
+                'pendaftaran_poli.nama_pasien',
+                'pendaftaran_poli.no_identitas',
+                'pendaftaran_poli.jenis_pasien',
+                'pendaftaran_poli.tanggal_lahir'
             )
-            ->selectRaw('COUNT(id) as total_kunjungan')
-            ->selectRaw('MAX(created_at) as terakhir_kunjungan');
+            ->selectRaw('COUNT(rekam_medis.id) as total_kunjungan')
+            ->selectRaw('MAX(rekam_medis.created_at) as terakhir_kunjungan');
 
         /**
-         * 2️⃣ SEARCH
-         * (Nama / No Identitas / Jenis Pasien)
+         * =========================
+         * 🔍 SEARCH (FIXED)
+         * =========================
          */
         if ($request->filled('q')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('nama_pasien', 'like', '%' . $request->q . '%')
-                  ->orWhere('no_identitas', 'like', '%' . $request->q . '%')
-                  ->orWhere('jenis_pasien', 'like', '%' . $request->q . '%');
+
+            $search = trim($request->q);
+
+            $query->where(function ($q) use ($search) {
+                $q->where('pendaftaran_poli.nama_pasien', 'like', '%' . $search . '%')
+                  ->orWhere('pendaftaran_poli.no_identitas', 'like', '%' . $search . '%')
+                  ->orWhere('pendaftaran_poli.jenis_pasien', 'like', '%' . $search . '%');
             });
         }
 
         /**
-         * 3️⃣ GROUPING & ORDER
+         * =========================
+         * GROUPING & ORDER
+         * =========================
          */
         $pasien = $query
             ->groupBy(
-                'nama_pasien',
-                'no_identitas',
-                'jenis_pasien',
-                'tanggal_lahir'
+                'pendaftaran_poli.nama_pasien',
+                'pendaftaran_poli.no_identitas',
+                'pendaftaran_poli.jenis_pasien',
+                'pendaftaran_poli.tanggal_lahir'
             )
             ->orderByDesc('terakhir_kunjungan')
             ->get();
 
         /**
-         * 4️⃣ STATUS ADMINISTRASI
+         * =========================
+         * STATUS ADMINISTRASI
+         * =========================
          */
         $pasien->transform(function ($p) {
 
@@ -87,7 +98,9 @@ class DataPasienController extends Controller
     public function detail($no_identitas)
     {
         /**
-         * 1️⃣ Ambil semua pendaftaran pasien ini
+         * =========================
+         * 1️⃣ AMBIL PENDAFTARAN
+         * =========================
          */
         $pendaftaran = PendaftaranPoli::where('no_identitas', $no_identitas)
             ->orderByDesc('created_at')
@@ -98,18 +111,21 @@ class DataPasienController extends Controller
         }
 
         /**
-         * 2️⃣ Ambil semua rekam medis
-         *    (AMAN dengan DB kamu)
+         * =========================
+         * 2️⃣ AMBIL REKAM MEDIS
+         * =========================
          */
         $rekamMedis = RekamMedis::whereIn(
                 'pendaftaran_id',
                 $pendaftaran->pluck('id')
             )
-            ->orderByDesc('id') // ⛔ jangan pakai created_at
+            ->latest()
             ->get();
 
         /**
-         * 3️⃣ Ambil pembayaran terakhir (jika ada)
+         * =========================
+         * 3️⃣ AMBIL PEMBAYARAN
+         * =========================
          */
         $pembayaran = Pembayaran::whereIn(
                 'pendaftaran_id',
@@ -118,11 +134,16 @@ class DataPasienController extends Controller
             ->latest()
             ->first();
 
+        /**
+         * =========================
+         * RETURN VIEW
+         * =========================
+         */
         return view('admin.data_pasien.detail', [
-            'pasien'     => $pendaftaran->first(), // data utama pasien
-            'kunjungan'  => $pendaftaran,           // histori kunjungan
-            'rekamMedis' => $rekamMedis,            // histori medis
-            'pembayaran' => $pembayaran             // status pembayaran
+            'pasien'     => $pendaftaran->first(),
+            'kunjungan'  => $pendaftaran,
+            'rekamMedis' => $rekamMedis,
+            'pembayaran' => $pembayaran
         ]);
     }
 }
