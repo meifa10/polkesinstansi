@@ -53,15 +53,17 @@ class PembayaranController extends Controller
             'total_biaya' => 'required|numeric'
         ]);
 
-        // Ambil data pendaftaran
         $pendaftaran = PendaftaranPoli::findOrFail($request->pendaftaran_id);
 
-        // Simpan pembayaran
+        // BUAT PAYMENT REF DI SINI AGAR TERLACAT OLEH MIDTRANS NANTINYA
+        $paymentRef = 'PAY-' . $pendaftaran->id . '-' . time();
+
         Pembayaran::create([
             'pendaftaran_id' => $request->pendaftaran_id,
-            'metode' => $request->metode,
-            'total_biaya' => $request->total_biaya,
-            'status' => 'belum_lunas'
+            'metode'         => $request->metode,
+            'total_biaya'    => $request->total_biaya,
+            'status'         => 'belum_lunas',
+            'payment_ref'    => $paymentRef, // Simpan referensi uniknya
         ]);
 
         return redirect()
