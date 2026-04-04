@@ -29,15 +29,13 @@ class DataPasienController extends Controller
                 'pendaftaran_poli.id'
             )
             ->selectRaw('
-                COALESCE(pendaftaran_poli.no_identitas, CONCAT("TEMP-", pendaftaran_poli.id)) as no_identitas
-            ')
-            ->addSelect(
-                'pendaftaran_poli.nama_pasien',
-                'pendaftaran_poli.jenis_pasien',
-                'pendaftaran_poli.tanggal_lahir'
-            )
-            ->selectRaw('COUNT(rekam_medis.id) as total_kunjungan')
-            ->selectRaw('MAX(rekam_medis.created_at) as terakhir_kunjungan');
+                COALESCE(pendaftaran_poli.no_identitas, CONCAT("TEMP-", pendaftaran_poli.id)) as no_identitas,
+                MAX(pendaftaran_poli.nama_pasien) as nama_pasien,
+                MAX(pendaftaran_poli.jenis_pasien) as jenis_pasien,
+                MAX(pendaftaran_poli.tanggal_lahir) as tanggal_lahir,
+                COUNT(rekam_medis.id) as total_kunjungan,
+                MAX(rekam_medis.created_at) as terakhir_kunjungan
+            ');
 
         /**
          * =========================
