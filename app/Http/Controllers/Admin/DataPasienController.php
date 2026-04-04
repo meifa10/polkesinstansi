@@ -108,11 +108,14 @@ class DataPasienController extends Controller
 
             $id = str_replace('TEMP-', '', $no_identitas);
 
-            $pendaftaran = PendaftaranPoli::where('id', $id)->get();
+            $pendaftaran = PendaftaranPoli::where('id', $id)
+                ->orWhere('no_identitas', $id)
+                ->get();
 
         } else {
 
             $pendaftaran = PendaftaranPoli::where('no_identitas', $no_identitas)
+                ->orWhere('id', $no_identitas)
                 ->orderByDesc('created_at')
                 ->get();
         }
