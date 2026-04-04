@@ -13,21 +13,26 @@ class DataPasienController extends Controller
     /**
      * =========================
      * LIST DATA PASIEN (ADMIN)
-     * + SEARCH + AGREGASI BENAR
      * =========================
      */
     public function index(Request $request)
     {
         /**
          * =========================
-         * BASE QUERY (JOIN REKAM MEDIS)
+         * BASE QUERY (FIXED)
          * =========================
          */
-        $query = PendaftaranPoli::whereNotNull('pendaftaran_poli.no_identitas')
-            ->leftJoin('rekam_medis', 'rekam_medis.pendaftaran_id', '=', 'pendaftaran_poli.id')
-            ->select(
+        $query = PendaftaranPoli::leftJoin(
+                'rekam_medis',
+                'rekam_medis.pendaftaran_id',
+                '=',
+                'pendaftaran_poli.id'
+            )
+            ->selectRaw('
+                COALESCE(pendaftaran_poli.no_identitas, CONCAT("TEMP-", pendaftaran_poli.id)) as no_identitas
+            ')
+            ->addSelect(
                 'pendaftaran_poli.nama_pasien',
-                'pendaftaran_poli.no_identitas',
                 'pendaftaran_poli.jenis_pasien',
                 'pendaftaran_poli.tanggal_lahir'
             )
@@ -36,7 +41,7 @@ class DataPasienController extends Controller
 
         /**
          * =========================
-         * 🔍 SEARCH (FIXED)
+         * SEARCH
          * =========================
          */
         if ($request->filled('q')) {
@@ -52,25 +57,26 @@ class DataPasienController extends Controller
 
         /**
          * =========================
-         * GROUPING & ORDER
+         * GROUPING (FIX UTAMA)
          * =========================
          */
         $pasien = $query
-            ->groupBy(
-                'pendaftaran_poli.nama_pasien',
-                'pendaftaran_poli.no_identitas',
-                'pendaftaran_poli.jenis_pasien',
-                'pendaftaran_poli.tanggal_lahir'
-            )
+            ->groupBy('no_identitas')
             ->orderByDesc('terakhir_kunjungan')
             ->get();
 
         /**
          * =========================
-         * STATUS ADMINISTRASI
+         * STATUS ADMIN
          * =========================
          */
         $pasien->transform(function ($p) {
+
+            // HANDLE TEMP (no_identitas NULL)
+            if (str_starts_with($p->no_identitas, 'TEMP-')) {
+                $p->status_admin = 'belum_tagihan';
+                return $p;
+            }
 
             $pembayaran = Pembayaran::whereHas('pendaftaran', function ($q) use ($p) {
                 $q->where('no_identitas', $p->no_identitas);
@@ -91,20 +97,27 @@ class DataPasienController extends Controller
     }
 
     /**
-     * =================================
-     * DETAIL PASIEN + RIWAYAT KUNJUNGAN
-     * =================================
+     * =========================
+     * DETAIL PASIEN
+     * =========================
      */
     public function detail($no_identitas)
     {
         /**
-         * =========================
-         * 1️⃣ AMBIL PENDAFTARAN
-         * =========================
+         * HANDLE DATA TANPA IDENTITAS (TEMP)
          */
-        $pendaftaran = PendaftaranPoli::where('no_identitas', $no_identitas)
-            ->orderByDesc('created_at')
-            ->get();
+        if (str_starts_with($no_identitas, 'TEMP-')) {
+
+            $id = str_replace('TEMP-', '', $no_identitas);
+
+            $pendaftaran = PendaftaranPoli::where('id', $id)->get();
+
+        } else {
+
+            $pendaftaran = PendaftaranPoli::where('no_identitas', $no_identitas)
+                ->orderByDesc('created_at')
+                ->get();
+        }
 
         if ($pendaftaran->isEmpty()) {
             abort(404, 'Pasien tidak ditemukan');
@@ -112,7 +125,7 @@ class DataPasienController extends Controller
 
         /**
          * =========================
-         * 2️⃣ AMBIL REKAM MEDIS
+         * REKAM MEDIS
          * =========================
          */
         $rekamMedis = RekamMedis::whereIn(
@@ -124,7 +137,7 @@ class DataPasienController extends Controller
 
         /**
          * =========================
-         * 3️⃣ AMBIL PEMBAYARAN
+         * PEMBAYARAN
          * =========================
          */
         $pembayaran = Pembayaran::whereIn(
@@ -134,11 +147,6 @@ class DataPasienController extends Controller
             ->latest()
             ->first();
 
-        /**
-         * =========================
-         * RETURN VIEW
-         * =========================
-         */
         return view('admin.data_pasien.detail', [
             'pasien'     => $pendaftaran->first(),
             'kunjungan'  => $pendaftaran,
