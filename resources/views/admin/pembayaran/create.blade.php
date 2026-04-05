@@ -157,7 +157,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     metode.addEventListener('change', toggleBPJS);
-    toggleBPJS(); // Jalankan saat pertama kali load
+    toggleBPJS(); 
 });
 </script>
 @endsection
