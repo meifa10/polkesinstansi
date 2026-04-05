@@ -105,7 +105,9 @@
 
         {{-- AKSI --}}
         <div class="flex justify-end gap-3 pt-4">
-            <a href="{{ route('admin.data_pasien.detail', $pendaftaran->no_identitas) }}"
+            <a href="{{ route('admin.data_pasien.detail', 
+                $pendaftaran->no_identitas ?? 'TEMP-'.$pendaftaran->id
+            ) }}">
                class="px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-50 transition">
                 Batal
             </a>
