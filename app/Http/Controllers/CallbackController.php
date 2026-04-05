@@ -11,131 +11,82 @@ class CallbackController extends Controller
 {
     public function handle(Request $request)
     {
-        /**
-         * =========================================
-         * 1. AMBIL RAW BODY (PALING AMAN)
-         * =========================================
-         */
-        $raw = $request->getContent();
-        $data = json_decode($raw, true);
-
-        Log::info('🔥 MIDTRANS CALLBACK MASUK', [
-            'raw' => $raw
-        ]);
+        // 1. Ambil data (Midtrans mengirimkan JSON secara default)
+        $data = $request->all();
 
         /**
          * =========================================
-         * 2. FALLBACK (kalau JSON gagal)
+         * 2. VERIFIKASI SIGNATURE (WAJIB!)
          * =========================================
+         * Ini untuk memastikan bahwa yang mengirim data benar-benar Midtrans.
          */
-        if (!$data) {
-            $data = $request->all();
+        $serverKey = env('MIDTRANS_SERVER_KEY');
+        $orderId   = $data['order_id'] ?? null;
+        $statusCode = $data['status_code'] ?? null;
+        $grossAmount = $data['gross_amount'] ?? null;
+        $signatureKey = $data['signature_key'] ?? null;
+
+        $localSignature = hash("sha512", $orderId . $statusCode . $grossAmount . $serverKey);
+
+        if ($localSignature !== $signatureKey) {
+            Log::error('❌ SIGNATURE TIDAK VALID - Percobaan akses ilegal!', ['order_id' => $orderId]);
+            return response()->json(['message' => 'Invalid Signature'], 403);
         }
 
-        /**
-         * =========================================
-         * 3. AMBIL DATA PENTING
-         * =========================================
-         */
-        $orderId           = $data['order_id'] ?? null;
-        $transactionStatus = strtolower($data['transaction_status'] ?? '');
-        $paymentType       = $data['payment_type'] ?? '-';
-        $fraudStatus       = $data['fraud_status'] ?? null;
-
-        Log::info('📦 DATA CALLBACK', [
-            'order_id' => $orderId,
-            'status'   => $transactionStatus,
-            'payment'  => $paymentType,
-        ]);
+        Log::info('🔥 MIDTRANS CALLBACK VALID', ['order_id' => $orderId, 'status' => $data['transaction_status']]);
 
         /**
          * =========================================
-         * 4. VALIDASI ORDER ID
-         * =========================================
-         */
-        if (!$orderId) {
-            Log::error('❌ ORDER ID KOSONG');
-            return response()->json(['message' => 'no order id'], 200);
-        }
-
-        /**
-         * =========================================
-         * 5. CARI DATA PEMBAYARAN
+         * 3. CARI DATA PEMBAYARAN
          * =========================================
          */
         $pembayaran = Pembayaran::where('payment_ref', $orderId)->first();
 
         if (!$pembayaran) {
             Log::warning("❌ TRANSAKSI TIDAK DITEMUKAN: $orderId");
-            return response()->json(['message' => 'not found'], 200);
+            return response()->json(['message' => 'Transaction not found'], 200); // Tetap 200 agar Midtrans tidak retry
         }
 
         /**
          * =========================================
-         * 6. UPDATE STATUS (SUPER AMAN)
+         * 4. UPDATE STATUS DENGAN TRANSACTION
          * =========================================
          */
         DB::beginTransaction();
-
         try {
+            $transactionStatus = strtolower($data['transaction_status']);
+            $fraudStatus       = strtolower($data['fraud_status'] ?? '');
+            $paymentType       = $data['payment_type'] ?? '-';
 
-            /**
-             * 🔥 LOGIKA FINAL (ANTI GAGAL)
-             */
-            if (in_array($transactionStatus, ['capture', 'settlement'])) {
-
-                // khusus kartu kredit
-                if ($transactionStatus === 'capture' && $fraudStatus === 'challenge') {
+            if ($transactionStatus == 'capture') {
+                if ($fraudStatus == 'challenge') {
                     $pembayaran->status = 'pending';
                 } else {
                     $pembayaran->status = 'lunas';
                     $pembayaran->tanggal_bayar = now();
                 }
-
-            } elseif ($transactionStatus === 'pending') {
-
-                $pembayaran->status = 'belum_lunas';
-
-            } elseif (in_array($transactionStatus, ['deny', 'expire', 'cancel'])) {
-
+            } elseif ($transactionStatus == 'settlement') {
+                $pembayaran->status = 'lunas';
+                $pembayaran->tanggal_bayar = now();
+            } elseif (in_array($transactionStatus, ['cancel', 'deny', 'expire'])) {
                 $pembayaran->status = 'gagal';
-
-            } else {
-
-                Log::warning("⚠ STATUS TIDAK DIKENAL: $transactionStatus");
+            } elseif ($transactionStatus == 'pending') {
+                $pembayaran->status = 'belum_lunas';
             }
 
-            /**
-             * Simpan metode pembayaran
-             */
+            // Simpan informasi tambahan
             $pembayaran->paid_by = $paymentType;
-
-            /**
-             * Save ke DB
-             */
             $pembayaran->save();
 
             DB::commit();
+            Log::info("✅ DATABASE UPDATED: $orderId menjadi $pembayaran->status");
 
-            Log::info("✅ STATUS BERHASIL DIUPDATE", [
-                'order_id' => $orderId,
-                'status_db' => $pembayaran->status
-            ]);
-
-            /**
-             * WAJIB 200 (BIAR MIDTRANS STOP RETRY)
-             */
             return response()->json(['message' => 'OK'], 200);
 
         } catch (\Exception $e) {
-
             DB::rollBack();
-
-            Log::error("❌ ERROR UPDATE DB", [
-                'error' => $e->getMessage()
-            ]);
-
-            return response()->json(['message' => 'error'], 200);
+            Log::error("❌ ERROR UPDATE CALLBACK: " . $e->getMessage());
+            return response()->json(['message' => 'Internal Server Error'], 500);
         }
     }
 }
