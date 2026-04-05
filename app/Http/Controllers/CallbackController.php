@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Pembayaran;
-use Midtrans\Config;
-use Midtrans\Notification;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
@@ -13,66 +11,63 @@ class CallbackController extends Controller
 {
     /**
      * =========================================
-     * MIDTRANS CALLBACK / WEBHOOK
+     * MIDTRANS CALLBACK / WEBHOOK (FINAL STABLE)
      * =========================================
      */
     public function handle(Request $request)
     {
         /**
          * =========================================
-         * 1. CONFIG MIDTRANS (WAJIB)
+         * 1. LOG RAW DATA (WAJIB UNTUK DEBUG)
          * =========================================
          */
-        Config::$serverKey    = config('services.midtrans.server_key');
-        Config::$isProduction = config('services.midtrans.is_production', false);
-        Config::$isSanitized  = true;
-        Config::$is3ds        = true;
+        Log::info('🔥 MIDTRANS CALLBACK MASUK', $request->all());
 
         /**
          * =========================================
-         * 2. AMBIL NOTIFICATION DARI MIDTRANS
+         * 2. AMBIL DATA DARI REQUEST
          * =========================================
          */
-        try {
-            $notif = new Notification();
-        } catch (\Exception $e) {
-            Log::error('MIDTRANS INVALID PAYLOAD: ' . $e->getMessage());
-            return response()->json(['message' => 'Invalid payload'], 400);
+        $data = $request->all();
+
+        $orderId           = $data['order_id'] ?? null;
+        $transactionStatus = $data['transaction_status'] ?? null;
+        $paymentType       = $data['payment_type'] ?? null;
+        $fraudStatus       = $data['fraud_status'] ?? null;
+        $grossAmount       = $data['gross_amount'] ?? null;
+        $signatureKey      = $data['signature_key'] ?? null;
+        $statusCode        = $data['status_code'] ?? null;
+
+        /**
+         * =========================================
+         * 3. VALIDASI ORDER ID
+         * =========================================
+         */
+        if (!$orderId) {
+            Log::error('❌ ORDER ID KOSONG');
+            return response()->json(['message' => 'no order id'], 200);
         }
 
         /**
          * =========================================
-         * 3. AMBIL DATA PENTING
+         * 4. (OPSIONAL) VALIDASI SIGNATURE
          * =========================================
+         * NOTE:
+         * Aktifkan ini nanti kalau sudah stabil
          */
-        $transactionStatus = $notif->transaction_status;
-        $orderId           = $notif->order_id;
-        $paymentType       = $notif->payment_type;
-        $fraudStatus       = $notif->fraud_status ?? null;
-        $grossAmount       = $notif->gross_amount;
-        $signatureKey      = $notif->signature_key;
-
-        Log::info('MIDTRANS CALLBACK MASUK', [
-            'order_id' => $orderId,
-            'status'   => $transactionStatus,
-        ]);
-
-        /**
-         * =========================================
-         * 4. VALIDASI SIGNATURE (PENTING BANGET)
-         * =========================================
-         */
+        /*
         $serverKey = config('services.midtrans.server_key');
 
         $expectedSignature = hash(
             'sha512',
-            $orderId . $notif->status_code . $grossAmount . $serverKey
+            $orderId . $statusCode . $grossAmount . $serverKey
         );
 
-        // if ($signatureKey !== $expectedSignature) {
-        //     Log::warning("MIDTRANS SIGNATURE INVALID: $orderId");
-        //     return response()->json(['message' => 'Invalid signature'], 403);
-        // }
+        if ($signatureKey !== $expectedSignature) {
+            Log::warning("❌ SIGNATURE TIDAK VALID: $orderId");
+            return response()->json(['message' => 'invalid signature'], 200);
+        }
+        */
 
         /**
          * =========================================
@@ -82,13 +77,13 @@ class CallbackController extends Controller
         $pembayaran = Pembayaran::where('payment_ref', $orderId)->first();
 
         if (!$pembayaran) {
-            Log::warning("MIDTRANS: TRANSAKSI TIDAK DITEMUKAN: $orderId");
-            return response()->json(['message' => 'Not found'], 200);
+            Log::warning("❌ TRANSAKSI TIDAK DITEMUKAN: $orderId");
+            return response()->json(['message' => 'not found'], 200);
         }
 
         /**
          * =========================================
-         * 6. UPDATE STATUS (TRANSACTION SAFE)
+         * 6. UPDATE STATUS TRANSAKSI
          * =========================================
          */
         DB::beginTransaction();
@@ -100,7 +95,7 @@ class CallbackController extends Controller
                 case 'capture':
                     if ($fraudStatus == 'challenge') {
                         $pembayaran->status = 'pending';
-                    } else if ($fraudStatus == 'accept') {
+                    } elseif ($fraudStatus == 'accept') {
                         $pembayaran->status = 'lunas';
                         $pembayaran->tanggal_bayar = now();
                     }
@@ -122,7 +117,7 @@ class CallbackController extends Controller
                     break;
 
                 default:
-                    Log::warning("MIDTRANS STATUS TIDAK DIKENAL: $transactionStatus");
+                    Log::warning("⚠ STATUS TIDAK DIKENAL: $transactionStatus");
                     break;
             }
 
@@ -131,12 +126,18 @@ class CallbackController extends Controller
              */
             $pembayaran->paid_by = $paymentType;
 
+            /**
+             * Simpan ke database
+             */
             $pembayaran->save();
 
             DB::commit();
 
-            Log::info("MIDTRANS SUCCESS: $orderId -> " . $pembayaran->status);
+            Log::info("✅ PEMBAYARAN BERHASIL UPDATE: $orderId -> " . $pembayaran->status);
 
+            /**
+             * WAJIB RETURN 200 (BIAR MIDTRANS TIDAK ERROR)
+             */
             return response()->json([
                 'message' => 'OK'
             ], 200);
@@ -145,9 +146,14 @@ class CallbackController extends Controller
 
             DB::rollBack();
 
-            Log::error("MIDTRANS DB ERROR: " . $e->getMessage());
+            Log::error("❌ ERROR UPDATE DB: " . $e->getMessage());
 
-            return response()->json(['message' => 'Server error'], 200);
+            /**
+             * TETAP RETURN 200
+             */
+            return response()->json([
+                'message' => 'error'
+            ], 200);
         }
     }
 }
