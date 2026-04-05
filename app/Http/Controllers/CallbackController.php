@@ -83,7 +83,7 @@ class CallbackController extends Controller
 
         if (!$pembayaran) {
             Log::warning("MIDTRANS: TRANSAKSI TIDAK DITEMUKAN: $orderId");
-            return response()->json(['message' => 'Not found'], 404);
+            return response()->json(['message' => 'Not found'], 200);
         }
 
         /**
@@ -147,9 +147,7 @@ class CallbackController extends Controller
 
             Log::error("MIDTRANS DB ERROR: " . $e->getMessage());
 
-            return response()->json([
-                'message' => 'Server error'
-            ], 500);
+            return response()->json(['message' => 'Server error'], 200);
         }
     }
 }
