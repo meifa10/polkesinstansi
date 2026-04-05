@@ -11,6 +11,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+
+        // ✅ Tambahan: Exclude CSRF untuk Midtrans Callback
+        $middleware->validateCsrfTokens(except: [
+            'payment/callback',
+        ]);
+        
         // REGISTER ALIAS MIDDLEWARE
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
