@@ -96,7 +96,7 @@
 
         {{-- AKSI (FOOTER FORM) --}}
         <div class="bg-gray-50 px-8 py-5 flex items-center justify-between border-t border-gray-100">
-            {{-- TOMBOL BATAL AESTHETIC --}}
+            {{-- TOMBOL BATAL --}}
             <a href="{{ route('admin.data_pasien.detail', $pendaftaran->no_identitas ?? 'TEMP-'.$pendaftaran->id) }}" 
                class="group flex items-center text-sm font-medium text-gray-500 hover:text-red-600 transition-colors duration-200">
                 <svg class="w-5 h-5 mr-1.5 transform group-hover:-translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">

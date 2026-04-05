@@ -67,7 +67,9 @@ class PembayaranController extends Controller
         ]);
 
         return redirect()
-            ->route('admin.data_pasien.detail', $pendaftaran->no_identitas)
+            ->route('admin.data_pasien.detail', 
+                $pendaftaran->no_identitas ?? 'TEMP-'.$pendaftaran->id
+            )
             ->with('success', 'Tagihan pembayaran berhasil dibuat');
     }
 
