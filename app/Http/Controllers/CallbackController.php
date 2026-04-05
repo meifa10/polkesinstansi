@@ -9,33 +9,27 @@ use Illuminate\Support\Facades\DB;
 
 class CallbackController extends Controller
 {
-    /**
-     * =========================================
-     * MIDTRANS CALLBACK / WEBHOOK (FINAL FIX)
-     * =========================================
-     */
     public function handle(Request $request)
     {
         /**
          * =========================================
-         * 1. AMBIL RAW JSON (WAJIB)
+         * 1. AMBIL RAW BODY (PALING AMAN)
          * =========================================
          */
         $raw = $request->getContent();
         $data = json_decode($raw, true);
 
-        Log::info('🔥 MIDTRANS CALLBACK MASUK (RAW)', [
-            'raw' => $raw,
+        Log::info('🔥 MIDTRANS CALLBACK MASUK', [
+            'raw' => $raw
         ]);
 
         /**
          * =========================================
-         * 2. VALIDASI DATA
+         * 2. FALLBACK (kalau JSON gagal)
          * =========================================
          */
         if (!$data) {
-            Log::error('❌ JSON TIDAK VALID');
-            return response()->json(['message' => 'invalid json'], 200);
+            $data = $request->all();
         }
 
         /**
@@ -44,8 +38,8 @@ class CallbackController extends Controller
          * =========================================
          */
         $orderId           = $data['order_id'] ?? null;
-        $transactionStatus = $data['transaction_status'] ?? null;
-        $paymentType       = $data['payment_type'] ?? null;
+        $transactionStatus = strtolower($data['transaction_status'] ?? '');
+        $paymentType       = $data['payment_type'] ?? '-';
         $fraudStatus       = $data['fraud_status'] ?? null;
 
         Log::info('📦 DATA CALLBACK', [
@@ -66,7 +60,7 @@ class CallbackController extends Controller
 
         /**
          * =========================================
-         * 5. CARI PEMBAYARAN
+         * 5. CARI DATA PEMBAYARAN
          * =========================================
          */
         $pembayaran = Pembayaran::where('payment_ref', $orderId)->first();
@@ -78,42 +72,37 @@ class CallbackController extends Controller
 
         /**
          * =========================================
-         * 6. UPDATE STATUS (TRANSACTION SAFE)
+         * 6. UPDATE STATUS (SUPER AMAN)
          * =========================================
          */
         DB::beginTransaction();
 
         try {
 
-            switch ($transactionStatus) {
+            /**
+             * 🔥 LOGIKA FINAL (ANTI GAGAL)
+             */
+            if (in_array($transactionStatus, ['capture', 'settlement'])) {
 
-                case 'capture':
-                    if ($fraudStatus == 'challenge') {
-                        $pembayaran->status = 'pending';
-                    } elseif ($fraudStatus == 'accept') {
-                        $pembayaran->status = 'lunas';
-                        $pembayaran->tanggal_bayar = now();
-                    }
-                    break;
-
-                case 'settlement':
+                // khusus kartu kredit
+                if ($transactionStatus === 'capture' && $fraudStatus === 'challenge') {
+                    $pembayaran->status = 'pending';
+                } else {
                     $pembayaran->status = 'lunas';
                     $pembayaran->tanggal_bayar = now();
-                    break;
+                }
 
-                case 'pending':
-                    $pembayaran->status = 'belum_lunas';
-                    break;
+            } elseif ($transactionStatus === 'pending') {
 
-                case 'deny':
-                case 'expire':
-                case 'cancel':
-                    $pembayaran->status = 'gagal';
-                    break;
+                $pembayaran->status = 'belum_lunas';
 
-                default:
-                    Log::warning("⚠ STATUS TIDAK DIKENAL: $transactionStatus");
-                    break;
+            } elseif (in_array($transactionStatus, ['deny', 'expire', 'cancel'])) {
+
+                $pembayaran->status = 'gagal';
+
+            } else {
+
+                Log::warning("⚠ STATUS TIDAK DIKENAL: $transactionStatus");
             }
 
             /**
@@ -122,21 +111,29 @@ class CallbackController extends Controller
             $pembayaran->paid_by = $paymentType;
 
             /**
-             * Save
+             * Save ke DB
              */
             $pembayaran->save();
 
             DB::commit();
 
-            Log::info("✅ UPDATE BERHASIL: $orderId -> " . $pembayaran->status);
+            Log::info("✅ STATUS BERHASIL DIUPDATE", [
+                'order_id' => $orderId,
+                'status_db' => $pembayaran->status
+            ]);
 
+            /**
+             * WAJIB 200 (BIAR MIDTRANS STOP RETRY)
+             */
             return response()->json(['message' => 'OK'], 200);
 
         } catch (\Exception $e) {
 
             DB::rollBack();
 
-            Log::error("❌ ERROR DB: " . $e->getMessage());
+            Log::error("❌ ERROR UPDATE DB", [
+                'error' => $e->getMessage()
+            ]);
 
             return response()->json(['message' => 'error'], 200);
         }
