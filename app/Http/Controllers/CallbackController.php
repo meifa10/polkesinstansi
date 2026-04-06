@@ -6,57 +6,67 @@ use Illuminate\Http\Request;
 use App\Models\Pembayaran;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 
 class CallbackController extends Controller
 {
     public function handle(Request $request)
     {
-        // 1. Ambil data (Midtrans mengirimkan JSON secara default)
+        // ===============================
+        // 1. AMBIL DATA DARI MIDTRANS
+        // ===============================
         $data = $request->all();
 
-        /**
-         * =========================================
-         * 2. VERIFIKASI SIGNATURE (WAJIB!)
-         * =========================================
-         * Ini untuk memastikan bahwa yang mengirim data benar-benar Midtrans.
-         */
-        $serverKey = env('MIDTRANS_SERVER_KEY');
-        $orderId   = $data['order_id'] ?? null;
-        $statusCode = $data['status_code'] ?? null;
-        $grossAmount = $data['gross_amount'] ?? null;
+        Log::info('📥 CALLBACK MASUK', $data);
+
+        // ===============================
+        // 2. VALIDASI SIGNATURE
+        // ===============================
+        $serverKey    = env('MIDTRANS_SERVER_KEY');
+        $orderId      = $data['order_id'] ?? null;
+        $statusCode   = $data['status_code'] ?? null;
+        $grossAmount  = $data['gross_amount'] ?? null;
         $signatureKey = $data['signature_key'] ?? null;
 
         $localSignature = hash("sha512", $orderId . $statusCode . $grossAmount . $serverKey);
 
         if ($localSignature !== $signatureKey) {
-            Log::error('❌ SIGNATURE TIDAK VALID - Percobaan akses ilegal!', ['order_id' => $orderId]);
+            Log::error('❌ SIGNATURE TIDAK VALID', [
+                'order_id' => $orderId
+            ]);
             return response()->json(['message' => 'Invalid Signature'], 403);
         }
 
-        Log::info('🔥 MIDTRANS CALLBACK VALID', ['order_id' => $orderId, 'status' => $data['transaction_status']]);
+        Log::info('✅ SIGNATURE VALID', [
+            'order_id' => $orderId,
+            'status'   => $data['transaction_status'] ?? null
+        ]);
 
-        /**
-         * =========================================
-         * 3. CARI DATA PEMBAYARAN
-         * =========================================
-         */
+        // ===============================
+        // 3. CARI DATA PEMBAYARAN
+        // ===============================
         $pembayaran = Pembayaran::where('payment_ref', $orderId)->first();
 
         if (!$pembayaran) {
-            Log::warning("❌ TRANSAKSI TIDAK DITEMUKAN: $orderId");
-            return response()->json(['message' => 'Transaction not found'], 200); // Tetap 200 agar Midtrans tidak retry
+            Log::warning("❌ DATA TIDAK DITEMUKAN: $orderId");
+            return response()->json(['message' => 'Transaction not found'], 200);
         }
 
-        /**
-         * =========================================
-         * 4. UPDATE STATUS DENGAN TRANSACTION
-         * =========================================
-         */
+        // ===============================
+        // 4. UPDATE STATUS
+        // ===============================
         DB::beginTransaction();
+
         try {
-            $transactionStatus = strtolower($data['transaction_status']);
+            $transactionStatus = strtolower($data['transaction_status'] ?? '');
             $fraudStatus       = strtolower($data['fraud_status'] ?? '');
             $paymentType       = $data['payment_type'] ?? '-';
+
+            // 🔥 LOG STATUS MASUK
+            Log::info('📊 STATUS TRANSAKSI', [
+                'transaction_status' => $transactionStatus,
+                'fraud_status'       => $fraudStatus
+            ]);
 
             if ($transactionStatus == 'capture') {
                 if ($fraudStatus == 'challenge') {
@@ -65,33 +75,63 @@ class CallbackController extends Controller
                     $pembayaran->status = 'lunas';
                     $pembayaran->tanggal_bayar = now();
                 }
-            } elseif ($transactionStatus == 'settlement') {
+            } 
+            elseif ($transactionStatus == 'settlement') {
                 $pembayaran->status = 'lunas';
                 $pembayaran->tanggal_bayar = now();
-            } elseif (in_array($transactionStatus, ['cancel', 'deny', 'expire'])) {
+            } 
+            elseif (in_array($transactionStatus, ['cancel', 'deny', 'expire'])) {
                 $pembayaran->status = 'gagal';
-            } elseif ($transactionStatus == 'pending') {
+            } 
+            elseif ($transactionStatus == 'pending') {
                 $pembayaran->status = 'belum_lunas';
             }
 
-            // Simpan informasi tambahan
+            // Simpan metode pembayaran
             $pembayaran->paid_by = $paymentType;
+
+            // SAVE KE DB INSTANSI
             $pembayaran->save();
 
-            // 🔥 KIRIM KE SERVER POLKES JOMBANG
-            Http::post('https://polkesjombang.satcloud.tech/api/update-status', [
+            Log::info("💾 DB INSTANSI UPDATED", [
                 'order_id' => $orderId,
-                'status' => $pembayaran->status
+                'status'   => $pembayaran->status
             ]);
 
+            // ===============================
+            // 5. KIRIM KE POLKES JOMBANG
+            // ===============================
+            $response = Http::withoutVerifying()
+                ->withHeaders([
+                    'X-API-KEY' => 'POLKES_SECRET'
+                ])
+                ->post('https://polkesjombang.satcloud.tech/api/update-status', [
+                    'order_id' => $orderId,
+                    'status'   => $pembayaran->status
+                ]);
+
+            // 🔥 LOG RESPONSE API
+            Log::info('📡 RESPONSE JOMBANG', [
+                'status_code' => $response->status(),
+                'body'        => $response->body()
+            ]);
+
+            // ===============================
+            // 6. COMMIT
+            // ===============================
             DB::commit();
-            Log::info("✅ DATABASE UPDATED: $orderId menjadi $pembayaran->status");
 
             return response()->json(['message' => 'OK'], 200);
 
         } catch (\Exception $e) {
+
             DB::rollBack();
-            Log::error("❌ ERROR UPDATE CALLBACK: " . $e->getMessage());
+
+            Log::error("❌ ERROR CALLBACK", [
+                'message' => $e->getMessage(),
+                'order_id' => $orderId
+            ]);
+
             return response()->json(['message' => 'Internal Server Error'], 500);
         }
     }
