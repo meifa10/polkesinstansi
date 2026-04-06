@@ -78,6 +78,12 @@ class CallbackController extends Controller
             $pembayaran->paid_by = $paymentType;
             $pembayaran->save();
 
+            // 🔥 KIRIM KE SERVER POLKES JOMBANG
+            Http::post('https://polkesjombang.satcloud.tech/api/update-status', [
+                'order_id' => $orderId,
+                'status' => $pembayaran->status
+            ]);
+
             DB::commit();
             Log::info("✅ DATABASE UPDATED: $orderId menjadi $pembayaran->status");
 
