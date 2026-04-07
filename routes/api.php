@@ -1,0 +1,105 @@
+<?php
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Log;
+use App\Models\Pembayaran;
+
+/*
+|--------------------------------------------------------------------------
+| API UPDATE STATUS PEMBAYARAN (DARI JOMBANG)
+|--------------------------------------------------------------------------
+| Endpoint:
+| POST https://polkesinstansi.satcloud.tech/api/update-status
+|--------------------------------------------------------------------------
+*/
+
+Route::post('/update-status', function (Request $request) {
+
+    /**
+     * ===============================
+     * 1. LOG REQUEST MASUK
+     * ===============================
+     */
+    Log::info('📥 API INSTANSI - UPDATE STATUS MASUK', [
+        'headers' => $request->headers->all(),
+        'body'    => $request->all()
+    ]);
+
+    /**
+     * ===============================
+     * 2. VALIDASI API KEY
+     * ===============================
+     */
+    $apiKey = $request->header('X-API-KEY');
+
+    if (!$apiKey || $apiKey !== 'POLKES_SECRET') {
+        Log::warning('❌ API KEY TIDAK VALID', [
+            'api_key' => $apiKey
+        ]);
+
+        return response()->json([
+            'message' => 'Unauthorized'
+        ], 401);
+    }
+
+    /**
+     * ===============================
+     * 3. VALIDASI INPUT
+     * ===============================
+     */
+    $validated = $request->validate([
+        'order_id' => 'required|string',
+        'status'   => 'required|string|in:lunas,belum_lunas,pending,gagal'
+    ]);
+
+    /**
+     * ===============================
+     * 4. CARI DATA PEMBAYARAN
+     * ===============================
+     */
+    $pembayaran = Pembayaran::where('payment_ref', $validated['order_id'])->first();
+
+    if (!$pembayaran) {
+        Log::warning('❌ DATA PEMBAYARAN TIDAK DITEMUKAN', [
+            'order_id' => $validated['order_id']
+        ]);
+
+        return response()->json([
+            'message' => 'Data pembayaran tidak ditemukan'
+        ], 200); // ⚠️ tetap 200 biar tidak retry terus
+    }
+
+    /**
+     * ===============================
+     * 5. UPDATE STATUS
+     * ===============================
+     */
+    $pembayaran->status = $validated['status'];
+
+    // jika lunas, isi tanggal bayar
+    if ($validated['status'] === 'lunas') {
+        $pembayaran->tanggal_bayar = now();
+    }
+
+    $pembayaran->save();
+
+    Log::info('✅ STATUS BERHASIL DIUPDATE DI INSTANSI', [
+        'order_id' => $pembayaran->payment_ref,
+        'status'   => $pembayaran->status
+    ]);
+
+    /**
+     * ===============================
+     * 6. RESPONSE
+     * ===============================
+     */
+    return response()->json([
+        'message' => 'Status berhasil diupdate',
+        'data' => [
+            'order_id' => $pembayaran->payment_ref,
+            'status'   => $pembayaran->status
+        ]
+    ], 200);
+
+});
