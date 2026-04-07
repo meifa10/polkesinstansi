@@ -10,7 +10,6 @@ use App\Http\Controllers\Admin\DataPasienController;
 use App\Http\Controllers\Admin\PembayaranController;
 use App\Http\Controllers\Admin\LaporanController;
 use App\Http\Controllers\Admin\PemeriksaanController;
-// use App\Http\Controllers\CallbackController;
 
 
 
@@ -237,5 +236,3 @@ Route::middleware(['auth','role:admin'])
         Route::get('/laporan/pdf', [LaporanController::class, 'exportPdf'])
             ->name('admin.laporan.pdf');
     });
-
-    // Route::post('/payment/callback', [CallbackController::class, 'handle']);
