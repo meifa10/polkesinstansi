@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
 class PembayaranController extends Controller
 {
     /**
-     * Tampilkan semua daftar pembayaran
+     * Tampilkan semua daftar pembayaran (Index)
      */
     public function index()
     {
@@ -23,7 +23,7 @@ class PembayaranController extends Controller
     }
 
     /**
-     * Tampilkan form input tagihan
+     * Tampilkan form input tagihan (Create)
      */
     public function create($pendaftaran_id)
     {
@@ -33,30 +33,34 @@ class PembayaranController extends Controller
     }
 
     /**
-     * SIMPAN TAGIHAN (DI SINI PERBAIKANNYA)
+     * SIMPAN TAGIHAN KE DATABASE (Store)
      */
     public function store(Request $request)
     {
-        // 1. Validasi
+        // 1. Validasi Input
         $request->validate([
             'pendaftaran_id' => 'required|exists:pendaftaran_poli,id',
-            'metode'         => 'required',
-            'total_biaya'    => 'required' // 'numeric' dilepas karena input mungkin membawa format Rp
+            'metode'         => 'required|string',
+            'total_biaya'    => 'required' // Jangan pakai 'numeric' karena input mungkin bawa titik
         ]);
 
         $pendaftaran = PendaftaranPoli::findOrFail($request->pendaftaran_id);
 
         /**
-         * 2. BERSIHKAN TOTAL BIAYA (POIN PENTING!)
-         * Kita buang titik atau koma agar menjadi angka murni (Integer).
-         * Contoh: "50.000" menjadi 50000.
+         * 2. PEMBERSIHAN TOTAL (POIN KRUSIAL)
+         * Menggunakan regex untuk membuang SEMUA karakter kecuali angka (0-9).
+         * Jadi "Rp 50.000" atau "50.000" akan BERSIH menjadi "50000".
          */
-        $cleanBiaya = str_replace(['.', ','], '', $request->total_biaya);
-        $totalBiaya = (int) $cleanBiaya;
+        $totalBiaya = (int) preg_replace('/[^0-9]/', '', $request->total_biaya);
+
+        // Validasi tambahan: jangan sampai total biaya nol (kecuali BPJS)
+        if ($totalBiaya <= 0 && $request->metode !== 'bpjs') {
+            return back()->withErrors(['total_biaya' => 'Total biaya harus lebih dari 0.'])->withInput();
+        }
 
         /**
          * 3. BUAT PAYMENT REF (ORDER ID)
-         * Gunakan random string agar unik dan tidak ditolak Midtrans.
+         * Menggunakan random string agar unik di Midtrans.
          */
         $paymentRef = 'PAY-' . $pendaftaran->id . '-' . strtoupper(Str::random(6));
 
@@ -64,7 +68,7 @@ class PembayaranController extends Controller
         Pembayaran::create([
             'pendaftaran_id' => $request->pendaftaran_id,
             'metode'         => $request->metode,
-            'total_biaya'    => $totalBiaya, // Simpan angka bulat
+            'total_biaya'    => $totalBiaya, // Simpan angka bulat murni
             'status'         => 'belum_lunas',
             'payment_ref'    => $paymentRef,
             'snap_token'     => null,
