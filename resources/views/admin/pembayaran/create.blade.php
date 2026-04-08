@@ -61,7 +61,7 @@
     </div>
 
     {{-- ================= FORM PEMBAYARAN ================= --}}
-    <form method="POST" action="{{ route('admin.pembayaran.store') }}" class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+    <form id="paymentForm" method="POST" action="{{ route('admin.pembayaran.store') }}" class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
         @csrf
         <div class="p-8 space-y-6">
             <input type="hidden" name="pendaftaran_id" value="{{ $pendaftaran->id }}">
@@ -83,20 +83,22 @@
             <div>
                 <label class="block text-sm font-bold text-gray-700 mb-2">Total Biaya (IDR)</label>
                 <div class="relative">
+                    {{-- Input ini hanya untuk tampilan saja (display) --}}
                     <input type="text" id="biaya_display" placeholder="Rp 0"
                            class="w-full bg-gray-50 border-gray-200 rounded-xl p-4 text-lg font-bold text-gray-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none">
+                    
+                    {{-- Input ini yang dikirim ke database (hidden) --}}
                     <input type="hidden" name="total_biaya" id="total_biaya">
                 </div>
                 <p id="helper-text" class="text-[11px] text-gray-400 mt-2 flex items-center">
                     <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    Input nominal angka saja, sistem akan memformat otomatis.
+                    Input nominal angka saja, sistem akan memformat otomatis (Tanpa Titik di Database).
                 </p>
             </div>
         </div>
 
         {{-- AKSI (FOOTER FORM) --}}
         <div class="bg-gray-50 px-8 py-5 flex items-center justify-between border-t border-gray-100">
-            {{-- TOMBOL BATAL --}}
             <a href="{{ route('admin.data_pasien.detail', $pendaftaran->no_identitas ?? 'TEMP-'.$pendaftaran->id) }}" 
                class="group flex items-center text-sm font-medium text-gray-500 hover:text-red-600 transition-colors duration-200">
                 <svg class="w-5 h-5 mr-1.5 transform group-hover:-translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -116,25 +118,49 @@
     </form>
 </div>
 
-{{-- ================= SCRIPT FORMAT RUPIAH + BPJS ================= --}}
+{{-- ================= SCRIPT FIX FORMAT RUPIAH ================= --}}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    const form    = document.getElementById('paymentForm');
     const metode  = document.getElementById('metode');
     const display = document.getElementById('biaya_display');
     const hidden  = document.getElementById('total_biaya');
     const helper  = document.getElementById('helper-text');
 
+    // Fungsi mengubah angka murni jadi format Rp 50.000
     function formatRupiah(value) {
         if (!value) return '';
         return 'Rp ' + Number(value).toLocaleString('id-ID');
     }
 
+    // Fungsi membersihkan segala karakter selain angka
+    function cleanNumber(value) {
+        return value.replace(/[^0-9]/g, '');
+    }
+
+    // Saat user mengetik di kotak biaya
     display.addEventListener('input', function () {
-        let raw = this.value.replace(/[^0-9]/g, '');
-        hidden.value = raw;
+        let raw = cleanNumber(this.value);
+        
+        // Simpan angka murni ke input hidden untuk dikirim ke Controller
+        hidden.value = raw ? parseInt(raw) : 0; 
+        
+        // Ubah tampilan box jadi format Ber-titik
         this.value = raw ? formatRupiah(raw) : '';
     });
 
+    // Keamanan Berlapis: Bersihkan lagi tepat saat tombol Simpan diklik
+    form.addEventListener('submit', function() {
+        let finalRaw = cleanNumber(display.value);
+        hidden.value = finalRaw ? parseInt(finalRaw) : 0;
+        
+        // Jika BPJS, pastikan nol
+        if(metode.value === 'bpjs') {
+            hidden.value = 0;
+        }
+    });
+
+    // Logika khusus Metode BPJS
     function toggleBPJS() {
         if (metode.value === 'bpjs') {
             hidden.value = 0;
@@ -142,12 +168,12 @@ document.addEventListener('DOMContentLoaded', function () {
             display.setAttribute('readonly', true);
             display.classList.replace('bg-gray-50', 'bg-gray-200');
             display.classList.add('cursor-not-allowed', 'text-gray-500');
-            helper.innerHTML = `<span class="text-emerald-600 font-medium font-semibold italic underline">✓ Mode BPJS: Biaya ditanggung sistem (Rp 0)</span>`;
+            helper.innerHTML = `<span class="text-emerald-600 font-bold italic underline">✓ Mode BPJS Aktif: Tagihan Otomatis Rp 0</span>`;
         } else {
             display.removeAttribute('readonly');
             display.classList.replace('bg-gray-200', 'bg-gray-50');
             display.classList.remove('cursor-not-allowed', 'text-gray-500');
-            helper.innerHTML = `<svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Input nominal angka saja, sistem akan memformat otomatis.`;
+            helper.innerHTML = `<svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Input angka murni, titik akan otomatis dibersihkan sistem.`;
 
             if (metode.value === '') {
                 display.value = '';
