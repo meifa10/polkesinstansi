@@ -19,7 +19,7 @@ class DataPasienController extends Controller
     {
         /**
          * =========================
-         * BASE QUERY (FIX FULL GROUP BY)
+         * BASE QUERY
          * =========================
          */
         $query = PendaftaranPoli::leftJoin(
@@ -39,7 +39,7 @@ class DataPasienController extends Controller
 
         /**
          * =========================
-         * SEARCH (AMAN UNTUK GROUP BY)
+         * SEARCH
          * =========================
          */
         if ($request->filled('q')) {
@@ -55,7 +55,20 @@ class DataPasienController extends Controller
 
         /**
          * =========================
-         * GROUP BY (WAJIB)
+         * FILTER JENIS PASIEN
+         * =========================
+         */
+        if ($request->filled('jenis')) {
+
+            $jenis = strtolower($request->jenis);
+
+            // biar fleksibel (DB kadang "Umum"/"JKN")
+            $query->whereRaw('LOWER(pendaftaran_poli.jenis_pasien) = ?', [$jenis]);
+        }
+
+        /**
+         * =========================
+         * GROUP & GET DATA
          * =========================
          */
         $pasien = $query
@@ -65,20 +78,25 @@ class DataPasienController extends Controller
 
         /**
          * =========================
-         * STATUS ADMINISTRASI
+         * STATUS ADMIN (PEMBAYARAN)
          * =========================
          */
         $pasien->transform(function ($p) {
 
-            // Kalau TEMP (tidak ada identitas)
+            // kalau data TEMP (tidak ada identitas)
             if (str_starts_with($p->no_identitas, 'TEMP-')) {
                 $p->status_admin = 'belum_tagihan';
                 return $p;
             }
 
-            $pembayaran = Pembayaran::whereHas('pendaftaran', function ($q) use ($p) {
-                $q->where('no_identitas', $p->no_identitas);
-            })->latest()->first();
+            // ambil semua pendaftaran id dari no identitas
+            $pendaftaranIds = PendaftaranPoli::where('no_identitas', $p->no_identitas)
+                ->pluck('id');
+
+            // ambil pembayaran terbaru
+            $pembayaran = Pembayaran::whereIn('pendaftaran_id', $pendaftaranIds)
+                ->latest()
+                ->first();
 
             if (!$pembayaran) {
                 $p->status_admin = 'belum_tagihan';
@@ -102,7 +120,7 @@ class DataPasienController extends Controller
     public function detail($no_identitas)
     {
         /**
-         * HANDLE DATA TANPA IDENTITAS (TEMP)
+         * HANDLE DATA TEMP
          */
         if (str_starts_with($no_identitas, 'TEMP-')) {
 

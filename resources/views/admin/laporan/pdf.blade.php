@@ -12,19 +12,18 @@
             color: #000;
         }
 
-        /* ===== WATERMARK TEXT (AMAN TANPA GD) ===== */
+        /* ===== WATERMARK TEXT (100% AMAN UNTUK DOMPDF) ===== */
         .text-watermark {
             position: fixed;
-            top: 45%;
-            left: 10%;
+            top: 40%;
+            left: 0;
+            width: 100%;
+            text-align: center;
             font-size: 60px;
             font-weight: bold;
-            color: #000;
-            opacity: 0.06;
-            transform: rotate(-30deg);
+            color: #ececec; /* Pengganti opacity, warna abu-abu sangat pudar */
             z-index: -1;
-            text-align: center;
-            width: 80%;
+            /* transform: rotate(-30deg); DOMPDF sering crash karena ini, jadi kita nonaktifkan */
         }
 
         /* ===== HEADER ===== */
@@ -169,8 +168,8 @@
             <p>Jombang, {{ now()->translatedFormat('d F Y') }}</p>
             <p><strong>Kepala Polkes</strong></p>
             <br><br><br>
-            <p><strong>( ___________________________ )</strong></p>
-            <p>NIP. ___________________________</p>
+            <p><strong>( Sucipto Biantoro )</strong></p>
+            <p>NIK. 3517035005040005</p>
         </div>
     </div>
 

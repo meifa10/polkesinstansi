@@ -10,21 +10,37 @@ use Illuminate\Support\Str;
 
 class PembayaranController extends Controller
 {
-    /**
-     * Tampilkan semua daftar pembayaran (Index)
-     */
-    public function index()
+
+    public function index(Request $request)
     {
-        $data = Pembayaran::with('pendaftaran')
-            ->latest()
-            ->get();
+        $query = Pembayaran::with('pendaftaran');
+
+        // 🔎 SEARCH (nama pasien, poli, metode, status)
+        if ($request->q) {
+            $query->where(function ($q) use ($request) {
+                $q->where('metode', 'like', '%' . $request->q . '%')
+                  ->orWhere('status', 'like', '%' . $request->q . '%')
+                  ->orWhereHas('pendaftaran', function ($sub) use ($request) {
+                      $sub->where('nama_pasien', 'like', '%' . $request->q . '%')
+                          ->orWhere('poli', 'like', '%' . $request->q . '%');
+                  });
+            });
+        }
+
+        // 🏥 FILTER POLI
+        if ($request->poli) {
+            $query->whereHas('pendaftaran', function ($q) use ($request) {
+                $q->where('poli', $request->poli);
+                // kalau di DB pakai nama panjang, ganti ke:
+                // $q->where('poli', 'like', '%' . $request->poli . '%');
+            });
+        }
+
+        $data = $query->latest()->get();
 
         return view('admin.pembayaran.index', compact('data'));
     }
 
-    /**
-     * Tampilkan form input tagihan (Create)
-     */
     public function create($pendaftaran_id)
     {
         $pendaftaran = PendaftaranPoli::findOrFail($pendaftaran_id);
@@ -32,43 +48,32 @@ class PembayaranController extends Controller
         return view('admin.pembayaran.create', compact('pendaftaran'));
     }
 
-    /**
-     * SIMPAN TAGIHAN KE DATABASE (Store)
-     */
     public function store(Request $request)
     {
-        // 1. Validasi Input
         $request->validate([
             'pendaftaran_id' => 'required|exists:pendaftaran_poli,id',
             'metode'         => 'required|string',
-            'total_biaya'    => 'required' // Jangan pakai 'numeric' karena input mungkin bawa titik
+            'total_biaya'    => 'required'
         ]);
 
         $pendaftaran = PendaftaranPoli::findOrFail($request->pendaftaran_id);
 
-        /**
-         * 2. PEMBERSIHAN TOTAL (POIN KRUSIAL)
-         * Menggunakan regex untuk membuang SEMUA karakter kecuali angka (0-9).
-         * Jadi "Rp 50.000" atau "50.000" akan BERSIH menjadi "50000".
-         */
+        // 💰 Bersihin format rupiah (hapus titik/koma)
         $totalBiaya = (int) preg_replace('/[^0-9]/', '', $request->total_biaya);
 
-        // Validasi tambahan: jangan sampai total biaya nol (kecuali BPJS)
         if ($totalBiaya <= 0 && $request->metode !== 'bpjs') {
-            return back()->withErrors(['total_biaya' => 'Total biaya harus lebih dari 0.'])->withInput();
+            return back()->withErrors([
+                'total_biaya' => 'Total biaya harus lebih dari 0.'
+            ])->withInput();
         }
 
-        /**
-         * 3. BUAT PAYMENT REF (ORDER ID)
-         * Menggunakan random string agar unik di Midtrans.
-         */
+        // 🔑 Generate kode pembayaran
         $paymentRef = 'PAY-' . $pendaftaran->id . '-' . strtoupper(Str::random(6));
 
-        // 4. Create ke Database
         Pembayaran::create([
             'pendaftaran_id' => $request->pendaftaran_id,
             'metode'         => $request->metode,
-            'total_biaya'    => $totalBiaya, // Simpan angka bulat murni
+            'total_biaya'    => $totalBiaya,
             'status'         => 'belum_lunas',
             'payment_ref'    => $paymentRef,
             'snap_token'     => null,
@@ -81,9 +86,6 @@ class PembayaranController extends Controller
             ->with('success', 'Tagihan sebesar Rp ' . number_format($totalBiaya, 0, ',', '.') . ' berhasil dibuat.');
     }
 
-    /**
-     * Tandai lunas manual (BPJS/Tunai di kasir)
-     */
     public function lunasi($id)
     {
         $pembayaran = Pembayaran::findOrFail($id);

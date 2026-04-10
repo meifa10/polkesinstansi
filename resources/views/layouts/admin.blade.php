@@ -6,15 +6,15 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-gray-100 min-h-screen flex">
+<body class="bg-gray-100 h-screen overflow-hidden flex">
 
-    <!-- SIDEBAR -->
-    <aside class="w-64 bg-emerald-700 text-white flex flex-col shadow-lg">
+    <!-- SIDEBAR (FIXED) -->
+    <aside class="w-64 bg-emerald-700 text-white flex flex-col 
+                  shadow-lg fixed left-0 top-0 h-screen">
 
         <!-- HEADER + LOGO -->
         <div class="p-6 text-center border-b border-emerald-600">
 
-            <!-- LOGO -->
             <div class="flex justify-center mb-3">
                 <img src="{{ asset('images/logo.png') }}" 
                      alt="Logo Polkes"
@@ -26,7 +26,7 @@
         </div>
 
         <!-- MENU -->
-        <nav class="flex-1 p-4 space-y-2 text-sm">
+        <nav class="flex-1 p-4 space-y-2 text-sm overflow-y-auto">
 
             <a href="{{ route('admin.dashboard') }}" class="menu-link">
                 Dashboard
@@ -41,7 +41,7 @@
             </a>
 
             <a href="{{ route('admin.jadwal_dokter') }}" class="menu-link">
-                Jadwal Dokter
+                Data Dokter
             </a>
 
             <a href="{{ route('admin.pemeriksaan') }}" class="menu-link">
@@ -69,8 +69,8 @@
 
     </aside>
 
-    <!-- CONTENT -->
-    <main class="flex-1 p-8">
+    <!-- CONTENT (SCROLLABLE) -->
+    <main class="flex-1 ml-64 h-screen overflow-y-auto p-8 bg-gray-100">
         @yield('content')
     </main>
 

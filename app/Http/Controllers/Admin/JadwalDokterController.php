@@ -10,54 +10,52 @@ use Carbon\Carbon;
 
 class JadwalDokterController extends Controller
 {
-    /**
-     * Tampilkan halaman jadwal dokter
-     */
+
     public function index()
     {
         $hariIni = Carbon::now()->locale('id')->translatedFormat('l');
 
-        // Ambil semua jadwal beserta relasi dokter
         $jadwal = JadwalDokter::with('dokter')->get();
 
-        // Tambahkan properti buka_hari_ini
         foreach ($jadwal as $j) {
             $j->buka_hari_ini = str_contains($j->hari, $hariIni)
                                 && $j->status === 'aktif';
         }
 
-        // Ambil semua user role dokter untuk dropdown tambah
         $dokter = User::where('role', 'dokter')->get();
 
         return view('admin.jadwal.index', compact('jadwal', 'dokter'));
     }
 
 
-    /**
-     * Simpan jadwal baru
-     */
     public function store(Request $request)
     {
         $request->validate([
-            'dokter_id' => 'required|exists:users,id',
-            'poli' => 'required|string|max:255',
-            'hari' => 'required|array',
-            'jam_mulai' => 'required',
-            'jam_selesai' => 'required',
+            'dokter_id'   => 'required|exists:users,id',
+            'poli'        => 'required|string|max:255',
+            'hari'        => 'required|array|min:1', 
+            'jam_mulai'   => 'required|date_format:H:i',
+            'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
+        ], [
+            'hari.required'        => 'Silakan pilih minimal satu hari praktik.',
+            'jam_selesai.after'    => 'Jam selesai harus lebih besar dari jam mulai.',
+            'dokter_id.required'   => 'Nama dokter wajib dipilih.',
         ]);
+
+        
+        $hariString = implode(', ', $request->hari);
 
         JadwalDokter::create([
-            'dokter_id' => $request->dokter_id,
-            'poli' => $request->poli,
-            'hari' => implode(',', $request->hari),
-            'jam_mulai' => $request->jam_mulai,
+            'dokter_id'   => $request->dokter_id,
+            'poli'        => $request->poli,
+            'hari'        => $hariString,
+            'jam_mulai'   => $request->jam_mulai,
             'jam_selesai' => $request->jam_selesai,
-            'status' => 'aktif',
+            'status'      => 'aktif',
         ]);
 
-        return redirect()->back()->with('success', 'Jadwal berhasil ditambahkan.');
+        return redirect()->back()->with('success', 'Jadwal dokter berhasil ditambahkan ke sistem.');
     }
-
 
     /**
      * Toggle status aktif / nonaktif
@@ -66,12 +64,14 @@ class JadwalDokterController extends Controller
     {
         $jadwal = JadwalDokter::findOrFail($id);
 
-        $jadwal->status = $jadwal->status === 'aktif'
-            ? 'nonaktif'
-            : 'aktif';
-
+        // Logika perubahan status
+        $jadwal->status = ($jadwal->status === 'aktif') ? 'nonaktif' : 'aktif';
         $jadwal->save();
 
-        return redirect()->back()->with('success', 'Status jadwal berhasil diperbarui.');
+        $pesan = $jadwal->status === 'aktif' 
+                 ? 'Jadwal dokter kini telah diaktifkan.' 
+                 : 'Jadwal dokter kini telah dinonaktifkan.';
+
+        return redirect()->back()->with('success', $pesan);
     }
 }

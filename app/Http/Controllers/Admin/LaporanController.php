@@ -20,13 +20,21 @@ class LaporanController extends Controller
      */
     public function index(Request $request)
     {
-        // 🔒 PASTIKAN BULAN & TAHUN INTEGER
-        $bulan = (int) ($request->bulan ?? now()->month);
+        // 1. AMBIL REQUEST BULAN DAN TAHUN
+        $bulan = $request->bulan ?? now()->month; 
         $tahun = (int) ($request->tahun ?? now()->year);
 
-        // 🔑 RANGE WAKTU VALID
-        $start = Carbon::create($tahun, $bulan, 1)->startOfMonth();
-        $end   = Carbon::create($tahun, $bulan, 1)->endOfMonth();
+        // 2. TENTUKAN RANGE WAKTU VALID (BULANAN ATAU TAHUNAN)
+        if ($bulan === 'semua') {
+            // Jika "Semua Bulan", ambil dari 1 Januari - 31 Desember di tahun terkait
+            $start = Carbon::create($tahun)->startOfYear();
+            $end   = Carbon::create($tahun)->endOfYear();
+        } else {
+            // Jika spesifik 1 bulan, cast ke integer dan ambil range bulan tersebut
+            $bulanInt = (int) $bulan;
+            $start = Carbon::create($tahun, $bulanInt, 1)->startOfMonth();
+            $end   = Carbon::create($tahun, $bulanInt, 1)->endOfMonth();
+        }
 
         /* ======================
          * LAPORAN KUNJUNGAN
@@ -74,7 +82,7 @@ class LaporanController extends Controller
         $totalPemeriksaan = RekamMedis::whereBetween('created_at', [$start, $end])->count();
 
         return view('admin.laporan.index', compact(
-            'bulan',
+            'bulan', // Tetap dikirim apa adanya ke view agar value "semua" terdeteksi
             'tahun',
             'totalKunjungan',
             'bpjs',
@@ -95,15 +103,26 @@ class LaporanController extends Controller
      */
     public function exportPdf(Request $request)
     {
-        // 🔒 CAST KE INTEGER (INI KUNCI FIX ERROR KAMU)
-        $bulan = (int) ($request->bulan ?? now()->month);
+        // 1. TAMBAHKAN INI UNTUK MENCEGAH LIMIT MEMORY/WAKTU DOMPDF
+        ini_set('max_execution_time', 300);
+        ini_set('memory_limit', '512M');
+
+        $bulan = $request->bulan ?? now()->month;
         $tahun = (int) ($request->tahun ?? now()->year);
 
-        $start = Carbon::create($tahun, $bulan, 1)->startOfMonth();
-        $end   = Carbon::create($tahun, $bulan, 1)->endOfMonth();
-
-        // 🟢 NAMA BULAN (DIHITUNG DI CONTROLLER, BUKAN DI BLADE)
-        $namaBulan = Carbon::create()->month($bulan)->translatedFormat('F');
+        // PENGECEKAN RANGE WAKTU UNTUK PDF
+        if ($bulan === 'semua') {
+            $start = Carbon::create($tahun)->startOfYear();
+            $end   = Carbon::create($tahun)->endOfYear();
+            $namaBulan = 'Semua Bulan';
+            $namaFile = "laporan-polkes-tahunan-{$tahun}.pdf";
+        } else {
+            $bulanInt = (int) $bulan;
+            $start = Carbon::create($tahun, $bulanInt, 1)->startOfMonth();
+            $end   = Carbon::create($tahun, $bulanInt, 1)->endOfMonth();
+            $namaBulan = Carbon::create(null, $bulanInt, 1)->translatedFormat('F');
+            $namaFile = "laporan-polkes-{$bulanInt}-{$tahun}.pdf";
+        }
 
         $data = [
             'bulan'            => $bulan,
@@ -119,8 +138,12 @@ class LaporanController extends Controller
         $pdf = Pdf::loadView('admin.laporan.pdf', $data)
             ->setPaper('A4', 'portrait');
 
-        return $pdf->download(
-            'laporan-polkes-' . $bulan . '-' . $tahun . '.pdf'
-        );
+        // 2. MEMBERSIHKAN OUTPUT BUFFER SEBELUM RENDER PDF
+        // Ini adalah kunci agar file PDF tidak rusak/corrupt karena spasi kosong
+        // GANTI DENGAN KODE INI:
+        if (ob_get_length()) {
+            ob_end_clean();
+        }
+        return $pdf->stream($namaFile);
     }
 }
