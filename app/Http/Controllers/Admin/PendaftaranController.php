@@ -4,75 +4,71 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\PendaftaranPoli;
+use App\Models\RekamMedis;
+use App\Models\Pembayaran;
 use Illuminate\Http\Request;
 
-class PendaftaranController extends Controller
+class DataPasienController extends Controller
 {
-    /**
-     * =========================
-     * LIST PENDAFTARAN + SEARCH + FILTER POLI
-     * =========================
-     */
     public function index(Request $request)
     {
-        $query = PendaftaranPoli::orderBy('created_at', 'desc');
+        // 1. Ambil pendaftaran dengan relasi pembayaran & rekam medis
+        $query = PendaftaranPoli::with(['pembayaran', 'rekamMedis']);
 
-        /**
-         * =========================
-         * SEARCH (Nama / No Identitas / Poli / Jenis)
-         * =========================
-         */
         if ($request->filled('q')) {
             $search = trim($request->q);
-
             $query->where(function ($q) use ($search) {
                 $q->where('nama_pasien', 'like', "%{$search}%")
-                  ->orWhere('no_identitas', 'like', "%{$search}%")
-                  ->orWhere('poli', 'like', "%{$search}%")
-                  ->orWhere('jenis_pasien', 'like', "%{$search}%");
+                  ->orWhere('no_identitas', 'like', "%{$search}%");
             });
         }
 
-        /**
-         * =========================
-         * FILTER POLI 🔥
-         * =========================
-         */
-        if ($request->filled('poli')) {
-            $query->where('poli', $request->poli);
+        if ($request->filled('jenis')) {
+            $query->where('jenis_pasien', $request->jenis);
         }
 
-        /**
-         * =========================
-         * GET DATA
-         * =========================
-         */
-        $pendaftaran = $query->get();
+        // 2. Ambil data dan grouping berdasarkan identitas
+        $pasien = $query->latest()->get()->groupBy(function ($item) {
+            return $item->no_identitas ?: 'TEMP-' . $item->id;
+        })->map(function ($group) {
+            $latest = $group->first();
+            
+            // Cari pembayaran lunas di dalam grup pendaftaran ini
+            $pembayaran = $group->map(fn($p) => $p->pembayaran)->filter()->first();
 
-        return view('admin.pendaftaran.index', compact('pendaftaran'));
+            $latest->display_id = $latest->no_identitas ?: 'TEMP-' . $latest->id;
+            $latest->total_kunjungan = $group->count();
+
+            // Logika Status
+            if (!$pembayaran) {
+                $latest->status_admin = 'belum_tagihan';
+            } else {
+                $latest->status_admin = (strtolower($pembayaran->status) == 'lunas') ? 'lunas' : 'belum_lunas';
+            }
+
+            return $latest;
+        });
+
+        return view('admin.data_pasien.index', ['pasien' => $pasien]);
     }
 
-    /**
-     * =========================
-     * UPDATE STATUS PENDAFTARAN
-     * =========================
-     */
-    public function updateStatus(Request $request, $id)
+    public function detail($no_identitas)
     {
-        /**
-         * VALIDASI (TANPA DITOLAK)
-         */
-        $request->validate([
-            'status' => 'required|in:menunggu,diproses,selesai'
+        if (str_starts_with($no_identitas, 'TEMP-')) {
+            $id = str_replace('TEMP-', '', $no_identitas);
+            $pendaftaran = PendaftaranPoli::where('id', $id)->get();
+        } else {
+            $pendaftaran = PendaftaranPoli::where('no_identitas', $no_identitas)->latest()->get();
+        }
+
+        if ($pendaftaran->isEmpty()) { abort(404); }
+
+        $ids = $pendaftaran->pluck('id');
+        return view('admin.data_pasien.detail', [
+            'pasien'     => $pendaftaran->first(),
+            'kunjungan'  => $pendaftaran,
+            'rekamMedis' => RekamMedis::whereIn('pendaftaran_id', $ids)->latest()->get(),
+            'pembayaran' => Pembayaran::whereIn('pendaftaran_id', $ids)->latest()->first()
         ]);
-
-        /**
-         * UPDATE DATA
-         */
-        $data = PendaftaranPoli::findOrFail($id);
-        $data->status = $request->status;
-        $data->save();
-
-        return back()->with('success', 'Status pasien berhasil diperbarui.');
     }
 }
