@@ -11,37 +11,37 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // ===============================
-        // PASIEN SIAP DIPROSES
-        // ===============================
-        $pasien = PendaftaranPoli::where('status', 'diproses')
+        // Ambil pasien dengan status 'diproses' atau 'menunggu'
+        $pasien = PendaftaranPoli::whereIn('status', ['diproses', 'menunggu'])
             ->orderBy('created_at')
             ->get();
 
-        // ===============================
-        // TOTAL REKAM MEDIS
-        // ===============================
         $totalRekamMedis = RekamMedis::count();
 
-        // ===============================
-        // STATISTIK TAMBAHAN
-        // ===============================
-        $totalPasienHariIni = $pasien->count();
+        // PERBAIKAN: Hapus spasi pada nama variabel
+        $totalPasienHariIni = $pasien->count(); 
 
-        $totalPasienUmum = $pasien
-            ->where('jenis_pasien', 'umum')
-            ->count();
+        // Gunakan filter untuk menangani masalah huruf besar/kecil di database
+        $totalPasienUmum = $pasien->filter(function ($item) {
+            return strtolower($item->jenis_pasien) == 'umum';
+        })->count();
 
-        $totalPasienBPJS = $pasien
-            ->where('jenis_pasien', 'bpjs')
-            ->count();
+        $totalPasienBPJS = $pasien->filter(function ($item) {
+            return strtolower($item->jenis_pasien) == 'bpjs';
+        })->count();
+
+        // Tambahkan variabel ini agar tidak error di Blade (Pasien Baru)
+        $totalPasienBaru = $pasien->filter(function ($item) {
+            return strtolower($item->jenis_pasien) == 'baru';
+        })->count();
 
         return view('dokter.dashboard', compact(
             'pasien',
             'totalRekamMedis',
-            'totalPasienHariIni',
+            'totalPasienHariIni', 
             'totalPasienUmum',
-            'totalPasienBPJS'
+            'totalPasienBPJS',
+            'totalPasienBaru'
         ));
     }
 }
