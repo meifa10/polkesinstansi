@@ -11,23 +11,25 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        
         $pasien = PendaftaranPoli::where('status', 'diproses')
-            ->orderBy('created_at')
+            ->orderBy('created_at', 'asc')
             ->get();
 
-        
-        $totalPasienHariIni = PendaftaranPoli::whereDate('created_at', today())->count();
-        
-        $totalPasienUmum = PendaftaranPoli::whereDate('created_at', today())
-            ->where('jenis_pasien', 'umum')
+        $today = today();
+
+        $totalPasienHariIni = PendaftaranPoli::whereDate('created_at', $today)->count();
+
+        $totalPasienUmum = PendaftaranPoli::whereDate('created_at', $today)
+            ->whereRaw('LOWER(jenis_pasien) = ?', ['umum'])
             ->count();
 
-        $totalPasienBPJS = PendaftaranPoli::whereDate('created_at', today())
-            ->where('jenis_pasien', 'bpjs')
+        $totalPasienBPJS = PendaftaranPoli::whereDate('created_at', $today)
+            ->whereRaw('LOWER(jenis_pasien) = ?', ['bpjs'])
             ->count();
 
-        $totalPasienBaru = PendaftaranPoli::whereDate('created_at', today())
-            ->where('jenis_pasien', 'baru')
+        $totalPasienBaru = PendaftaranPoli::whereDate('created_at', $today)
+            ->whereRaw('LOWER(jenis_pasien) = ?', ['baru'])
             ->count();
 
         $totalRekamMedis = RekamMedis::count();
