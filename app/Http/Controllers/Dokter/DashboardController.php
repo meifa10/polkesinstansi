@@ -11,34 +11,32 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // Ambil pasien dengan status 'diproses' atau 'menunggu'
         $pasien = PendaftaranPoli::whereIn('status', ['diproses', 'menunggu'])
             ->orderBy('created_at')
             ->get();
 
+        
+        $totalPasienHariIni = PendaftaranPoli::whereDate('created_at', today())->count();
+        
+        $totalPasienUmum = PendaftaranPoli::whereDate('created_at', today())
+            ->where('jenis_pasien', 'LIKE', '%umum%')
+            ->count();
+
+        $totalPasienBPJS = PendaftaranPoli::whereDate('created_at', today())
+            ->where('jenis_pasien', 'LIKE', '%bpjs%')
+            ->count();
+
+        
+        $totalPasienBaru = PendaftaranPoli::whereDate('created_at', today())
+            ->where('jenis_pasien', 'LIKE', '%baru%') 
+            ->count();
+
         $totalRekamMedis = RekamMedis::count();
-
-        // PERBAIKAN: Hapus spasi pada nama variabel
-        $totalPasienHariIni = $pasien->count(); 
-
-        // Gunakan filter untuk menangani masalah huruf besar/kecil di database
-        $totalPasienUmum = $pasien->filter(function ($item) {
-            return strtolower($item->jenis_pasien) == 'umum';
-        })->count();
-
-        $totalPasienBPJS = $pasien->filter(function ($item) {
-            return strtolower($item->jenis_pasien) == 'bpjs';
-        })->count();
-
-        // Tambahkan variabel ini agar tidak error di Blade (Pasien Baru)
-        $totalPasienBaru = $pasien->filter(function ($item) {
-            return strtolower($item->jenis_pasien) == 'baru';
-        })->count();
 
         return view('dokter.dashboard', compact(
             'pasien',
             'totalRekamMedis',
-            'totalPasienHariIni', 
+            'totalPasienHariIni',
             'totalPasienUmum',
             'totalPasienBPJS',
             'totalPasienBaru'
