@@ -18,12 +18,12 @@
             </h1>
         </div>
 
-        <button onclick="document.getElementById('modal').classList.remove('hidden')"
+        <button onclick="document.getElementById('modalTambah').classList.remove('hidden')"
                 class="flex items-center gap-2 px-6 py-3 bg-slate-900 hover:bg-emerald-600 text-white rounded-xl text-sm font-bold shadow-lg transition-all active:scale-95 border border-slate-900">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
-            Tambah Data Praktik Dokter
+            Tambah Data Praktik
         </button>
     </div>
 
@@ -38,12 +38,21 @@
                         {{ $j->poli }}
                     </span>
                     
-                    @if($j->buka_hari_ini)
-                        <span class="flex items-center gap-1.5 px-3 py-1 bg-emerald-600 text-white text-[9px] font-black rounded-full shadow-md uppercase animate-pulse">
-                            <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
-                            Buka Hari Ini
-                        </span>
-                    @endif
+                    <div class="flex gap-2">
+                        {{-- Tombol Edit --}}
+                        <button onclick="openEditModal({{ json_encode($j) }})" class="p-2 bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-500 hover:text-white transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
+                        </button>
+
+                        @if($j->buka_hari_ini)
+                            <span class="flex items-center gap-1.5 px-3 py-1 bg-emerald-600 text-white text-[9px] font-black rounded-full shadow-md uppercase animate-pulse">
+                                <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
+                                Buka
+                            </span>
+                        @endif
+                    </div>
                 </div>
 
                 <div class="flex items-center gap-4 mb-6">
@@ -95,98 +104,122 @@
     </div>
 </div>
 
-{{-- ================= MODAL TAMBAH JADWAL ================= --}}
-<div id="modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
-    <div class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm" onclick="document.getElementById('modal').classList.add('hidden')"></div>
-    
+{{-- ================= MODAL TAMBAH ================= --}}
+<div id="modalTambah" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <div class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm" onclick="document.getElementById('modalTambah').classList.add('hidden')"></div>
     <div class="flex min-h-full items-center justify-center p-4">
-        <form method="POST" action="{{ route('admin.jadwal_dokter.store') }}"
-              class="relative bg-white w-full max-w-lg p-8 rounded-[2.5rem] shadow-2xl border border-slate-300 space-y-6">
+        <form method="POST" action="{{ route('admin.jadwal_dokter.store') }}" class="relative bg-white w-full max-w-lg p-8 rounded-[2.5rem] shadow-2xl space-y-6">
             @csrf
-
-            <div class="flex justify-between items-center border-b border-slate-100 pb-4">
-                <h2 class="text-xl font-black text-slate-900 uppercase tracking-tighter">Tambah Jadwal Baru</h2>
-                <button type="button" onclick="document.getElementById('modal').classList.add('hidden')" class="text-slate-400 hover:text-red-500 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-
-            <div class="space-y-5">
-                {{-- Pilih Dokter --}}
-                <div class="space-y-2">
-                    <label class="text-[10px] font-black text-slate-500 uppercase ml-1 tracking-widest">Nama Dokter Pelaksana</label>
-                    <div class="relative">
-                        <select name="dokter_id" class="w-full border-2 border-slate-200 p-3 rounded-xl text-sm font-bold text-slate-900 focus:border-slate-900 outline-none appearance-none bg-slate-50 cursor-pointer">
-                            @foreach($dokter as $d)
-                                <option value="{{ $d->id }}">{{ $d->name }}</option>
-                            @endforeach
-                        </select>
-                        <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none text-slate-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor font-bold"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7" /></svg>
-                        </div>
-                    </div>
+            <h2 class="text-xl font-black text-slate-900 uppercase">Tambah Jadwal Baru</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[10px] font-black text-slate-500 uppercase">Dokter</label>
+                    <select name="dokter_id" class="w-full border-2 border-slate-200 p-3 rounded-xl text-sm font-bold">
+                        @foreach($dokter as $d) <option value="{{ $d->id }}">{{ $d->name }}</option> @endforeach
+                    </select>
                 </div>
-
-                {{-- Unit Poliklinik --}}
-                <div class="space-y-2">
-                    <label class="text-[10px] font-black text-slate-500 uppercase ml-1 tracking-widest">Unit Poliklinik</label>
-                    <div class="relative">
-                        <select name="poli" class="w-full border-2 border-slate-200 p-3 rounded-xl text-sm font-bold text-slate-900 focus:border-slate-900 outline-none appearance-none bg-slate-50 cursor-pointer" required>
-                            <option value="">-- Pilih Poliklinik --</option>
-                            <option value="Poli Umum">Poli Umum</option>
-                            <option value="Poli Gigi">Poli Gigi</option>
-                            <option value="Poli KIA & KB">Poli KIA & KB</option>
-                        </select>
-                        <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none text-slate-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor font-bold"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7" /></svg>
-                        </div>
-                    </div>
+                <div>
+                    <label class="text-[10px] font-black text-slate-500 uppercase">Poli</label>
+                    <select name="poli" class="w-full border-2 border-slate-200 p-3 rounded-xl text-sm font-bold">
+                        <option value="Poli Umum">Poli Umum</option>
+                        <option value="Poli Gigi">Poli Gigi</option>
+                        <option value="Poli KIA & KB">Poli KIA & KB</option>
+                    </select>
                 </div>
-
-                {{-- Pilih Hari (Checkbox) --}}
-                <div class="space-y-2">
-                    <label class="text-[10px] font-black text-slate-500 uppercase ml-1 tracking-widest">Pilih Hari Kerja</label>
-                    <div class="grid grid-cols-4 sm:grid-cols-7 gap-2 bg-slate-50 p-4 rounded-xl border-2 border-slate-200">
-                        @php $hari_list = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu']; @endphp
-                        @foreach($hari_list as $h)
-                        <label class="flex flex-col items-center gap-1 cursor-pointer group">
-                            <input type="checkbox" name="hari[]" value="{{ $h }}" 
-                                   class="w-5 h-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer transition-all">
-                            <span class="text-[9px] font-black text-slate-400 group-hover:text-slate-900 transition-colors uppercase">{{ substr($h, 0, 3) }}</span>
+                <div>
+                    <label class="text-[10px] font-black text-slate-500 uppercase">Hari Kerja</label>
+                    <div class="grid grid-cols-4 gap-2 bg-slate-50 p-3 rounded-xl border-2">
+                        @foreach(['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'] as $h)
+                        <label class="flex flex-col items-center text-[9px] font-bold">
+                            <input type="checkbox" name="hari[]" value="{{ $h }}" class="rounded text-emerald-600"> {{ substr($h,0,3) }}
                         </label>
                         @endforeach
                     </div>
-                    <p class="text-[9px] text-slate-400 font-bold italic">* Anda dapat memilih lebih dari satu hari sekaligus.</p>
                 </div>
-
-                {{-- Jam Praktik --}}
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-black text-slate-500 uppercase ml-1 tracking-widest">Waktu Mulai</label>
-                        <input type="time" name="jam_mulai" class="w-full border-2 border-slate-200 p-3 rounded-xl text-sm font-bold text-slate-900 focus:border-slate-900 outline-none bg-slate-50" required>
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-black text-slate-500 uppercase ml-1 tracking-widest">Waktu Selesai</label>
-                        <input type="time" name="jam_selesai" class="w-full border-2 border-slate-200 p-3 rounded-xl text-sm font-bold text-slate-900 focus:border-slate-900 outline-none bg-slate-50" required>
-                    </div>
+                    <input type="time" name="jam_mulai" class="border-2 p-3 rounded-xl text-sm font-bold" required>
+                    <input type="time" name="jam_selesai" class="border-2 p-3 rounded-xl text-sm font-bold" required>
                 </div>
             </div>
-
-            <button class="w-full bg-slate-900 hover:bg-emerald-600 text-white py-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl transition-all active:scale-95 border border-slate-900">
-                Verifikasi & Simpan Data
-            </button>
+            <button class="w-full bg-slate-900 text-white py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest">Simpan Data</button>
         </form>
     </div>
 </div>
 
+{{-- ================= MODAL EDIT ================= --}}
+<div id="modalEdit" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <div class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm" onclick="closeEditModal()"></div>
+    <div class="flex min-h-full items-center justify-center p-4">
+        <form id="editForm" method="POST" action="" class="relative bg-white w-full max-w-lg p-8 rounded-[2.5rem] shadow-2xl space-y-6">
+            @csrf
+            @method('PUT')
+            <h2 class="text-xl font-black text-slate-900 uppercase">Edit Jadwal Praktik</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[10px] font-black text-slate-500 uppercase">Dokter</label>
+                    <select name="dokter_id" id="edit_dokter_id" class="w-full border-2 border-slate-200 p-3 rounded-xl text-sm font-bold">
+                        @foreach($dokter as $d) <option value="{{ $d->id }}">{{ $d->name }}</option> @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] font-black text-slate-500 uppercase">Poli</label>
+                    <select name="poli" id="edit_poli" class="w-full border-2 border-slate-200 p-3 rounded-xl text-sm font-bold">
+                        <option value="Poli Umum">Poli Umum</option>
+                        <option value="Poli Gigi">Poli Gigi</option>
+                        <option value="Poli KIA & KB">Poli KIA & KB</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] font-black text-slate-500 uppercase">Hari Kerja</label>
+                    <div class="grid grid-cols-4 gap-2 bg-slate-50 p-3 rounded-xl border-2">
+                        @foreach(['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'] as $h)
+                        <label class="flex flex-col items-center text-[9px] font-bold">
+                            <input type="checkbox" name="hari[]" value="{{ $h }}" class="edit-hari-checkbox rounded text-amber-600"> {{ substr($h,0,3) }}
+                        </label>
+                        @endforeach
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="time" name="jam_mulai" id="edit_jam_mulai" class="border-2 p-3 rounded-xl text-sm font-bold" required>
+                    <input type="time" name="jam_selesai" id="edit_jam_selesai" class="border-2 p-3 rounded-xl text-sm font-bold" required>
+                </div>
+            </div>
+            <button class="w-full bg-amber-500 text-white py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest">Update Jadwal</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openEditModal(jadwal) {
+        const modal = document.getElementById('modalEdit');
+        const form = document.getElementById('editForm');
+        
+        // Update Action URL
+        form.action = `/admin/jadwal-dokter/${jadwal.id}`;
+        
+        // Fill Data
+        document.getElementById('edit_dokter_id').value = jadwal.dokter_id;
+        document.getElementById('edit_poli').value = jadwal.poli;
+        document.getElementById('edit_jam_mulai').value = jadwal.jam_mulai.substring(0,5);
+        document.getElementById('edit_jam_selesai').value = jadwal.jam_selesai.substring(0,5);
+        
+        // Checkboxes
+        const hariArray = jadwal.hari.split(', ');
+        const checkboxes = document.querySelectorAll('.edit-hari-checkbox');
+        checkboxes.forEach(cb => {
+            cb.checked = hariArray.includes(cb.value);
+        });
+        
+        modal.classList.remove('hidden');
+    }
+
+    function closeEditModal() {
+        document.getElementById('modalEdit').classList.add('hidden');
+    }
+</script>
+
 <style>
     body { background-color: #f1f5f9; color: #0f172a; }
-    * {
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        text-rendering: optimizeLegibility;
-    }
+    * { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
 </style>
 @endsection

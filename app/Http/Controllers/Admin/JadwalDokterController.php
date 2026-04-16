@@ -10,67 +10,97 @@ use Carbon\Carbon;
 
 class JadwalDokterController extends Controller
 {
-
+    /**
+     * Menampilkan daftar jadwal
+     */
     public function index()
     {
+        // Mendapatkan nama hari ini dalam bahasa Indonesia
         $hariIni = Carbon::now()->locale('id')->translatedFormat('l');
 
+        // Mengambil semua jadwal beserta relasi dokter
         $jadwal = JadwalDokter::with('dokter')->get();
 
         foreach ($jadwal as $j) {
-            $j->buka_hari_ini = str_contains($j->hari, $hariIni)
+            // Cek apakah hari ini termasuk dalam jadwal praktik dokter tersebut
+            $j->buka_hari_ini = str_contains($j->hari, $hariIni) 
                                 && $j->status === 'aktif';
         }
 
+        // Mengambil daftar user yang memiliki role dokter untuk dropdown di modal
         $dokter = User::where('role', 'dokter')->get();
 
         return view('admin.jadwal.index', compact('jadwal', 'dokter'));
     }
 
-
+    /**
+     * Menyimpan jadwal baru (Create)
+     */
     public function store(Request $request)
     {
         $request->validate([
             'dokter_id'   => 'required|exists:users,id',
             'poli'        => 'required|string|max:255',
             'hari'        => 'required|array|min:1', 
-            'jam_mulai'   => 'required|date_format:H:i',
-            'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
+            'jam_mulai'   => 'required',
+            'jam_selesai' => 'required|after:jam_mulai',
         ], [
-            'hari.required'        => 'Silakan pilih minimal satu hari praktik.',
-            'jam_selesai.after'    => 'Jam selesai harus lebih besar dari jam mulai.',
-            'dokter_id.required'   => 'Nama dokter wajib dipilih.',
+            'hari.required'      => 'Pilih minimal satu hari praktik.',
+            'jam_selesai.after'  => 'Jam selesai harus lebih besar dari jam mulai.',
         ]);
-
-        
-        $hariString = implode(', ', $request->hari);
 
         JadwalDokter::create([
             'dokter_id'   => $request->dokter_id,
             'poli'        => $request->poli,
-            'hari'        => $hariString,
+            'hari'        => implode(', ', $request->hari), // Mengubah array hari jadi string
             'jam_mulai'   => $request->jam_mulai,
             'jam_selesai' => $request->jam_selesai,
             'status'      => 'aktif',
         ]);
 
-        return redirect()->back()->with('success', 'Jadwal dokter berhasil ditambahkan ke sistem.');
+        return redirect()->back()->with('success', 'Jadwal dokter berhasil ditambahkan.');
     }
 
     /**
-     * Toggle status aktif / nonaktif
+     * Mengupdate jadwal yang sudah ada (Edit)
+     */
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'dokter_id'   => 'required|exists:users,id',
+            'poli'        => 'required|string|max:255',
+            'hari'        => 'required|array|min:1', 
+            'jam_mulai'   => 'required',
+            'jam_selesai' => 'required|after:jam_mulai',
+        ]);
+
+        $jadwal = JadwalDokter::findOrFail($id);
+        
+        $jadwal->update([
+            'dokter_id'   => $request->dokter_id,
+            'poli'        => $request->poli,
+            'hari'        => implode(', ', $request->hari),
+            'jam_mulai'   => $request->jam_mulai,
+            'jam_selesai' => $request->jam_selesai,
+        ]);
+
+        return redirect()->back()->with('success', 'Jadwal dokter berhasil diperbarui.');
+    }
+
+    /**
+     * Mengubah status aktif/nonaktif (Toggle)
      */
     public function toggle($id)
     {
         $jadwal = JadwalDokter::findOrFail($id);
 
-        // Logika perubahan status
+        // Switch status
         $jadwal->status = ($jadwal->status === 'aktif') ? 'nonaktif' : 'aktif';
         $jadwal->save();
 
         $pesan = $jadwal->status === 'aktif' 
-                 ? 'Jadwal dokter kini telah diaktifkan.' 
-                 : 'Jadwal dokter kini telah dinonaktifkan.';
+                 ? 'Jadwal diaktifkan kembali.' 
+                 : 'Jadwal berhasil dinonaktifkan.';
 
         return redirect()->back()->with('success', $pesan);
     }
