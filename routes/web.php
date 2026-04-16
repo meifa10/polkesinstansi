@@ -186,19 +186,10 @@ Route::middleware(['auth', 'role:admin'])
             ->prefix('jadwal-dokter')
             ->group(function () {
 
-                // 📋 LIST JADWAL
                 Route::get('/', 'index')->name('jadwal_dokter');
-
-                // ➕ TAMBAH JADWAL
                 Route::post('/', 'store')->name('jadwal_dokter.store');
-
-                // ✏️ UPDATE JADWAL
                 Route::put('/{id}', 'update')->name('jadwal_dokter.update');
-
-                // 🔁 AKTIF / NONAKTIF
                 Route::post('/{id}/toggle', 'toggle')->name('jadwal_dokter.toggle');
-
-                // 🗑️ HAPUS
                 Route::delete('/{id}', 'destroy')->name('jadwal_dokter.destroy');
             });
     });
