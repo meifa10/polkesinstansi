@@ -39,6 +39,13 @@
             border-color: #10b981;
             box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
         }
+
+        /* Alert Animation */
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .alert-animate { animation: slideIn 0.4s ease forwards; }
     </style>
 </head>
 
@@ -53,6 +60,34 @@
             
             <div class="form-container login-box absolute inset-0 flex items-center px-12 lg:px-20 opacity-1">
                 <div class="w-full">
+                    @if(session('error'))
+                    <div id="alert-error" class="alert-animate mb-6 flex items-center p-4 rounded-2xl bg-red-50 border border-red-100">
+                        <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-red-100 text-red-600">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-bold text-red-800">Login Gagal</p>
+                            <p class="text-xs text-red-600">{{ session('error') }}</p>
+                        </div>
+                    </div>
+                    @endif
+
+                    @if(session('success'))
+                    <div id="alert-success" class="alert-animate mb-6 flex items-center p-4 rounded-2xl bg-emerald-50 border border-emerald-100">
+                        <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-emerald-100 text-emerald-600">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-bold text-emerald-800">Berhasil</p>
+                            <p class="text-xs text-emerald-600">{{ session('success') }}</p>
+                        </div>
+                    </div>
+                    @endif
+
                     <div class="mb-10">
                         <span class="inline-block px-4 py-1.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold tracking-widest uppercase mb-4 font-sans">Portal Instansi</span>
                         <h2 class="text-4xl font-extrabold text-gray-900 tracking-tight">Selamat Datang</h2>
@@ -60,16 +95,17 @@
                     </div>
 
                     <form method="POST" action="{{ route('instansi.login.post') }}" class="space-y-5" autocomplete="off">
-                        @csrf <div class="space-y-1">
+                        @csrf 
+                        <div class="space-y-1">
                             <label class="text-xs font-bold text-gray-400 ml-1 uppercase tracking-wider">Email Address</label>
-                            <input type="email" name="email" id="loginEmail" placeholder="dokter@polkes.com" required autocomplete="off"
+                            <input type="email" name="email" id="loginEmail" placeholder="dokter@polkes.com" required 
                                 class="glass-input clear-input w-full px-6 py-4 rounded-2xl outline-none text-gray-700 font-medium">
                         </div>
 
                         <div class="space-y-1 relative">
                             <label class="text-xs font-bold text-gray-400 ml-1 uppercase tracking-wider">Security Password</label>
                             <div class="relative">
-                                <input id="loginPass" type="password" name="password" placeholder="••••••••" required autocomplete="new-password"
+                                <input id="loginPass" type="password" name="password" placeholder="••••••••" required autocomplete="current-password"
                                     class="glass-input clear-input w-full px-6 py-4 rounded-2xl outline-none text-gray-700 font-medium pr-14">
                                 <button type="button" onclick="togglePassword('loginPass')" class="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-emerald-500 transition-colors">
                                     <svg id="icon-loginPass" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -105,13 +141,13 @@
                         @csrf
                         <div class="space-y-1">
                             <label class="text-xs font-bold text-gray-400 ml-1 uppercase tracking-wider">Nama Lengkap</label>
-                            <input type="text" name="name" placeholder="dr. Jhon Doe, Sp.PD" required autocomplete="off"
+                            <input type="text" name="name" placeholder="dr. Jhon Doe, Sp.PD" required 
                                 class="glass-input clear-input w-full px-6 py-4 rounded-2xl outline-none text-gray-700 font-medium">
                         </div>
                         
                         <div class="space-y-1">
                             <label class="text-xs font-bold text-gray-400 ml-1 uppercase tracking-wider">Email Institusi</label>
-                            <input type="email" name="email" placeholder="example@polkes.com" required autocomplete="off"
+                            <input type="email" name="email" placeholder="example@polkes.com" required 
                                 class="glass-input clear-input w-full px-6 py-4 rounded-2xl outline-none text-gray-700 font-medium">
                         </div>
 
@@ -170,10 +206,16 @@
     </div>
 
     <script>
-        // PERBAIKAN FATAL: Hanya mengosongkan input teks, BUKAN input hidden (CSRF)
+        // Auto-hide alert setelah 5 detik
+        setTimeout(() => {
+            const errorAlert = document.getElementById('alert-error');
+            const successAlert = document.getElementById('alert-success');
+            if(errorAlert) errorAlert.style.display = 'none';
+            if(successAlert) successAlert.style.display = 'none';
+        }, 5000);
+
         window.addEventListener('DOMContentLoaded', (event) => {
             setTimeout(() => {
-                // Seleksi hanya input yang memiliki class 'clear-input'
                 const inputs = document.querySelectorAll('.clear-input');
                 inputs.forEach(input => {
                     input.value = '';

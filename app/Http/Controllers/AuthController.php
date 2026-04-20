@@ -6,28 +6,29 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use Exception;
 
 class AuthController extends Controller
 {
-    /**
-     * Tampilkan halaman login
-     */
+   
     public function showLogin()
     {
         return view('auth.login');
     }
 
-    /**
-     * PROSES LOGIN (ADMIN & DOKTER)
-     */
+
     public function login(Request $request)
     {
         $request->validate([
             'email'    => 'required|email',
             'password' => 'required'
+        ], [
+            'email.required' => 'Email wajib diisi.',
+            'email.email'    => 'Format email tidak valid.',
+            'password.required' => 'Password wajib diisi.'
         ]);
 
-        if (Auth::attempt($request->only('email','password'))) {
+        if (Auth::attempt($request->only('email', 'password'))) {
             $request->session()->regenerate();
 
             return match (auth()->user()->role) {
@@ -37,36 +38,38 @@ class AuthController extends Controller
             };
         }
 
-        return back()->withErrors([
-            'email' => 'Email atau password salah'
-        ]);
+       
+        return back()->with('error', 'Email atau password yang Anda masukkan salah.');
     }
 
-    /**
-     * REGISTER DOKTER (INI YANG KURANG)
-     */
+ 
     public function register(Request $request)
     {
         $request->validate([
             'name'     => 'required|string|max:100',
             'email'    => 'required|email|unique:users,email',
             'password' => 'required|min:6'
+        ], [
+            'email.unique' => 'Email ini sudah terdaftar di sistem.',
+            'password.min' => 'Password minimal harus 6 karakter.'
         ]);
 
-        User::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'password' => Hash::make($request->password),
-            'role'     => 'dokter'
-        ]);
+        try {
+            User::create([
+                'name'     => $request->name,
+                'email'    => $request->email,
+                'password' => Hash::make($request->password),
+                'role'     => 'dokter' 
+            ]);
 
-        return redirect()->route('login')
-            ->with('success', 'Akun dokter berhasil dibuat. Silakan login.');
+            return redirect()->route('login')
+                ->with('success', 'Akun dokter berhasil dibuat. Silakan masuk.');
+
+        } catch (Exception $e) {
+            return back()->with('error', 'Gagal mendaftarkan akun. Silakan coba lagi nanti.');
+        }
     }
 
-    /**
-     * LOGOUT
-     */
     public function logout(Request $request)
     {
         Auth::logout();
@@ -76,12 +79,10 @@ class AuthController extends Controller
         return redirect()->route('login');
     }
 
-    /**
-     * BLOK ROLE TIDAK SAH
-     */
+
     private function logoutAndBlock()
     {
         Auth::logout();
-        abort(403, 'Akses ditolak');
+        return redirect()->route('login')->with('error', 'Anda tidak memiliki akses ke area ini.');
     }
 }
