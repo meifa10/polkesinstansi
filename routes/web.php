@@ -224,6 +224,8 @@ Route::middleware(['auth','role:admin'])
         Route::get('/laporan', [LaporanController::class, 'index'])
             ->name('admin.laporan');
 
-        Route::get('/laporan/pdf', [LaporanController::class, 'exportPdf'])
+        // Tambahkan /{bulan}/{tahun} agar data dari tombol bisa masuk ke Controller
+
+        Route::get('/admin/laporan/pdf/{bulan}/{tahun}', [LaporanController::class, 'exportPdf'])
             ->name('admin.laporan.pdf');
     });

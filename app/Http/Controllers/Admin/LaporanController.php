@@ -13,7 +13,6 @@ use Carbon\Carbon;
 
 class LaporanController extends Controller
 {
-  
     public function index(Request $request)
     {
         $bulan = $request->bulan ?? now()->month; 
@@ -28,97 +27,86 @@ class LaporanController extends Controller
             $end   = Carbon::create($tahun, $bulanInt, 1)->endOfMonth();
         }
 
-     
         $totalKunjungan = PendaftaranPoli::whereBetween('created_at', [$start, $end])->count();
-
-        $bpjs = PendaftaranPoli::where('jenis_pasien', 'jkn')
-            ->whereBetween('created_at', [$start, $end])
-            ->count();
-
-        $umum = PendaftaranPoli::where('jenis_pasien', 'umum')
-            ->whereBetween('created_at', [$start, $end])
-            ->count();
-
+        
+        // Gunakan whereRaw agar pencarian jenis_pasien tidak error karena huruf besar/kecil
+        $bpjs = PendaftaranPoli::whereRaw('LOWER(jenis_pasien) = ?', ['jkn'])
+                ->whereBetween('created_at', [$start, $end])->count();
+        
+        $umum = PendaftaranPoli::whereRaw('LOWER(jenis_pasien) = ?', ['umum'])
+                ->whereBetween('created_at', [$start, $end])->count();
+        
         $kunjunganPerPoli = PendaftaranPoli::select('poli', DB::raw('COUNT(*) as total'))
             ->whereBetween('created_at', [$start, $end])
-            ->groupBy('poli')
-            ->orderByDesc('total')
-            ->get();
+            ->groupBy('poli')->orderByDesc('total')->get();
 
-        $totalPemasukan = Pembayaran::where('status', 'lunas')
-            ->whereBetween('tanggal_bayar', [$start, $end])
-            ->sum('total_biaya');
-
-        $lunas = Pembayaran::where('status', 'lunas')
-            ->whereBetween('tanggal_bayar', [$start, $end])
-            ->count();
-
-        $belumLunas = Pembayaran::where('status', 'belum_lunas')
-            ->whereBetween('created_at', [$start, $end])
-            ->count();
+        $totalPemasukan = Pembayaran::where('status', 'lunas')->whereBetween('tanggal_bayar', [$start, $end])->sum('total_biaya');
+        $lunas = Pembayaran::where('status', 'lunas')->whereBetween('tanggal_bayar', [$start, $end])->count();
+        $belumLunas = Pembayaran::where('status', 'belum_lunas')->whereBetween('created_at', [$start, $end])->count();
 
         $metodePembayaran = Pembayaran::select('paid_by', DB::raw('COUNT(*) as total'))
-            ->where('status', 'lunas')
-            ->whereBetween('tanggal_bayar', [$start, $end])
-            ->groupBy('paid_by')
-            ->get();
+            ->where('status', 'lunas')->whereBetween('tanggal_bayar', [$start, $end])
+            ->groupBy('paid_by')->get();
 
         $totalPemeriksaan = RekamMedis::whereBetween('created_at', [$start, $end])->count();
 
         return view('admin.laporan.index', compact(
-            'bulan', 
-            'tahun',
-            'totalKunjungan',
-            'bpjs',
-            'umum',
-            'kunjunganPerPoli',
-            'totalPemasukan',
-            'lunas',
-            'belumLunas',
-            'metodePembayaran',
-            'totalPemeriksaan'
+            'bulan', 'tahun', 'totalKunjungan', 'bpjs', 'umum', 
+            'kunjunganPerPoli', 'totalPemasukan', 'lunas', 
+            'belumLunas', 'totalPemeriksaan', 'metodePembayaran'
         ));
     }
 
-
-    public function exportPdf(Request $request)
+    public function exportPdf($bulan, $tahun) 
     {
         ini_set('max_execution_time', 300);
         ini_set('memory_limit', '512M');
-
-        $bulan = $request->bulan ?? now()->month;
-        $tahun = (int) ($request->tahun ?? now()->year);
 
         if ($bulan === 'semua') {
             $start = Carbon::create($tahun)->startOfYear();
             $end   = Carbon::create($tahun)->endOfYear();
             $namaBulan = 'Semua Bulan';
-            $namaFile = "laporan-polkes-tahunan-{$tahun}.pdf";
         } else {
             $bulanInt = (int) $bulan;
             $start = Carbon::create($tahun, $bulanInt, 1)->startOfMonth();
             $end   = Carbon::create($tahun, $bulanInt, 1)->endOfMonth();
             $namaBulan = Carbon::create(null, $bulanInt, 1)->translatedFormat('F');
-            $namaFile = "laporan-polkes-{$bulanInt}-{$tahun}.pdf";
         }
 
+        $namaFile = "Laporan_Polkes_Jombang_{$namaBulan}_{$tahun}.pdf";
+
+        $dataLaporan = PendaftaranPoli::with(['pembayaran'])
+            ->whereBetween('created_at', [$start, $end])
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        // PERBAIKAN LOGIKA DISINI (Filter Collection menggunakan strtolower)
+        $totalBpjs = $dataLaporan->filter(function($item) {
+            return strtolower($item->jenis_pasien) == 'jkn';
+        })->count();
+
+        $totalUmum = $dataLaporan->filter(function($item) {
+            return strtolower($item->jenis_pasien) == 'umum';
+        })->count();
+
         $data = [
-            'bulan'            => $bulan,
-            'tahun'            => $tahun,
             'namaBulan'        => $namaBulan,
-            'totalKunjungan'   => PendaftaranPoli::whereBetween('created_at', [$start, $end])->count(),
-            'bpjs'             => PendaftaranPoli::where('jenis_pasien', 'jkn')->whereBetween('created_at', [$start, $end])->count(),
-            'umum'             => PendaftaranPoli::where('jenis_pasien', 'umum')->whereBetween('created_at', [$start, $end])->count(),
-            'totalPemasukan'   => Pembayaran::where('status', 'lunas')->whereBetween('tanggal_bayar', [$start, $end])->sum('total_biaya'),
-            'totalPemeriksaan' => RekamMedis::whereBetween('created_at', [$start, $end])->count(),
+            'tahun'            => $tahun,
+            'dataLaporan'      => $dataLaporan,
+            'totalKunjungan'   => $dataLaporan->count(),
+            'totalBpjs'        => $totalBpjs,
+            'totalUmum'        => $totalUmum,
+            'totalPendapatan'  => $dataLaporan->sum(function($item) {
+                                    return ($item->pembayaran && $item->pembayaran->status == 'lunas') ? $item->pembayaran->total_biaya : 0;
+                                 }),
         ];
 
-        $pdf = Pdf::loadView('admin.laporan.pdf', $data)
-            ->setPaper('A4', 'portrait');
+        $pdf = Pdf::loadView('admin.laporan.pdf', $data)->setPaper('A4', 'portrait');
 
         if (ob_get_length()) {
             ob_end_clean();
         }
-        return $pdf->stream($namaFile);
+
+        return $pdf->download($namaFile);
     }
 }

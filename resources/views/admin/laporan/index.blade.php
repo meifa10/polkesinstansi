@@ -46,8 +46,11 @@
                 <input type="number" name="tahun" value="{{ $tahun }}" class="pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-900 w-[110px] focus:border-slate-900 outline-none" placeholder="Tahun" onchange="this.form.submit()">
             </div>
 
-            <a href="{{ route('admin.laporan.pdf',['bulan'=>$bulan,'tahun'=>$tahun]) }}" class="flex items-center gap-2 px-6 py-2.5 bg-red-600 text-white rounded-xl text-xs font-black uppercase tracking-[0.15em] hover:bg-red-700 transition-all shadow-md active:scale-95">
-                <i class="ph ph-file-pdf text-lg"></i> Cetak PDF
+            <a href="{{ route('admin.laporan.pdf', ['bulan' => $bulan, 'tahun' => $tahun]) }}" 
+            download
+            class="flex items-center gap-2 px-6 py-2.5 bg-red-600 text-white rounded-xl text-xs font-black uppercase tracking-[0.15em] hover:bg-red-700 transition-all shadow-md active:scale-95">
+                <i class="ph ph-file-pdf text-lg"></i> 
+                Cetak PDF
             </a>
         </form>
     </div>

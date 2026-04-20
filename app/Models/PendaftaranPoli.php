@@ -28,6 +28,7 @@ class PendaftaranPoli extends Model
      */
     protected $casts = [
         'tanggal_lahir' => 'date',
+        'created_at' => 'datetime',
     ];
 
     /**
@@ -36,13 +37,20 @@ class PendaftaranPoli extends Model
      * ======================
      */
 
-    // 1️⃣ Pendaftaran → Rekam Medis (1 pasien 1 hasil)
+    // 1️⃣ Pendaftaran → Rekam Medis (1 pendaftaran 1 hasil medis)
     public function rekamMedis()
     {
         return $this->hasOne(RekamMedis::class, 'pendaftaran_id');
     }
 
-    // 2️⃣ Dokter yang memeriksa (via rekam medis)
+    // 2️⃣ Pendaftaran → Pembayaran (PENTING untuk Laporan Pemasukan)
+    // Relasi ini digunakan di Controller: with(['pembayaran'])
+    public function pembayaran()
+    {
+        return $this->hasOne(Pembayaran::class, 'pendaftaran_id');
+    }
+
+    // 3️⃣ Dokter yang memeriksa (via rekam medis)
     public function dokter()
     {
         return $this->hasOneThrough(
@@ -51,9 +59,17 @@ class PendaftaranPoli extends Model
             'pendaftaran_id', // FK di rekam_medis
             'id',             // PK di users
             'id',             // PK di pendaftaran_poli
-            'dokter_id'       // FK ke users
+            'dokter_id'       // FK di rekam_medis ke users
         );
     }
+
+    // Jika Anda memiliki tabel 'pasiens' yang terpisah, aktifkan ini:
+    /*
+    public function pasien()
+    {
+        return $this->belongsTo(Pasien::class, 'pasien_id');
+    }
+    */
 
     /**
      * ======================
@@ -74,10 +90,5 @@ class PendaftaranPoli extends Model
     public function isSelesai()
     {
         return $this->status === 'selesai';
-    }
-
-    public function pembayaran()
-    {
-        return $this->hasOne(Pembayaran::class, 'pendaftaran_id');
     }
 }
