@@ -15,7 +15,6 @@ class PembayaranController extends Controller
     {
         $query = Pembayaran::with('pendaftaran');
 
-        // 🔎 SEARCH (nama pasien, poli, metode, status)
         if ($request->q) {
             $query->where(function ($q) use ($request) {
                 $q->where('metode', 'like', '%' . $request->q . '%')
@@ -27,12 +26,10 @@ class PembayaranController extends Controller
             });
         }
 
-        // 🏥 FILTER POLI
         if ($request->poli) {
             $query->whereHas('pendaftaran', function ($q) use ($request) {
                 $q->where('poli', $request->poli);
-                // kalau di DB pakai nama panjang, ganti ke:
-                // $q->where('poli', 'like', '%' . $request->poli . '%');
+                
             });
         }
 
@@ -58,7 +55,6 @@ class PembayaranController extends Controller
 
         $pendaftaran = PendaftaranPoli::findOrFail($request->pendaftaran_id);
 
-        // 💰 Bersihin format rupiah (hapus titik/koma)
         $totalBiaya = (int) preg_replace('/[^0-9]/', '', $request->total_biaya);
 
         if ($totalBiaya <= 0 && $request->metode !== 'bpjs') {
@@ -67,7 +63,6 @@ class PembayaranController extends Controller
             ])->withInput();
         }
 
-        // 🔑 Generate kode pembayaran
         $paymentRef = 'PAY-' . $pendaftaran->id . '-' . strtoupper(Str::random(6));
 
         Pembayaran::create([

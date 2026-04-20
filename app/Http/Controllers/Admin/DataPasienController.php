@@ -10,18 +10,10 @@ use Illuminate\Http\Request;
 
 class DataPasienController extends Controller
 {
-    /**
-     * =========================
-     * LIST DATA PASIEN (ADMIN)
-     * =========================
-     */
+
     public function index(Request $request)
     {
-        /**
-         * =========================
-         * BASE QUERY
-         * =========================
-         */
+        
         $query = PendaftaranPoli::leftJoin(
                 'rekam_medis',
                 'rekam_medis.pendaftaran_id',
@@ -37,11 +29,7 @@ class DataPasienController extends Controller
                 MAX(rekam_medis.created_at) as terakhir_kunjungan
             ');
 
-        /**
-         * =========================
-         * SEARCH
-         * =========================
-         */
+        
         if ($request->filled('q')) {
 
             $search = trim($request->q);
@@ -53,47 +41,31 @@ class DataPasienController extends Controller
             });
         }
 
-        /**
-         * =========================
-         * FILTER JENIS PASIEN
-         * =========================
-         */
+        
         if ($request->filled('jenis')) {
 
             $jenis = strtolower($request->jenis);
 
-            // biar fleksibel (DB kadang "Umum"/"JKN")
             $query->whereRaw('LOWER(pendaftaran_poli.jenis_pasien) = ?', [$jenis]);
         }
 
-        /**
-         * =========================
-         * GROUP & GET DATA
-         * =========================
-         */
+   
         $pasien = $query
             ->groupByRaw('COALESCE(pendaftaran_poli.no_identitas, CONCAT("TEMP-", pendaftaran_poli.id))')
             ->orderByDesc('terakhir_kunjungan')
             ->get();
 
-        /**
-         * =========================
-         * STATUS ADMIN (PEMBAYARAN)
-         * =========================
-         */
+    
         $pasien->transform(function ($p) {
 
-            // kalau data TEMP (tidak ada identitas)
             if (str_starts_with($p->no_identitas, 'TEMP-')) {
                 $p->status_admin = 'belum_tagihan';
                 return $p;
             }
 
-            // ambil semua pendaftaran id dari no identitas
             $pendaftaranIds = PendaftaranPoli::where('no_identitas', $p->no_identitas)
                 ->pluck('id');
 
-            // ambil pembayaran terbaru
             $pembayaran = Pembayaran::whereIn('pendaftaran_id', $pendaftaranIds)
                 ->latest()
                 ->first();
@@ -112,16 +84,10 @@ class DataPasienController extends Controller
         return view('admin.data_pasien.index', compact('pasien'));
     }
 
-    /**
-     * =========================
-     * DETAIL PASIEN
-     * =========================
-     */
+ 
     public function detail($no_identitas)
     {
-        /**
-         * HANDLE DATA TEMP
-         */
+      
         if (str_starts_with($no_identitas, 'TEMP-')) {
 
             $id = str_replace('TEMP-', '', $no_identitas);
@@ -142,11 +108,7 @@ class DataPasienController extends Controller
             abort(404, 'Pasien tidak ditemukan');
         }
 
-        /**
-         * =========================
-         * REKAM MEDIS
-         * =========================
-         */
+   
         $rekamMedis = RekamMedis::whereIn(
                 'pendaftaran_id',
                 $pendaftaran->pluck('id')
@@ -154,11 +116,7 @@ class DataPasienController extends Controller
             ->latest()
             ->get();
 
-        /**
-         * =========================
-         * PEMBAYARAN
-         * =========================
-         */
+   
         $pembayaran = Pembayaran::whereIn(
                 'pendaftaran_id',
                 $pendaftaran->pluck('id')

@@ -198,17 +198,9 @@ function initChart(labels, kunjungan, pemeriksaan) {
     });
 }
 
-// FUNGSI UPDATE DATA (BERFUNGSI!)
 function updateChart(bulan) {
     console.log("Mengambil data untuk " + bulan + " bulan terakhir...");
     
-    // Tampilkan Loading (opsional)
-    // Di sini kamu biasanya memanggil API Laravel, contoh:
-    // fetch(`/admin/api/statistik?limit=${bulan}`)
-    //    .then(res => res.json())
-    //    .then(data => initChart(data.labels, data.kunjungan, data.pemeriksaan));
-
-    // Demo Simulasi Perubahan Data
     if(bulan == '12') {
         initChart(['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'], 
                   [50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160], 
@@ -218,7 +210,6 @@ function updateChart(bulan) {
     }
 }
 
-// Jalankan chart pertama kali saat halaman dimuat
 document.addEventListener('DOMContentLoaded', () => {
     initChart(@json($bulan), @json($dataKunjungan), @json($dataPemeriksaan));
 });

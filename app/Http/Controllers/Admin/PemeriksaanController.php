@@ -8,29 +8,17 @@ use Illuminate\Http\Request;
 
 class PemeriksaanController extends Controller
 {
-    /**
-     * =========================
-     * LIST PEMERIKSAAN + FILTER
-     * =========================
-     */
+   
     public function index(Request $request)
     {
-        /**
-         * =========================
-         * BASE QUERY
-         * =========================
-         */
+       
         $query = RekamMedis::with([
             'pendaftaran',
             'dokter'
         ])->latest();
 
 
-        /**
-         * =========================
-         * 🔍 SEARCH
-         * =========================
-         */
+       
         if ($request->filled('q')) {
 
             $search = trim($request->q);
@@ -58,11 +46,6 @@ class PemeriksaanController extends Controller
         }
 
 
-        /**
-         * =========================
-         * 🏥 FILTER POLI
-         * =========================
-         */
         if ($request->filled('poli')) {
 
             $query->whereHas('pendaftaran', function ($q) use ($request) {
@@ -71,14 +54,8 @@ class PemeriksaanController extends Controller
         }
 
 
-        /**
-         * =========================
-         * 📅 FILTER TANGGAL
-         * =========================
-         */
         if ($request->filled('tanggal_dari') && $request->filled('tanggal_sampai')) {
 
-            // range tanggal
             $query->whereBetween('created_at', [
                 $request->tanggal_dari . ' 00:00:00',
                 $request->tanggal_sampai . ' 23:59:59'
@@ -86,24 +63,12 @@ class PemeriksaanController extends Controller
 
         } elseif ($request->filled('tanggal_dari')) {
 
-            // hanya 1 hari
             $query->whereDate('created_at', $request->tanggal_dari);
         }
 
 
-        /**
-         * =========================
-         * EXECUTE QUERY
-         * =========================
-         */
         $pemeriksaan = $query->get();
 
-
-        /**
-         * =========================
-         * RETURN VIEW
-         * =========================
-         */
         return view('admin.pemeriksaan.index', compact('pemeriksaan'));
     }
 }
