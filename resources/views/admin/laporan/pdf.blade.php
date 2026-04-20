@@ -169,7 +169,7 @@
             <p><strong>Kepala Polkes</strong></p>
             <br><br><br>
             <p><strong>( Sucipto Biantoro )</strong></p>
-            <p>NIK. 3517035005040005</p>
+            <p>NRP. 21970098511276</p>
         </div>
     </div>
 
