@@ -105,7 +105,7 @@
 <body>
 
     <div class="header">
-        <h1>POLKES JOMBANG</h1>
+        <h1>POLKES 05.09.15 JOMBANG</h1>
         <p>Jl. KH. Wahid Hasyim No.28 B, Jombang - Jawa Timur</p>
         <p>Email: jombangposkes@gmail.com | Telp: 0877-7723-5386</p>
     </div>
