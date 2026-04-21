@@ -15,7 +15,6 @@
     
     .card-main { border-radius: 1.5rem; background: white; border: 1px solid #f1f5f9; box-shadow: 0 4px 20px -10px rgba(0,0,0,0.05); }
     
-    /* Efek Kilau Halus saat Hover */
     .btn-export { position: relative; overflow: hidden; transition: all 0.3s ease; }
     .btn-export::after {
         content: ""; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
@@ -116,7 +115,6 @@
         const wb = XLSX.utils.book_new();
         const selectedPoli = document.getElementById('poliFilter').value;
         
-        // Logika Judul Dinamis Aesthetic
         let displayTitle = selectedPoli === 'ALL' 
             ? "LAPORAN REKAM MEDIS - SEMUA UNIT POLI" 
             : `LAPORAN REKAM MEDIS - ${selectedPoli.toUpperCase()}`;
@@ -126,7 +124,7 @@
             [{ v: "Jl. KH. Wahid Hasyim No.28 B, Jombang - Jawa Timur", t: 's' }],
             [{ v: "Email: jombangposkes@gmail.com | Telp: 0877-7723-5386", t: 's' }],
             [""],
-            [{ v: displayTitle, t: 's' }], // Judul Dinamis
+            [{ v: displayTitle, t: 's' }], 
             [""],
             ["NO", "NAMA PASIEN", "UNIT POLI", "DIAGNOSIS KLINIS", "TINDAKAN MEDIS", "RESEP OBAT", "TANGGAL", "JAM"]
         ];
