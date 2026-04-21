@@ -59,16 +59,16 @@
                     <i class="ph ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
                 </div>
 
-                {{-- Single Date Filter --}}
+                {{-- Date Filter (FIXED: name changed to tanggal_dari) --}}
                 <div class="md:col-span-3 relative">
-                    <input type="date" name="tanggal" value="{{ request('tanggal') }}" onchange="this.form.submit()"
+                    <input type="date" name="tanggal_dari" value="{{ request('tanggal_dari') }}" onchange="this.form.submit()"
                         class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm font-bold text-slate-900 outline-none focus:border-slate-900 bg-white cursor-pointer">
                     <i class="ph ph-calendar absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
                 </div>
             </div>
 
             {{-- Reset Button --}}
-            @if(request('q') || request('poli') || request('tanggal'))
+            @if(request('q') || request('poli') || request('tanggal_dari'))
             <div class="flex justify-end pt-2 border-t border-slate-100">
                 <a href="{{ route('admin.pemeriksaan') }}"
                    class="flex items-center gap-2 px-4 py-2 bg-slate-200 text-slate-900 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-slate-300 transition-all border border-slate-400">
@@ -81,7 +81,6 @@
 
     {{-- ================= DATA TABLE SECTION ================= --}}
     <div class="bg-white rounded-2xl shadow-md border border-slate-300 overflow-hidden">
-        {{-- Table Container with Horizontal Scroll --}}
         <div class="overflow-x-auto overflow-y-hidden custom-scrollbar">
             <table class="w-full text-left border-collapse min-w-[1000px]">
                 <thead>
@@ -166,7 +165,7 @@
 
         <div class="bg-slate-50 px-6 py-4 border-t border-slate-300">
             <p class="text-[10px] text-slate-600 font-bold italic uppercase tracking-wider">
-                * Rekam medis divalidasi secara real-time berdasarkan laporan unit poliklinik Polkes Jombang.
+                * Rekam medis divalidasi secara real-time berdasarkan laporan unit poliklinik.
             </p>
         </div>
     </div>
@@ -179,26 +178,14 @@
         text-rendering: optimizeLegibility;
     }
     
-    /* Mencegah teks overlap pada diagnosis */
     .line-clamp-1 { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
     .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-    /* Custom Scrollbar untuk Table agar terlihat jelas bisa digeser */
-    .custom-scrollbar::-webkit-scrollbar {
-        height: 8px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-track {
-        background: #f1f1f1;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 10px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8;
-    }
+    .custom-scrollbar::-webkit-scrollbar { height: 8px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-    /* Memadatkan baris tabel */
     td {
         padding-top: 1.25rem !important;
         padding-bottom: 1.25rem !important;
