@@ -38,7 +38,7 @@
         <div class="relative">
             <div class="absolute -left-4 top-0 w-1 h-12 bg-emerald-500 rounded-full"></div>
             <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight">
-                Hospital <span class="text-emerald-600">Console</span>
+                Polkes <span class="text-emerald-600">Jombang</span>
             </h1>
             <p class="text-slate-500 font-medium mt-1 flex items-center gap-2">
                 <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
@@ -93,16 +93,12 @@
             <div class="glass-card rounded-[2.5rem] p-8 shadow-sm">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                     <div>
-                        <h3 class="text-xl font-extrabold text-slate-900">Distribusi Jenis Pasien</h3>
-                        <p class="text-sm text-slate-500 font-medium">Visualisasi perbandingan tipe asuransi</p>
+                        <h3 class="text-xl font-extrabold text-slate-900">Beban Antrean Poli</h3>
+                        <p class="text-sm text-slate-500 font-medium">Visualisasi distribusi pasien per unit layanan</p>
                     </div>
-                    <div class="flex gap-2">
-                        <span class="flex items-center gap-1.5 text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full">
-                            <span class="w-2 h-2 bg-emerald-500 rounded-full"></span> Umum
-                        </span>
-                        <span class="flex items-center gap-1.5 text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full">
-                            <span class="w-2 h-2 bg-blue-500 rounded-full"></span> JKN
-                        </span>
+                    {{-- Legend Dinamis (Opsional jika ingin manual, tapi Chart.js bisa handle) --}}
+                    <div id="chart-legend" class="flex flex-wrap gap-3">
+                        <!-- Legend will be injected or you can keep it simple -->
                     </div>
                 </div>
                 <div class="h-[350px] relative">
@@ -222,24 +218,47 @@
 <script>
 const ctx = document.getElementById('pasienChart');
 
+/**
+ * Pastikan variabel di bawah ini dikirim dari Controller:
+ * $dataPoli = ['Poli Umum', 'Poli Gigi', 'Poli Anak']
+ * $jumlahPasienPoli = [10, 5, 8]
+ */
 new Chart(ctx, {
     type: 'doughnut',
     data: {
-        labels: ['Pasien Umum', 'Pasien JKN'],
+        labels: {!! json_encode($dataPoli) !!}, 
         datasets: [{
-            data: [{{ $pasienUmum }}, {{ $pasienJkn }}],
-            backgroundColor: ['#10b981', '#3b82f6'],
-            hoverOffset: 20,
+            data: {!! json_encode($jumlahPasienPoli) !!},
+            backgroundColor: [
+                '#10b981', // Emerald
+                '#3b82f6', // Blue
+                '#6366f1', // Indigo
+                '#f59e0b', // Amber
+                '#ec4899'  // Pink
+            ],
+            hoverOffset: 25,
             borderWidth: 0,
-            borderRadius: 10
+            borderRadius: 12
         }]
     },
     options: {
         responsive: true,
         maintainAspectRatio: false,
-        cutout: '80%',
+        cutout: '75%',
         plugins: {
-            legend: { display: false }
+            legend: {
+                display: true,
+                position: 'bottom',
+                labels: {
+                    usePointStyle: true,
+                    padding: 20,
+                    font: {
+                        family: "'Plus Jakarta Sans'",
+                        size: 12,
+                        weight: '600'
+                    }
+                }
+            }
         },
         animation: {
             animateScale: true,
