@@ -11,84 +11,44 @@ class PendaftaranPoli extends Model
 
     protected $table = 'pendaftaran_poli';
 
-    /**
-     * Kolom yang boleh diisi (WAJIB SAMA DENGAN DB)
-     */
     protected $fillable = [
-        'jenis_pasien',      // jkn / umum
+        'jenis_pasien',
         'nama_pasien',
-        'no_identitas',      // BPJS / KTP / RM
+        'no_identitas',
         'tanggal_lahir',
         'poli',
-        'status',            // menunggu | diproses | selesai | ditolak
+        'dokter_id', // WAJIB ADA agar dokter bisa memfilter pasiennya
+        'nomor_antrian',
+        'status',
+        'token_akses'
     ];
 
-    /**
-     * Casting tipe data
-     */
     protected $casts = [
         'tanggal_lahir' => 'date',
         'created_at' => 'datetime',
     ];
 
     /**
-     * ======================
-     * RELATIONSHIP
-     * ======================
+     * RELATIONSHIPS
      */
 
-    // 1️⃣ Pendaftaran → Rekam Medis (1 pendaftaran 1 hasil medis)
+    // Langsung ke User karena dokter_id ada di tabel ini
+    public function dokter()
+    {
+        return $this->belongsTo(User::class, 'dokter_id');
+    }
+
     public function rekamMedis()
     {
         return $this->hasOne(RekamMedis::class, 'pendaftaran_id');
     }
 
-    // 2️⃣ Pendaftaran → Pembayaran (PENTING untuk Laporan Pemasukan)
-    // Relasi ini digunakan di Controller: with(['pembayaran'])
     public function pembayaran()
     {
         return $this->hasOne(Pembayaran::class, 'pendaftaran_id');
     }
 
-    // 3️⃣ Dokter yang memeriksa (via rekam medis)
-    public function dokter()
-    {
-        return $this->hasOneThrough(
-            User::class,
-            RekamMedis::class,
-            'pendaftaran_id', // FK di rekam_medis
-            'id',             // PK di users
-            'id',             // PK di pendaftaran_poli
-            'dokter_id'       // FK di rekam_medis ke users
-        );
-    }
-
-    // Jika Anda memiliki tabel 'pasiens' yang terpisah, aktifkan ini:
-    /*
-    public function pasien()
-    {
-        return $this->belongsTo(Pasien::class, 'pasien_id');
-    }
-    */
-
-    /**
-     * ======================
-     * HELPER STATUS
-     * ======================
-     */
-
-    public function isMenunggu()
-    {
-        return $this->status === 'menunggu';
-    }
-
-    public function isDiproses()
-    {
-        return $this->status === 'diproses';
-    }
-
-    public function isSelesai()
-    {
-        return $this->status === 'selesai';
-    }
+    // Helper Status
+    public function isMenunggu() { return $this->status === 'menunggu_petugas'; }
+    public function isSelesai() { return $this->status === 'selesai'; }
 }

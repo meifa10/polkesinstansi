@@ -10,79 +10,142 @@ use Exception;
 
 class AuthController extends Controller
 {
-   
+    /*
+    |--------------------------------------------------------------------------
+    | FORM LOGIN
+    |--------------------------------------------------------------------------
+    */
     public function showLogin()
     {
         return view('auth.login');
     }
 
-
+    /*
+    |--------------------------------------------------------------------------
+    | PROSES LOGIN
+    |--------------------------------------------------------------------------
+    */
     public function login(Request $request)
     {
         $request->validate([
             'email'    => 'required|email',
             'password' => 'required'
         ], [
-            'email.required' => 'Email wajib diisi.',
-            'email.email'    => 'Format email tidak valid.',
+            'email.required'    => 'Email wajib diisi.',
+            'email.email'       => 'Format email tidak valid.',
             'password.required' => 'Password wajib diisi.'
         ]);
 
-        if (Auth::attempt($request->only('email', 'password'))) {
+        // Coba login
+        if (Auth::attempt([
+            'email'    => $request->email,
+            'password' => $request->password
+        ])) {
+
+            // Regenerate session
             $request->session()->regenerate();
 
-            return match (auth()->user()->role) {
-                'admin'  => redirect()->route('admin.dashboard'),
-                'dokter' => redirect()->route('dokter.dashboard'),
-                default  => $this->logoutAndBlock()
-            };
+            $user = Auth::user();
+
+            /*
+            |--------------------------------------------------------------------------
+            | REDIRECT BERDASARKAN ROLE
+            |--------------------------------------------------------------------------
+            */
+            if ($user->role == 'admin') {
+                return redirect()->route('admin.dashboard');
+            }
+
+            if ($user->role == 'dokter') {
+                return redirect()->route('dokter.dashboard');
+            }
+
+            if ($user->role == 'petugas') {
+                return redirect()->route('petugas.dashboard');
+            }
+
+            // Jika role tidak dikenali
+            Auth::logout();
+
+            return redirect()->route('login')
+                ->with('error', 'Role akun tidak valid.');
         }
 
-       
-        return back()->with('error', 'Email atau password yang Anda masukkan salah.');
+        return back()->withInput()->with(
+            'error',
+            'Email atau password salah.'
+        );
     }
 
- 
+    /*
+    |--------------------------------------------------------------------------
+    | FORM REGISTER
+    |--------------------------------------------------------------------------
+    */
+    public function showRegister()
+    {
+        return view('auth.register');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | PROSES REGISTER
+    |--------------------------------------------------------------------------
+    */
     public function register(Request $request)
     {
         $request->validate([
             'name'     => 'required|string|max:100',
             'email'    => 'required|email|unique:users,email',
-            'password' => 'required|min:6'
+            'password' => 'required|min:6',
+            'role'     => 'required|in:dokter,petugas'
         ], [
-            'email.unique' => 'Email ini sudah terdaftar di sistem.',
-            'password.min' => 'Password minimal harus 6 karakter.'
+            'name.required'     => 'Nama wajib diisi.',
+            'email.required'    => 'Email wajib diisi.',
+            'email.email'       => 'Format email tidak valid.',
+            'email.unique'      => 'Email sudah digunakan.',
+            'password.required' => 'Password wajib diisi.',
+            'password.min'      => 'Password minimal 6 karakter.',
+            'role.required'     => 'Role wajib dipilih.'
         ]);
 
         try {
+
             User::create([
                 'name'     => $request->name,
                 'email'    => $request->email,
                 'password' => Hash::make($request->password),
-                'role'     => 'dokter' 
+                'role'     => $request->role,
+                'poli'     => $request->poli ?? null
             ]);
 
-            return redirect()->route('login')
-                ->with('success', 'Akun dokter berhasil dibuat. Silakan masuk.');
+            return redirect()->route('login')->with(
+                'success',
+                'Akun berhasil dibuat.'
+            );
 
         } catch (Exception $e) {
-            return back()->with('error', 'Gagal mendaftarkan akun. Silakan coba lagi nanti.');
+
+            return back()->withInput()->with(
+                'error',
+                'Terjadi kesalahan saat registrasi.'
+            );
         }
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | LOGOUT
+    |--------------------------------------------------------------------------
+    */
     public function logout(Request $request)
     {
         Auth::logout();
+
         $request->session()->invalidate();
+
         $request->session()->regenerateToken();
 
         return redirect()->route('login');
-    }
-
-
-    private function logoutAndBlock()
-    {
-        Auth::logout();
-        return redirect()->route('login')->with('error', 'Anda tidak memiliki akses ke area ini.');
     }
 }

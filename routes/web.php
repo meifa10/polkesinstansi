@@ -10,7 +10,10 @@ use App\Http\Controllers\Admin\DataPasienController;
 use App\Http\Controllers\Admin\PembayaranController;
 use App\Http\Controllers\Admin\LaporanController;
 use App\Http\Controllers\Admin\PemeriksaanController;
-
+use App\Http\Controllers\Petugas\DashboardController as PetugasDashboardController;
+use App\Http\Controllers\Petugas\PemeriksaanAwalController;
+use App\Http\Controllers\Petugas\PendaftaranController as PetugasPendaftaranController;
+use App\Http\Controllers\Petugas\ObatController;
 
 
 
@@ -229,3 +232,55 @@ Route::middleware(['auth','role:admin'])
         Route::get('/admin/laporan/pdf/{bulan}/{tahun}', [LaporanController::class, 'exportPdf'])
             ->name('admin.laporan.pdf');
     });
+
+
+// petugas
+Route::middleware(['auth', 'role:petugas'])
+    ->prefix('petugas')
+    ->name('petugas.')
+    ->group(function () {
+
+        Route::get('/dashboard',
+            [PetugasDashboardController::class, 'index'])
+            ->name('dashboard');
+
+        // DATA PENDAFTARAN
+        Route::get('/pendaftaran',
+            [PetugasPendaftaranController::class, 'index'])
+            ->name('pendaftaran.index');
+
+        // PEMERIKSAAN AWAL
+        Route::get('/pemeriksaan-awal',
+            [PemeriksaanAwalController::class, 'index'])
+            ->name('pemeriksaan_awal.index');
+
+        Route::get('/pemeriksaan-awal/{id}',
+            [PemeriksaanAwalController::class, 'edit'])
+            ->name('pemeriksaan_awal.edit');
+
+        Route::post('/pemeriksaan-awal/{id}',
+            [PemeriksaanAwalController::class, 'update'])
+            ->name('pemeriksaan_awal.update');
+
+        // STOK OBAT
+        Route::get('/stok-obat', function () {
+            return view('petugas.stok_obat.index');
+        })->name('stok_obat.index');
+
+        Route::get('/stok-obat',
+            [ObatController::class, 'index'])
+            ->name('stok_obat.index');
+
+        Route::post('/stok-obat',
+            [ObatController::class, 'store'])
+            ->name('stok_obat.store');
+
+        Route::put('/stok-obat/{id}',
+            [ObatController::class, 'update'])
+            ->name('stok_obat.update');
+
+        Route::delete('/stok-obat/{id}',
+            [ObatController::class, 'destroy'])
+            ->name('stok_obat.destroy');
+
+});

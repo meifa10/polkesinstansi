@@ -1,234 +1,271 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Instansi - POLKES JOMBANG</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #f8fafc;
             overflow: hidden;
         }
 
-        /* Logic Animasi Split Screen */
-        .container-box.register-mode .overlay-container { transform: translateX(-100%); }
-        .container-box.register-mode .form-container.login-box { transform: translateX(100%); opacity: 0; pointer-events: none; }
-        .container-box.register-mode .form-container.register-box { transform: translateX(100%); opacity: 1; pointer-events: auto; }
-
-        .form-container { transition: all 0.8s cubic-bezier(0.645, 0.045, 0.355, 1); }
-        .overlay-container { transition: all 0.8s cubic-bezier(0.645, 0.045, 0.355, 1); }
-
-        .float-icon { animation: floating 3s ease-in-out infinite; }
-        @keyframes floating {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-15px); }
-            100% { transform: translateY(0px); }
+        /* Smooth Transition Logic */
+        .container-box.register-mode .overlay-container {
+            transform: translateX(-100%);
         }
 
+        .container-box.register-mode .form-section {
+            transform: translateX(100%);
+        }
+
+        .container-box.register-mode .login-box {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.9) translateY(20px);
+        }
+
+        .container-box.register-mode .register-box {
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale(1) translateY(0);
+        }
+
+        .form-container {
+            transition: all 0.7s cubic-bezier(0.7, 0, 0.3, 1);
+        }
+
+        .overlay-container, .form-section {
+            transition: all 0.7s cubic-bezier(0.7, 0, 0.3, 1);
+        }
+
+        /* Glass Input Styling */
         .glass-input {
-            background: rgba(243, 244, 246, 0.8);
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(229, 231, 235, 0.5);
-            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(8px);
+            border: 1.5px solid #e2e8f0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
+
         .glass-input:focus {
             background: white;
             border-color: #10b981;
-            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
+            transform: translateY(-1px);
         }
 
-        /* Alert Animation */
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* Floating Animation */
+        @keyframes floating {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
         }
-        .alert-animate { animation: slideIn 0.4s ease forwards; }
+
+        .float-element {
+            animation: floating 6s ease-in-out infinite;
+        }
+
+        /* Custom Scrollbar for Register Form if needed */
+        .register-box::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .btn-primary {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.95);
+        }
+
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-primary:hover::after {
+            width: 300px;
+            height: 300px;
+        }
     </style>
 </head>
 
-<body class="min-h-screen flex items-center justify-center bg-[#f0f4f8] p-4">
+<body class="min-h-screen flex items-center justify-center p-4">
 
-    <div class="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-emerald-200/40 blur-[120px]"></div>
-    <div class="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-200/40 blur-[120px]"></div>
+    <!-- Abstract Background Decor -->
+    <div class="fixed top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-emerald-100/50 blur-[100px] -z-10"></div>
+    <div class="fixed bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-blue-100/50 blur-[100px] -z-10"></div>
 
-    <div class="container-box relative w-full max-w-[1000px] h-[650px] bg-white/80 backdrop-blur-xl rounded-[40px] shadow-[0_30px_100px_rgba(0,0,0,0.12)] overflow-hidden flex">
-        
-        <div class="relative w-1/2 h-full z-10">
+    <div class="container-box relative w-full max-w-[1100px] h-[720px] bg-white/70 backdrop-blur-2xl rounded-[48px] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.15)] overflow-hidden flex border border-white/50">
+
+        <!-- FORM SECTION (LEFT SIDE BY DEFAULT) -->
+        <div class="form-section relative w-1/2 h-full z-10">
             
-            <div class="form-container login-box absolute inset-0 flex items-center px-12 lg:px-20 opacity-1">
-                <div class="w-full">
-                    @if(session('error'))
-                    <div id="alert-error" class="alert-animate mb-6 flex items-center p-4 rounded-2xl bg-red-50 border border-red-100">
-                        <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-red-100 text-red-600">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                            </svg>
-                        </div>
-                        <div class="ml-3">
-                            <p class="text-sm font-bold text-red-800">Login Gagal</p>
-                            <p class="text-xs text-red-600">{{ session('error') }}</p>
-                        </div>
+            <!-- LOGIN BOX -->
+            <div class="form-container login-box absolute inset-0 flex flex-col justify-center px-16 lg:px-24">
+                <div class="mb-10">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-600 text-[11px] font-bold tracking-widest uppercase mb-6">
+                        <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        </span>
+                        Portal Akses Instansi
                     </div>
-                    @endif
+                    <h2 class="text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                        Selamat Datang <br><span class="text-emerald-600">Kembali.</span>
+                    </h2>
+                    <p class="text-slate-500 mt-3 font-medium">Silakan masuk untuk mengelola data sistem.</p>
+                </div>
 
-                    @if(session('success'))
-                    <div id="alert-success" class="alert-animate mb-6 flex items-center p-4 rounded-2xl bg-emerald-50 border border-emerald-100">
-                        <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-emerald-100 text-emerald-600">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                        </div>
-                        <div class="ml-3">
-                            <p class="text-sm font-bold text-emerald-800">Berhasil</p>
-                            <p class="text-xs text-emerald-600">{{ session('success') }}</p>
-                        </div>
-                    </div>
-                    @endif
-
-                    <div class="mb-10">
-                        <span class="inline-block px-4 py-1.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold tracking-widest uppercase mb-4 font-sans">Portal Instansi</span>
-                        <h2 class="text-4xl font-extrabold text-gray-900 tracking-tight">Selamat Datang</h2>
-                        <p class="text-gray-500 mt-2 font-medium">Masuk untuk akses Admin & Dokter</p>
+                <form method="POST" action="{{ route('instansi.login.post') }}" class="space-y-6" autocomplete="off">
+                    @csrf
+                    <div class="space-y-2">
+                        <label class="text-[11px] font-extrabold text-slate-400 ml-1 uppercase tracking-widest">Email Address</label>
+                        <input type="email" name="email" placeholder="nama@polkes.com" required
+                            class="glass-input w-full px-6 py-4 rounded-2xl outline-none text-slate-700 font-semibold placeholder:text-slate-300">
                     </div>
 
-                    <form method="POST" action="{{ route('instansi.login.post') }}" class="space-y-5" autocomplete="off">
-                        @csrf 
-                        <div class="space-y-1">
-                            <label class="text-xs font-bold text-gray-400 ml-1 uppercase tracking-wider">Email Address</label>
-                            <input type="email" name="email" id="loginEmail" placeholder="dokter@polkes.com" required 
-                                class="glass-input clear-input w-full px-6 py-4 rounded-2xl outline-none text-gray-700 font-medium">
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center px-1">
+                            <label class="text-[11px] font-extrabold text-slate-400 uppercase tracking-widest">Password</label>
+                            <a href="#" class="text-[11px] font-bold text-emerald-600 hover:text-emerald-700">Lupa Password?</a>
                         </div>
-
-                        <div class="space-y-1 relative">
-                            <label class="text-xs font-bold text-gray-400 ml-1 uppercase tracking-wider">Security Password</label>
-                            <div class="relative">
-                                <input id="loginPass" type="password" name="password" placeholder="••••••••" required autocomplete="current-password"
-                                    class="glass-input clear-input w-full px-6 py-4 rounded-2xl outline-none text-gray-700 font-medium pr-14">
-                                <button type="button" onclick="togglePassword('loginPass')" class="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-emerald-500 transition-colors">
-                                    <svg id="icon-loginPass" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                    </svg>
-                                </button>
-                            </div>
+                        <div class="relative">
+                            <input id="loginPass" type="password" name="password" placeholder="••••••••" required
+                                class="glass-input w-full px-6 py-4 rounded-2xl outline-none text-slate-700 font-semibold pr-14 placeholder:text-slate-300">
+                            <button type="button" onclick="togglePassword('loginPass')" class="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-500 transition-colors">
+                                <svg id="icon-loginPass" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                            </button>
                         </div>
-
-                        <button type="submit" class="w-full py-4 rounded-2xl bg-emerald-600 text-white font-bold text-lg shadow-lg shadow-emerald-200 hover:bg-emerald-700 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                            Masuk Sekarang
-                        </button>
-                    </form>
-
-                    <div class="mt-10 pt-8 border-t border-gray-100">
-                        <p class="text-sm text-gray-500 text-center">
-                            Belum memiliki akun dokter? 
-                            <button onclick="toggleMode()" class="text-emerald-600 font-bold hover:underline">Daftar Akun</button>
-                        </p>
                     </div>
+
+                    <button type="submit" class="btn-primary w-full py-4 rounded-2xl bg-emerald-600 text-white font-bold text-lg shadow-[0_10px_25px_-5px_rgba(16,185,129,0.4)] hover:bg-emerald-700 hover:shadow-emerald-200 mt-2">
+                        Masuk Sistem
+                    </button>
+                </form>
+
+                <div class="mt-12 text-center">
+                    <p class="text-sm text-slate-400 font-medium">
+                        Belum terdaftar? 
+                        <button type="button" onclick="toggleMode()" class="text-emerald-600 font-bold hover:text-emerald-700 underline underline-offset-4 ml-1">Buat Akun</button>
+                    </p>
                 </div>
             </div>
 
-            <div class="form-container register-box absolute inset-0 flex items-center px-12 lg:px-20 opacity-0 pointer-events-none">
-                <div class="w-full">
-                    <div class="mb-8">
-                        <h2 class="text-4xl font-extrabold text-gray-900 tracking-tight">Daftar Dokter</h2>
-                        <p class="text-gray-500 mt-2 font-medium">Bergabung dengan tim medis</p>
+            <!-- REGISTER BOX -->
+            <div class="form-container register-box absolute inset-0 flex flex-col justify-center px-16 lg:px-24 opacity-0 pointer-events-none transform translate-y-10">
+                <div class="mb-8">
+                    <h2 class="text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">Registrasi <br><span class="text-emerald-600">Personel.</span></h2>
+                    <p class="text-slate-500 mt-3 font-medium">Lengkapi data untuk akses petugas medis.</p>
+                </div>
+
+                <form method="POST" action="{{ route('instansi.register') }}" class="space-y-4" autocomplete="off">
+                    @csrf
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-extrabold text-slate-400 ml-1 uppercase tracking-widest">Nama Lengkap</label>
+                            <input type="text" name="name" placeholder="Dr. John Doe" required class="glass-input w-full px-5 py-3.5 rounded-xl outline-none text-slate-700 font-semibold">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-extrabold text-slate-400 ml-1 uppercase tracking-widest">Role Instansi</label>
+                            <select name="role" required class="glass-input w-full px-5 py-3.5 rounded-xl outline-none text-slate-700 font-semibold appearance-none">
+                                <option value="">Pilih Role</option>
+                                <option value="dokter">Dokter</option>
+                                <option value="petugas">Petugas</option>
+                            </select>
+                        </div>
                     </div>
 
-                    <form method="POST" action="{{ route('instansi.register') }}" class="space-y-4" autocomplete="off">
-                        @csrf
-                        <div class="space-y-1">
-                            <label class="text-xs font-bold text-gray-400 ml-1 uppercase tracking-wider">Nama Lengkap</label>
-                            <input type="text" name="name" placeholder="dr. Jhon Doe, Sp.PD" required 
-                                class="glass-input clear-input w-full px-6 py-4 rounded-2xl outline-none text-gray-700 font-medium">
-                        </div>
-                        
-                        <div class="space-y-1">
-                            <label class="text-xs font-bold text-gray-400 ml-1 uppercase tracking-wider">Email Institusi</label>
-                            <input type="email" name="email" placeholder="example@polkes.com" required 
-                                class="glass-input clear-input w-full px-6 py-4 rounded-2xl outline-none text-gray-700 font-medium">
-                        </div>
-
-                        <div class="space-y-1">
-                            <label class="text-xs font-bold text-gray-400 ml-1 uppercase tracking-wider">Create Password</label>
-                            <div class="relative">
-                                <input id="regPass" type="password" name="password" placeholder="••••••••" required autocomplete="new-password"
-                                    class="glass-input clear-input w-full px-6 py-4 rounded-2xl outline-none text-gray-700 font-medium pr-14">
-                                <button type="button" onclick="togglePassword('regPass')" class="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-emerald-500 transition-colors">
-                                    <svg id="icon-regPass" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-
-                        <button type="submit" class="w-full py-4 rounded-2xl bg-emerald-600 text-white font-bold text-lg shadow-lg hover:bg-emerald-700 transition-all duration-300">
-                            Daftar Sekarang
-                        </button>
-                    </form>
-
-                    <div class="mt-8 pt-6 border-t border-gray-100">
-                        <p class="text-sm text-gray-500 text-center">
-                            Sudah memiliki akun? 
-                            <button onclick="toggleMode()" class="text-emerald-600 font-bold hover:underline">Masuk Login</button>
-                        </p>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-extrabold text-slate-400 ml-1 uppercase tracking-widest">Email</label>
+                        <input type="email" name="email" placeholder="email@polkes.com" required class="glass-input w-full px-5 py-3.5 rounded-xl outline-none text-slate-700 font-semibold">
                     </div>
+
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-extrabold text-slate-400 ml-1 uppercase tracking-widest">Password Baru</label>
+                        <input type="password" name="password" placeholder="••••••••" required class="glass-input w-full px-5 py-3.5 rounded-xl outline-none text-slate-700 font-semibold">
+                    </div>
+
+                    <button type="submit" class="btn-primary w-full py-4 rounded-2xl bg-emerald-600 text-white font-bold text-lg shadow-[0_10px_25px_-5px_rgba(16,185,129,0.4)] hover:bg-emerald-700 mt-4">
+                        Daftarkan Akun
+                    </button>
+                </form>
+
+                <div class="mt-10 text-center">
+                    <p class="text-sm text-slate-400 font-medium">
+                        Sudah punya akun? 
+                        <button type="button" onclick="toggleMode()" class="text-emerald-600 font-bold hover:text-emerald-700 underline underline-offset-4 ml-1">Kembali Login</button>
+                    </p>
                 </div>
             </div>
         </div>
 
+        <!-- OVERLAY SECTION (RIGHT SIDE BY DEFAULT) -->
         <div class="overlay-container absolute top-0 right-0 w-1/2 h-full z-20">
-            <div class="relative h-full w-full bg-emerald-600 overflow-hidden">
-                <div class="absolute inset-0 bg-cover bg-center scale-110" 
-                    style="background-image:url('https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=1000&q=80')">
-                </div>
-                <div class="absolute inset-0 bg-gradient-to-tr from-emerald-900/90 via-emerald-800/80 to-emerald-600/40"></div>
+            <div class="relative h-full w-full bg-slate-900 overflow-hidden">
+                <!-- Background Image with Overlay -->
+                <div class="absolute inset-0 bg-cover bg-center transition-transform duration-1000" style="background-image:url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1200&q=80')"></div>
+                <div class="absolute inset-0 bg-gradient-to-br from-emerald-900/95 via-emerald-800/80 to-transparent"></div>
 
-                <div class="relative z-30 h-full flex flex-col items-center justify-center text-white px-12 text-center">
-                    <div class="float-icon bg-white/20 backdrop-blur-md p-5 rounded-[30px] mb-8 border border-white/30">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white">
-                            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+                <!-- Animated Elements -->
+                <div class="absolute top-20 left-20 w-32 h-32 bg-emerald-400/10 rounded-full blur-3xl animate-pulse"></div>
+                <div class="absolute bottom-20 right-20 w-40 h-40 bg-blue-400/10 rounded-full blur-3xl animate-pulse"></div>
+
+                <!-- Content -->
+                <div class="relative z-30 h-full flex flex-col items-center justify-center text-white px-16 text-center">
+                    <div class="float-element bg-white/10 backdrop-blur-xl p-6 rounded-[32px] mb-10 border border-white/20 shadow-2xl">
+                        <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-emerald-300">
+                            <path d="M11 2a2 2 0 0 0-2 2v5H4a2 2 0 0 0-2 2v2c0 1.1.9 2 2 2h5v5c0 1.1.9 2 2 2h2a2 2 0 0 0 2-2v-5h5a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2h-5V4a2 2 0 0 0-2-2h-2z"/>
                         </svg>
                     </div>
-                    <h1 class="text-3xl font-extrabold tracking-tight mb-4 leading-tight uppercase">
-                        POLKES 05.09.15<br><span class="text-emerald-300">KAB. JOMBANG</span>
+
+                    <h1 class="text-4xl font-black tracking-tight mb-4 leading-none uppercase">
+                        POLKES <span class="text-emerald-400">JOMBANG</span>
+                        <span class="block text-lg font-medium tracking-[0.3em] mt-2 text-emerald-100/70">POLIKLINIK KESEHATAN</span>
                     </h1>
-                    <div class="w-16 h-1 bg-emerald-400 rounded-full mb-6"></div>
-                    <p class="text-emerald-50 text-sm leading-relaxed opacity-90 italic">
-                        "Professional Medical Service & Integrated Healthcare System"
+
+                    <div class="w-20 h-1.5 bg-emerald-500/50 rounded-full mb-8"></div>
+
+                    <p class="text-emerald-50/80 text-sm leading-relaxed max-w-sm font-medium italic">
+                        "Mewujudkan sistem informasi kesehatan yang terintegrasi, profesional, dan melayani dengan sepenuh hati."
                     </p>
+
+                    <div class="absolute bottom-10 flex gap-4 opacity-50">
+                        <div class="w-2 h-2 rounded-full bg-white"></div>
+                        <div class="w-2 h-2 rounded-full bg-white/30"></div>
+                        <div class="w-2 h-2 rounded-full bg-white/30"></div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Auto-hide alert setelah 5 detik
-        setTimeout(() => {
-            const errorAlert = document.getElementById('alert-error');
-            const successAlert = document.getElementById('alert-success');
-            if(errorAlert) errorAlert.style.display = 'none';
-            if(successAlert) successAlert.style.display = 'none';
-        }, 5000);
-
-        window.addEventListener('DOMContentLoaded', (event) => {
-            setTimeout(() => {
-                const inputs = document.querySelectorAll('.clear-input');
-                inputs.forEach(input => {
-                    input.value = '';
-                });
-            }, 50);
-        });
-
+        // Toggle Login/Register
         const containerBox = document.querySelector('.container-box');
-
         function toggleMode() {
             containerBox.classList.toggle('register-mode');
         }
 
+        // Toggle Password Visibility
         function togglePassword(id) {
             const input = document.getElementById(id);
             const icon = document.getElementById('icon-' + id);
@@ -241,6 +278,18 @@
                 icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />';
             }
         }
+
+        // Clear inputs on load
+        window.addEventListener('DOMContentLoaded', () => {
+
+            document.querySelectorAll('input:not([type="hidden"])')
+                .forEach(input => {
+
+                    input.value = '';
+
+                });
+
+        });
     </script>
 </body>
 </html>

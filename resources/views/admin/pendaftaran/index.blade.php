@@ -1,224 +1,183 @@
 @extends('layouts.admin')
 
 @section('content')
+
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
 
 <div class="p-6 bg-slate-100 min-h-screen font-['Plus_Jakarta_Sans']">
 
-    {{-- ================= HEADER ================= --}}
+    {{-- HEADER --}}
     <div class="flex flex-col md:flex-row justify-between items-end mb-6 gap-4">
         <div>
             <nav class="flex text-[11px] text-slate-500 mb-1 gap-1 font-bold uppercase tracking-wider">
                 <span>Admin</span>
                 <span class="text-slate-400">/</span>
-                <span class="text-emerald-700">Manajemen Antrean</span>
+                <span class="text-emerald-700">Antrian Pasien Hari Ini</span>
             </nav>
             <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">
                 Pendaftaran <span class="text-emerald-600">Pasien</span>
             </h1>
         </div>
 
-        <div class="flex items-center gap-3 bg-slate-900 px-5 py-2.5 rounded-xl shadow-lg border-b-4 border-emerald-500">
-            <div class="text-right">
-                <p class="text-[10px] uppercase tracking-widest text-slate-400 font-bold leading-none">Antrean Aktif</p>
-                <p class="text-xl font-extrabold text-white leading-tight mt-1">
-                    {{ $pendaftaran->where('status','menunggu')->count() }} <span class="text-xs font-medium text-emerald-400">PASIEN</span>
-                </p>
-            </div>
+        <div class="bg-slate-900 px-6 py-3 rounded-2xl shadow-lg border-b-4 border-emerald-500">
+            <p class="text-[10px] uppercase tracking-widest text-slate-400 font-black">
+                Total Pasien Hari Ini
+            </p>
+            <p class="text-2xl font-black text-white">
+                {{ $pendaftaran->count() }}
+                <span class="text-sm text-emerald-400">PASIEN</span>
+            </p>
         </div>
     </div>
 
-    {{-- ================= FILTER & PENCARIAN ================= --}}
-    <div class="bg-white p-4 rounded-xl border border-slate-300 shadow-sm mb-4">
-        <form 
-            method="GET" 
-            action="{{ route('admin.pendaftaran.index') }}" 
-            id="filterForm"
-            class="flex flex-col lg:flex-row gap-3"
-        >
-            <div class="relative flex-grow">
-                <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-900 font-bold">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                </div>
-                <input
-                    type="text"
-                    name="q"
-                    value="{{ request('q') }}"
-                    placeholder="Cari Nama Pasien, NIK, atau Poliklinik..."
-                    oninput="submitWithDelay()"
-                    class="w-full pl-10 pr-4 py-2.5 rounded-lg bg-slate-50 border border-slate-400 focus:border-slate-900 focus:bg-white outline-none text-sm font-bold text-slate-900 transition-all placeholder:text-slate-400"
-                >
+    {{-- FILTER --}}
+    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm mb-5">
+        <form method="GET" action="{{ route('admin.pendaftaran.index') }}" class="flex flex-col lg:flex-row gap-3">
+            {{-- SEARCH --}}
+            <div class="flex-1">
+                <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama pasien atau NIK..." 
+                    class="w-full px-4 py-3 rounded-xl border border-slate-300 outline-none text-sm font-bold focus:border-emerald-500">
             </div>
 
-            <div class="flex gap-2">
-                <div class="relative">
-                    <select
-                        name="poli"
-                        onchange="document.getElementById('filterForm').submit()"
-                        class="pl-4 pr-10 py-2.5 rounded-lg border border-slate-400 bg-white text-sm font-bold text-slate-900 outline-none focus:border-slate-900 cursor-pointer appearance-none min-w-[180px]"
-                    >
-                        <option value="">Semua Layanan Poli</option>
-                        <option value="Poli Umum" {{ request('poli') == 'Poli Umum' ? 'selected' : '' }}>Poli Umum</option>
-                        <option value="Poli Gigi" {{ request('poli') == 'Poli Gigi' ? 'selected' : '' }}>Poli Gigi</option>
-                        <option value="Poli KIA & KB" {{ request('poli') == 'Poli KIA & KB' ? 'selected' : '' }}>Poli KIA & KB</option>
-                    </select>
-                    <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none text-slate-900">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor font-bold">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </div>
-                </div>
-
-                @if(request('q') || request('poli'))
-                <a href="{{ route('admin.pendaftaran.index') }}"
-                   class="flex items-center gap-2 px-5 py-2.5 bg-slate-200 text-slate-900 rounded-lg text-sm font-bold hover:bg-slate-300 transition-all border border-slate-400">
-                    Atur Ulang
-                </a>
-                @endif
+            {{-- FILTER POLI --}}
+            <div>
+                <select name="poli" onchange="this.form.submit()" class="px-4 py-3 rounded-xl border border-slate-300 outline-none text-sm font-bold focus:border-emerald-500">
+                    <option value="">Semua Poli</option>
+                    <option value="Poli Umum" {{ request('poli') == 'Poli Umum' ? 'selected' : '' }}>Poli Umum</option>
+                    <option value="Poli Gigi" {{ request('poli') == 'Poli Gigi' ? 'selected' : '' }}>Poli Gigi</option>
+                    <option value="Poli KIA" {{ request('poli') == 'Poli KIA' ? 'selected' : '' }}>Poli KIA & KB</option>
+                </select>
             </div>
+            
+            <button type="submit" class="bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-emerald-700">Filter</button>
         </form>
     </div>
 
-    {{-- ================= SUCCESS MESSAGE ================= --}}
+    {{-- SUCCESS ALERT --}}
     @if(session('success'))
-    <div class="mb-4 p-4 bg-emerald-100 border-l-4 border-emerald-600 text-emerald-800 rounded shadow-sm flex items-center gap-3 text-sm font-bold italic animate-pulse">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-600" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-        </svg>
-        {{ session('success') }}
+    <div class="mb-4 bg-emerald-100 border border-emerald-200 text-emerald-700 px-5 py-4 rounded-xl font-bold text-sm flex justify-between items-center">
+        <span>{{ session('success') }}</span>
+        <button type="button" onclick="this.parentElement.remove()" class="text-emerald-900">&times;</button>
     </div>
     @endif
 
-    {{-- ================= DATA TABLE ================= --}}
-    <div class="bg-white rounded-xl shadow-md border border-slate-300 overflow-hidden">
+    {{-- TABLE --}}
+    <div class="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-slate-900 border-b border-slate-900">
-                        <th class="px-5 py-4 text-center w-14 text-emerald-400 font-black text-xs uppercase tracking-tighter">No</th>
-                        <th class="px-5 py-4 text-white font-bold text-xs uppercase">Nama Pasien</th>
-                        <th class="px-5 py-4 text-white font-bold text-xs uppercase">Kategori / Poli</th>
-                        <th class="px-5 py-4 text-center text-white font-bold text-xs uppercase">Status Antrean</th>
-                        <th class="px-5 py-4 text-right text-white font-bold text-xs uppercase">Kelola Status</th>
+            <table class="w-full">
+                <thead class="bg-slate-900">
+                    <tr>
+                        <th class="px-5 py-4 text-white text-xs uppercase text-center w-16">No</th>
+                        <th class="px-5 py-4 text-white text-xs uppercase text-left">Pasien & Dokter</th>
+                        <th class="px-5 py-4 text-white text-xs uppercase text-center">Unit / Poli</th>
+                        <th class="px-5 py-4 text-white text-xs uppercase text-left">Pemeriksaan Awal</th>
+                        <th class="px-5 py-4 text-white text-xs uppercase text-center">Status</th>
+                        <th class="px-5 py-4 text-white text-xs uppercase text-right">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-200">
+
+                <tbody class="divide-y divide-slate-100">
                     @forelse($pendaftaran as $item)
-                    <tr class="hover:bg-emerald-50/50 transition-colors">
-                        {{-- NO --}}
+                    <tr class="hover:bg-emerald-50/40 transition">
+                        {{-- NO & ANTREAN --}}
                         <td class="px-5 py-4 text-center">
-                            <span class="text-sm font-bold text-slate-900">#{{ $loop->iteration }}</span>
+                            <div class="font-black text-slate-700 text-sm">#{{ $loop->iteration }}</div>
+                            <div class="text-[9px] font-black bg-slate-100 text-slate-500 rounded px-1 mt-1">
+                                Q-{{ str_pad($item->nomor_antrian, 2, '0', STR_PAD_LEFT) }}
+                            </div>
                         </td>
 
-                        {{-- PASIEN --}}
+                        {{-- PASIEN & DOKTER --}}
                         <td class="px-5 py-4">
-                            <div class="flex items-center gap-3">
-                                <div class="w-9 h-9 rounded-lg bg-slate-800 flex items-center justify-center text-white text-sm font-black shadow-sm">
-                                    {{ strtoupper(substr($item->nama_pasien, 0, 1)) }}
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-black text-sm">
+                                    {{ strtoupper(substr($item->nama_pasien,0,1)) }}
                                 </div>
                                 <div>
-                                    <p class="text-[14px] font-bold text-slate-950 leading-tight">{{ $item->nama_pasien }}</p>
-                                    <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">Identitas: {{ $item->no_identitas ?? 'Online' }}</p>
+                                    <p class="font-black text-slate-800 uppercase text-sm leading-tight">{{ $item->nama_pasien }}</p>
+                                    <p class="text-[10px] text-slate-400 font-bold uppercase">NIK: {{ $item->no_identitas }}</p>
+                                    
+                                    {{-- INFO DOKTER --}}
+                                    <div class="mt-1 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-user-doctor text-[10px] text-emerald-500"></i>
+                                        <span class="text-[10px] text-emerald-700 font-black uppercase">
+                                            {{ $item->dokter->name ?? 'Dokter Belum Ditentukan' }}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </td>
 
-                        {{-- JENIS & POLI --}}
+                        {{-- POLI --}}
+                        <td class="px-5 py-4 text-center">
+                            <span class="px-3 py-1 rounded-lg bg-emerald-100 text-emerald-700 text-[10px] font-black uppercase border border-emerald-200">
+                                {{ $item->poli }}
+                            </span>
+                        </td>
+
+                        {{-- TANDA VITAL --}}
                         <td class="px-5 py-4">
-                            <div class="flex flex-col gap-1">
-                                <span class="text-xs font-black text-slate-900 uppercase leading-none">{{ $item->poli }}</span>
-                                <span class="text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100 w-fit uppercase">
-                                    {{ $item->jenis_pasien }}
-                                </span>
+                            <div class="space-y-1">
+                                <div class="flex gap-2">
+                                    <span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-[9px] font-black border border-blue-100">
+                                        BB: {{ $item->berat_badan ?? '-' }} KG
+                                    </span>
+                                    <span class="bg-purple-50 text-purple-700 px-2 py-0.5 rounded text-[9px] font-black border border-purple-100">
+                                        TB: {{ $item->tinggi_badan ?? '-' }} CM
+                                    </span>
+                                </div>
+                                <p class="text-[10px] text-slate-600 font-bold line-clamp-1 italic">
+                                    "{{ $item->keluhan ?? 'Tidak ada keluhan' }}"
+                                </p>
                             </div>
                         </td>
 
-                        {{-- STATUS PILL --}}
+                        {{-- STATUS --}}
                         <td class="px-5 py-4 text-center">
-                            @if($item->status == 'menunggu')
-                                <span class="inline-flex items-center px-4 py-1 bg-amber-100 text-amber-800 rounded-md text-[10px] font-black uppercase border border-amber-300">
-                                    <span class="w-1.5 h-1.5 bg-amber-500 rounded-full mr-2 animate-pulse"></span>
-                                    MENUNGGU
+                            @if($item->status == 'menunggu_petugas' || $item->status == 'menunggu_admin')
+                                <span class="px-4 py-1 rounded-full bg-amber-100 text-amber-700 border border-amber-200 text-[9px] font-black uppercase">
+                                    Menunggu Verifikasi
                                 </span>
-                            @elseif($item->status == 'diproses')
-                                <span class="inline-flex items-center px-4 py-1 bg-blue-100 text-blue-800 rounded-md text-[10px] font-black uppercase border border-blue-300">
-                                    <span class="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"></span>
-                                    DIPROSES
+                            @elseif($item->status == 'diproses_dokter' || $item->status == 'proses')
+                                <span class="px-4 py-1 rounded-full bg-blue-100 text-blue-700 border border-blue-200 text-[9px] font-black uppercase">
+                                    Dalam Pemeriksaan
                                 </span>
                             @elseif($item->status == 'selesai')
-                                <span class="inline-flex items-center px-4 py-1 bg-emerald-100 text-emerald-800 rounded-md text-[10px] font-black uppercase border border-emerald-300">
-                                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-2"></span>
-                                    SELESAI
+                                <span class="px-4 py-1 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200 text-[9px] font-black uppercase">
+                                    Selesai
                                 </span>
                             @endif
                         </td>
 
-                        {{-- AKSI / SELECT UPDATE --}}
+                        {{-- AKSI --}}
                         <td class="px-5 py-4 text-right">
-                            <form id="form-status-{{ $item->id }}" method="POST" action="{{ route('admin.pendaftaran.status', $item->id) }}" class="inline-block">
+                            @if($item->status == 'menunggu_petugas' || $item->status == 'menunggu_admin')
+                            <form method="POST" action="{{ route('admin.pendaftaran.status', $item->id) }}">
                                 @csrf
-                                <div class="relative group">
-                                    <select
-                                        name="status"
-                                        onchange="document.getElementById('form-status-{{ $item->id }}').submit()"
-                                        class="pl-3 pr-8 py-1.5 bg-white border-2 border-slate-300 rounded-lg text-[11px] font-black text-slate-900 outline-none focus:border-slate-900 cursor-pointer appearance-none transition-all hover:bg-slate-50 uppercase shadow-sm"
-                                    >
-                                        <option value="menunggu" {{ $item->status=='menunggu'?'selected':'' }}>⏳ Tunggu</option>
-                                        <option value="diproses" {{ $item->status=='diproses'?'selected':'' }}>⚙️ Proses</option>
-                                        <option value="selesai" {{ $item->status=='selesai'?'selected':'' }}>✅ Selesai</option>
-                                    </select>
-                                    <div class="absolute inset-y-0 right-2 flex items-center pointer-events-none text-slate-400">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7" />
-                                        </svg>
-                                    </div>
-                                </div>
+                                <input type="hidden" name="status" value="diproses_dokter">
+                                <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black uppercase tracking-wider shadow-md transition">
+                                    Kirim ke Dokter
+                                </button>
                             </form>
+                            @else
+                                <span class="text-[10px] font-bold text-slate-400 italic">Telah Diproses</span>
+                            @endif
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="py-16 text-center bg-slate-50">
-                            <p class="text-slate-500 font-extrabold text-lg uppercase tracking-widest opacity-50 italic">Antrean Masih Kosong</p>
+                        <td colspan="6" class="py-20 text-center">
+                            <div class="flex flex-col items-center opacity-30">
+                                <i class="fa-solid fa-folder-open text-4xl mb-3 text-slate-400"></i>
+                                <p class="text-sm font-black uppercase tracking-widest text-slate-500">Tidak Ada Antrian Pasien</p>
+                            </div>
                         </td>
                     </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-        
-        <div class="bg-slate-50 px-6 py-4 border-t border-slate-300">
-            <p class="text-[10px] text-slate-500 font-bold italic uppercase tracking-wider italic">
-                * Harap perbarui status secara berkala untuk menjaga sinkronisasi antrean di dashboard dokter.
-            </p>
-        </div>
     </div>
 </div>
 
-{{-- SCRIPT AUTO SUBMIT --}}
-<script>
-    let timeout = null;
-    function submitWithDelay() {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => {
-            document.getElementById('filterForm').submit();
-        }, 600);
-    }
-</script>
-
-<style>
-    body { background-color: #f1f5f9; color: #0f172a; }
-    * {
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        text-rendering: optimizeLegibility;
-    }
-    /* Padding tabel yang padat */
-    td {
-        padding-top: 0.8rem !important;
-        padding-bottom: 0.8rem !important;
-    }
-</style>
 @endsection

@@ -5,23 +5,27 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\PendaftaranPoli;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class PendaftaranController extends Controller
 {
-
     public function index(Request $request)
     {
-        $query = PendaftaranPoli::orderBy('created_at', 'desc');
+        // Gunakan eager loading 'dokter' agar aplikasi tidak lambat
+        $query = PendaftaranPoli::with('dokter')
+                    ->whereDate('created_at', Carbon::today()) 
+                    ->latest();
 
+        // SEARCH
         if ($request->filled('q')) {
-            $search = trim($request->q);
+            $search = $request->q;
             $query->where(function ($q) use ($search) {
                 $q->where('nama_pasien', 'like', "%{$search}%")
-                  ->orWhere('no_identitas', 'like', "%{$search}%")
-                  ->orWhere('poli', 'like', "%{$search}%");
+                  ->orWhere('no_identitas', 'like', "%{$search}%");
             });
         }
 
+        // FILTER POLI
         if ($request->filled('poli')) {
             $query->where('poli', $request->poli);
         }
@@ -33,14 +37,11 @@ class PendaftaranController extends Controller
 
     public function updateStatus(Request $request, $id)
     {
-        $request->validate([
-            'status' => 'required|in:menunggu,diproses,selesai'
-        ]);
-
+        $request->validate(['status' => 'required']);
         $data = PendaftaranPoli::findOrFail($id);
         $data->status = $request->status;
         $data->save();
 
-        return back()->with('success', 'Status pasien berhasil diperbarui.');
+        return back()->with('success', 'Status pasien berhasil diperbarui');
     }
 }

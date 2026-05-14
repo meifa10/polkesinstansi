@@ -5,42 +5,41 @@ namespace App\Http\Controllers\Dokter;
 use App\Http\Controllers\Controller;
 use App\Models\PendaftaranPoli;
 use App\Models\RekamMedis;
-use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        
-        $pasien = PendaftaranPoli::where('status', 'diproses')
+        // pasien yang siap diperiksa dokter
+        $pasien = PendaftaranPoli::where('status', 'diproses_dokter')
             ->orderBy('created_at', 'asc')
             ->get();
 
         $today = today();
 
-        $totalPasienHariIni = PendaftaranPoli::whereDate('created_at', $today)->count();
+        // total pasien hari ini
+        $totalPasienHariIni = PendaftaranPoli::whereDate('created_at', $today)
+            ->count();
 
+        // pasien umum
         $totalPasienUmum = PendaftaranPoli::whereDate('created_at', $today)
-            ->whereRaw('LOWER(jenis_pasien) = ?', ['umum'])
+            ->where('jenis_pasien', 'UMUM')
             ->count();
 
-        $totalPasienBPJS = PendaftaranPoli::whereDate('created_at', $today)
-            ->whereRaw('LOWER(jenis_pasien) = ?', ['bpjs'])
+        // pasien JKN/BPJS
+        $totalPasienJKN = PendaftaranPoli::whereDate('created_at', $today)
+            ->where('jenis_pasien', 'JKN')
             ->count();
 
-        $totalPasienBaru = PendaftaranPoli::whereDate('created_at', $today)
-            ->whereRaw('LOWER(jenis_pasien) = ?', ['baru'])
-            ->count();
-
+        // total rekam medis
         $totalRekamMedis = RekamMedis::count();
 
         return view('dokter.dashboard', compact(
             'pasien',
-            'totalRekamMedis',
             'totalPasienHariIni',
             'totalPasienUmum',
-            'totalPasienBPJS',
-            'totalPasienBaru'
+            'totalPasienJKN',
+            'totalRekamMedis'
         ));
     }
 }
