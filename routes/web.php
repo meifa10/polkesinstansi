@@ -198,26 +198,28 @@ Route::middleware(['auth', 'role:admin'])
     });
 
 
-// pembayaran
-Route::middleware(['auth','role:admin'])
-->prefix('admin')
-->group(function () {
+Route::middleware(['auth', 'role:admin'])
+    ->prefix('admin')
+    ->as('admin.') 
+    ->group(function () {
 
-    Route::get('/pembayaran', [PembayaranController::class,'index'])
-        ->name('admin.pembayaran');
+        // 1. Halaman Utama Riwayat Transaksi Pasien
+        Route::get('/pembayaran', [PembayaranController::class, 'index'])
+            ->name('pembayaran'); // Menjadi: admin.pembayaran
 
-    Route::get('/pembayaran/create/{pendaftaran}',
-        [PembayaranController::class,'create'])
-        ->name('admin.pembayaran.create');
+        // 2. Halaman Rincian Detail Transaksi & Komponen Biaya
+        Route::get('/pembayaran/detail/{id}', [PembayaranController::class, 'show'])
+            ->name('pembayaran.show'); // Menjadi: admin.pembayaran.show
 
-    Route::post('/pembayaran',
-        [PembayaranController::class,'store'])
-        ->name('admin.pembayaran.store');
+        // 3. Proses Validasi Pelunasan Kasir
+        Route::post('/pembayaran/lunasi/{id}', [PembayaranController::class, 'lunasi'])
+            ->name('pembayaran.lunasi'); // Menjadi: admin.pembayaran.lunasi
 
-    Route::post('/pembayaran/{pembayaran}/lunasi',
-        [PembayaranController::class,'lunasi'])
-        ->name('admin.pembayaran.lunasi');
-});
+        // 4. Cetak / Print Struk Laporan Pembayaran Pasien
+        Route::get('/pembayaran/print/{id}', [PembayaranController::class, 'printStruk'])
+            ->name('pembayaran.print'); // Menjadi: admin.pembayaran.print
+
+    });
 
 // laporan 
 Route::middleware(['auth','role:admin'])

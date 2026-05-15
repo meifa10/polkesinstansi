@@ -69,12 +69,12 @@
                 </div>
             </div>
 
-            {{-- SUMMARY BOX --}}
+            {{-- TOTAL KUNJUNGAN BOX --}}
             <div class="bg-slate-900 rounded-[2rem] p-6 text-white shadow-xl shadow-slate-200/50 relative overflow-hidden group border-b-8 border-emerald-500">
                 <div class="relative z-10 flex items-center justify-between">
                     <div>
                         <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Total Kunjungan</p>
-                        <h3 class="text-4xl font-black text-emerald-400">{{ $pasien->total_kunjungan ?? $kunjungan->count() }}x</h3>
+                        <h3 class="text-4xl font-black text-emerald-400">{{ $kunjungan->count() }}x</h3>
                     </div>
                     <i class="ph-fill ph-stethoscope text-6xl text-white/10 absolute -right-2 -bottom-2 group-hover:rotate-12 transition-transform duration-500"></i>
                 </div>
@@ -88,7 +88,7 @@
             <section>
                 <div class="flex items-center gap-3 mb-4">
                     <div class="w-1.5 h-6 bg-emerald-500 rounded-full"></div>
-                    <h2 class="text-lg font-black text-slate-900 uppercase tracking-tight">Status Kunjungan & Keuangan</h2>
+                    <h2 class="text-lg font-black text-slate-900 uppercase tracking-tight">Status Transaksi Midtrans</h2>
                 </div>
 
                 <div class="space-y-4">
@@ -100,42 +100,39 @@
                             </div>
                             <div>
                                 <p class="text-sm font-black text-slate-900">{{ $k->created_at->translatedFormat('d M Y') }}</p>
-                                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Layanan: <span class="text-slate-700">{{ $k->poli }}</span></p>
+                                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Poli: <span class="text-slate-700">{{ $k->poli }}</span></p>
                             </div>
                         </div>
 
                         <div class="flex flex-col items-end gap-2 w-full md:w-auto">
                             @if($k->pembayaran)
                                 @if($k->pembayaran->status === 'lunas')
-                                    <div class="flex flex-col items-end">
-                                        <span class="px-4 py-1.5 bg-emerald-100 text-emerald-700 rounded-lg text-[10px] font-black uppercase border-2 border-emerald-200">
-                                            ✔ LUNAS ({{ $k->pembayaran->metode }})
-                                        </span>
-                                        <p class="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-tighter">
-                                            Validasi: {{ \Carbon\Carbon::parse($k->pembayaran->tanggal_bayar)->format('d/m/y H:i') }}
-                                        </p>
+                                    <div class="flex items-center gap-3">
+                                        <div class="text-right">
+                                            <span class="px-4 py-1.5 bg-emerald-100 text-emerald-700 rounded-lg text-[10px] font-black uppercase border-2 border-emerald-200">
+                                                ✔ TERVERIFIKASI LUNAS
+                                            </span>
+                                        </div>
+                                        {{-- TOMBOL CETAK STRUK PDF --}}
+                                        <a href="{{ route('admin.pembayaran.print', $k->pembayaran->id) }}" 
+                                           class="p-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all shadow-md active:scale-95" title="Cetak Struk">
+                                            <i class="ph-bold ph-printer text-lg"></i>
+                                        </a>
                                     </div>
                                 @else
-                                    <div class="flex gap-2">
-                                        @if($k->pembayaran->metode === 'bpjs' || $k->pembayaran->metode === 'tunai')
-                                            <form method="POST" action="{{ route('admin.pembayaran.lunasi', $k->pembayaran->id) }}">
-                                                @csrf
-                                                <button class="px-4 py-2 bg-slate-900 hover:bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-md active:scale-95">
-                                                    Validasi {{ $k->pembayaran->metode }}
-                                                </button>
-                                            </form>
-                                        @else
-                                            <span class="px-4 py-2 bg-amber-50 text-amber-600 rounded-xl text-[10px] font-black uppercase border border-amber-200 italic tracking-tighter">
-                                                Menunggu pembayaran
-                                            </span>
-                                        @endif
+                                    <div class="flex items-center gap-3">
+                                        <span class="px-4 py-1.5 bg-amber-50 text-amber-600 rounded-lg text-[10px] font-black uppercase border border-amber-200 italic tracking-tighter">
+                                            ⌛ Menunggu Pembayaran Midtrans
+                                        </span>
+                                        {{-- Link ke Detail Invoice di Admin Pembayaran --}}
+                                        <a href="{{ route('admin.pembayaran.show', $k->pembayaran->id) }}" 
+                                           class="p-2.5 bg-slate-900 text-white rounded-xl hover:bg-emerald-600 transition-all shadow-md active:scale-95" title="Lihat Detail Tagihan">
+                                            <i class="ph-bold ph-eye text-lg"></i>
+                                        </a>
                                     </div>
                                 @endif
                             @else
-                                <a href="{{ route('admin.pembayaran.create', $k->id) }}"
-                                   class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-100 transition-all active:scale-95 flex items-center gap-2">
-                                    <i class="ph-bold ph-plus"></i> Buat Tagihan
-                                </a>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase italic">Belum Ada Tagihan</span>
                             @endif
                         </div>
                     </div>
@@ -152,7 +149,7 @@
             <section>
                 <div class="flex items-center gap-3 mb-4">
                     <div class="w-1.5 h-6 bg-blue-500 rounded-full"></div>
-                    <h2 class="text-lg font-black text-slate-900 uppercase tracking-tight">Riwayat Klinis / Rekam Medis</h2>
+                    <h2 class="text-lg font-black text-slate-900 uppercase tracking-tight">Riwayat Klinis</h2>
                 </div>
 
                 <div class="space-y-4">
@@ -168,20 +165,23 @@
 
                         <div class="grid md:grid-cols-2 gap-6">
                             <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                                <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Hasil Diagnosis</p>
+                                <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Diagnosis</p>
                                 <p class="text-xs font-bold text-slate-800 leading-relaxed italic">"{{ $rm->diagnosis }}"</p>
                             </div>
                             <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                                <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Tindakan Medis</p>
+                                <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Tindakan</p>
                                 <p class="text-xs font-bold text-slate-800 leading-relaxed">{{ $rm->tindakan }}</p>
                             </div>
                         </div>
 
                         @if($rm->resep)
                         <div class="mt-4 pt-4 border-t border-slate-100">
-                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Instruksi Resep</p>
+                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Resep Obat</p>
                             <div class="flex flex-wrap gap-2">
-                                @foreach(explode(',', $rm->resep) as $obat)
+                                @php
+                                    $obatArray = explode(',', $rm->resep);
+                                @endphp
+                                @foreach($obatArray as $obat)
                                 <span class="px-3 py-1 bg-white border border-slate-300 text-[10px] font-black text-slate-700 rounded-lg shadow-sm uppercase italic">
                                     {{ trim($obat) }}
                                 </span>
@@ -197,7 +197,6 @@
                     @endforelse
                 </div>
             </section>
-
         </div>
     </div>
 </div>
