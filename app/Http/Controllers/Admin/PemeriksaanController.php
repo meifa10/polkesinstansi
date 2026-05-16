@@ -50,65 +50,175 @@ class PemeriksaanController extends Controller
 
         }
 
-        // Download CSV tanpa package excel
+        // Export Excel Tanpa Package
         if ($request->has('download')) {
 
-            $filename = 'Rekap-Medis-' . now()->format('d-m-Y') . '.csv';
+            $filename = 'Laporan-Pemeriksaan-' . now()->format('d-m-Y') . '.xls';
 
             $headers = [
-                'Content-Type' => 'text/csv',
-                'Content-Disposition' => "attachment; filename=\"$filename\"",
+                "Content-Type" => "application/vnd.ms-excel",
+                "Content-Disposition" => "attachment; filename=\"$filename\"",
             ];
 
-            $callback = function () use ($query) {
+            $html = '
+            <html>
+            <head>
+                <meta charset="UTF-8">
 
-                $file = fopen('php://output', 'w');
+                <style>
 
-                // Header kolom CSV
-                fputcsv($file, [
-                    'No',
-                    'Nama Pasien',
-                    'No Identitas',
-                    'Poli',
-                    'Keluhan',
-                    'Diagnosis',
-                    'Tindakan',
-                    'Dokter',
-                    'Tanggal',
-                ]);
+                    body{
+                        font-family: Arial, sans-serif;
+                        padding:20px;
+                        color:#1f2937;
+                    }
 
-                $no = 1;
+                    .header{
+                        text-align:center;
+                        margin-bottom:25px;
+                    }
 
-                foreach ($query->get() as $item) {
+                    .title{
+                        font-size:24px;
+                        font-weight:bold;
+                        color:white;
+                        background:#059669;
+                        padding:18px;
+                        border-radius:10px;
+                        letter-spacing:1px;
+                    }
 
-                    fputcsv($file, [
+                    .subtitle{
+                        margin-top:15px;
+                        line-height:1.8;
+                        font-size:13px;
+                        color:#374151;
+                    }
 
-                        $no++,
+                    .report-date{
+                        margin-top:20px;
+                        font-size:12px;
+                        color:#6b7280;
+                    }
 
-                        $item->pendaftaran->nama_pasien ?? '-',
+                    table{
+                        width:100%;
+                        border-collapse:collapse;
+                        margin-top:30px;
+                    }
 
-                        $item->pendaftaran->no_identitas ?? '-',
+                    th{
+                        background:#059669;
+                        color:white;
+                        padding:12px;
+                        border:1px solid #d1d5db;
+                        text-align:center;
+                        font-size:12px;
+                        font-weight:bold;
+                    }
 
-                        $item->pendaftaran->poli ?? '-',
+                    td{
+                        border:1px solid #d1d5db;
+                        padding:10px;
+                        font-size:12px;
+                        vertical-align:top;
+                    }
 
-                        $item->keluhan ?? '-',
+                    tr:nth-child(even){
+                        background:#f9fafb;
+                    }
 
-                        $item->diagnosis ?? '-',
+                    .text-center{
+                        text-align:center;
+                    }
 
-                        $item->tindakan ?? '-',
+                </style>
+            </head>
 
-                        $item->dokter->name ?? '-',
+            <body>
 
-                        $item->created_at
-                            ? $item->created_at->format('d-m-Y')
-                            : '-',
-                    ]);
-                }
+                <div class="header">
 
-                fclose($file);
-            };
+                    <div class="title">
+                        LAPORAN PEMERIKSAAN POLKES 05.09.15 JOMBANG
+                    </div>
 
-            return response()->stream($callback, 200, $headers);
+                    <div class="subtitle">
+                        Jl. KH. Wahid Hasyim No.28 B<br>
+                        Jombang, Jawa Timur<br><br>
+
+                        Telp / WA: 0877-7723-5386<br>
+                        Email: jombangposkes@gmail.com
+                    </div>
+
+                    <div class="report-date">
+                        Dicetak pada: '.now()->format('d-m-Y H:i').'
+                    </div>
+
+                </div>
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th width="5%">No</th>
+                            <th width="18%">Nama Pasien</th>
+                            <th width="14%">NIK</th>
+                            <th width="12%">Poli</th>
+                            <th width="15%">Keluhan</th>
+                            <th width="15%">Diagnosis</th>
+                            <th width="15%">Tindakan</th>
+                            <th width="12%">Dokter</th>
+                            <th width="10%">Tanggal</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+            ';
+
+            $no = 1;
+
+            foreach ($query->get() as $item) {
+
+                $html .= '
+                    <tr>
+
+                        <td class="text-center">'.$no++.'</td>
+
+                        <td>'.($item->pendaftaran->nama_pasien ?? '-').'</td>
+
+                        <td>'.($item->pendaftaran->no_identitas ?? '-').'</td>
+
+                        <td>'.($item->pendaftaran->poli ?? '-').'</td>
+
+                        <td>'.($item->keluhan ?? '-').'</td>
+
+                        <td>'.($item->diagnosis ?? '-').'</td>
+
+                        <td>'.($item->tindakan ?? '-').'</td>
+
+                        <td>'.($item->dokter->name ?? '-').'</td>
+
+                        <td class="text-center">'.
+                            ($item->created_at
+                                ? $item->created_at->format('d-m-Y')
+                                : '-') .
+                        '</td>
+
+                    </tr>
+                ';
+            }
+
+            $html .= '
+                    </tbody>
+
+                </table>
+
+            </body>
+            </html>
+            ';
+
+            return response($html, 200, $headers);
         }
 
         // Tampilkan data ke view
