@@ -10,68 +10,90 @@
     }
 </style>
 
-<div class="p-6 lg:p-8 bg-slate-50 min-h-screen">
+<div class="p-6 lg:p-8 bg-slate-50 min-h-screen font-sans">
 
     {{-- HEADER SECTION --}}
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
+    <div class="flex flex-col md:flex-row md:justify-between md:items-end mb-8 gap-4">
         <div>
-            <nav class="flex text-xs text-slate-500 mb-2 gap-1.5 font-bold uppercase tracking-widest">
-                <span>Admin</span>
-                <span class="text-slate-300">/</span>
-                <span class="text-emerald-600">Antrian Pasien Hari Ini</span>
-            </nav>
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100 text-emerald-800 text-sm font-bold tracking-wide uppercase mb-3 border border-emerald-200">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                </svg>
+                Admin / Antrian Pasien Hari Ini
+            </div>
             <h1 class="text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
                 Pendaftaran <span class="text-emerald-600">Pasien</span>
             </h1>
+            <p class="text-slate-600 font-medium mt-3 text-base lg:text-lg">
+                Kelola data antrian pasien, pantau pemeriksaan awal, dan teruskan ke dokter.
+            </p>
         </div>
 
         {{-- METRIC CARD --}}
-        <div class="bg-slate-900 px-8 py-4 rounded-2xl shadow-md border-b-4 border-emerald-500 min-w-[220px]">
-            <p class="text-[10px] uppercase tracking-widest text-slate-400 font-black">
-                Total Pasien Hari Ini
-            </p>
-            <p class="text-3xl font-black text-white mt-1 leading-none flex items-baseline gap-2">
-                {{ $pendaftaran->count() }}
-                <span class="text-xs text-emerald-400 font-bold tracking-wider">PASIEN</span>
-            </p>
+        <div class="bg-white px-8 py-5 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-6 min-w-[220px]">
+            <div class="p-4 bg-emerald-50 rounded-xl text-emerald-600 border border-emerald-100">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+            </div>
+            <div>
+                <p class="text-sm uppercase font-bold text-slate-400 tracking-wider">Total Pasien</p>
+                <h2 class="text-4xl font-black text-slate-800 leading-none mt-1">{{ $pendaftaran->count() }}</h2>
+            </div>
         </div>
     </div>
 
     {{-- FILTER BOX --}}
-    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm mb-6">
-        <label class="block text-sm font-bold text-slate-600 uppercase tracking-wide mb-3">Pencarian & Filter Unit</label>
-        <form method="GET" action="{{ route('admin.pendaftaran.index') }}" class="flex flex-col lg:flex-row gap-4">
-            <div class="flex-1 relative">
-                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <svg class="h-5 w-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 mb-8 flex flex-col justify-center">
+        <div class="flex items-center gap-3 mb-6 pb-5 border-b border-slate-100">
+            <div class="bg-emerald-100 p-2 rounded-lg text-emerald-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                </svg>
+            </div>
+            <h2 class="text-xl font-bold text-slate-800">Pencarian & Filter Unit</h2>
+        </div>
+
+        <form method="GET" action="{{ route('admin.pendaftaran.index') }}" class="grid grid-cols-1 md:grid-cols-12 gap-5 items-end">
+            
+            {{-- Search Input --}}
+            <div class="md:col-span-6 relative">
+                <label class="block text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">Cari Pasien</label>
+                <div class="absolute inset-y-0 bottom-0 left-0 pl-4 flex items-center pointer-events-none" style="top: 28px;">
+                    <svg class="h-6 w-6 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
                     </svg>
                 </div>
                 <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama pasien atau NIK..." 
-                    class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-300 rounded-xl outline-none text-base font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all">
+                    class="w-full pl-12 pr-5 py-3.5 bg-slate-50 border border-slate-300 rounded-xl text-base font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all outline-none">
             </div>
 
-            <div class="relative min-w-[220px]">
-                <select name="poli" onchange="this.form.submit()" class="w-full px-5 py-3.5 bg-slate-50 border border-slate-300 rounded-xl outline-none text-base font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all appearance-none cursor-pointer">
+            {{-- Poli Select --}}
+            <div class="md:col-span-4 relative">
+                <label class="block text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">Pilih Poli</label>
+                <select name="poli" onchange="this.form.submit()" class="w-full px-5 py-3.5 bg-slate-50 border border-slate-300 rounded-xl text-base font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all outline-none appearance-none cursor-pointer">
                     <option value="">Semua Poli</option>
                     <option value="Poli Umum" {{ request('poli') == 'Poli Umum' ? 'selected' : '' }}>Poli Umum</option>
                     <option value="Poli Gigi" {{ request('poli') == 'Poli Gigi' ? 'selected' : '' }}>Poli Gigi</option>
                     <option value="Poli KIA" {{ request('poli') == 'Poli KIA' ? 'selected' : '' }}>Poli KIA & KB</option>
                 </select>
-                <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                <div class="absolute inset-y-0 bottom-0 right-0 flex items-center pr-4 pointer-events-none" style="top: 28px;">
                     <svg class="h-5 w-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </div>
             </div>
             
-            <div class="flex gap-2">
-                <button type="submit" class="bg-emerald-600 text-white px-8 py-3.5 rounded-xl font-bold text-base hover:bg-emerald-700 shadow-md shadow-emerald-500/20 transition-colors flex-1 lg:flex-none">
+            {{-- Action Buttons --}}
+            <div class="md:col-span-2 flex gap-3">
+                <button type="submit" class="flex-1 bg-slate-800 text-white py-3.5 rounded-xl text-base font-bold hover:bg-slate-900 transition-colors shadow-md">
                     Filter
                 </button>
                 @if(request('q') || request('poli'))
-                    <a href="{{ route('admin.pendaftaran.index') }}" class="px-5 py-3.5 bg-slate-100 text-slate-600 rounded-xl text-base font-bold hover:bg-slate-200 transition-colors border border-slate-300 flex items-center justify-center">
-                        Reset
+                    <a href="{{ route('admin.pendaftaran.index') }}" class="px-5 py-3.5 bg-slate-100 text-slate-600 rounded-xl text-base font-bold hover:bg-slate-200 transition-colors border border-slate-300 flex items-center justify-center" title="Reset">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
                     </a>
                 @endif
             </div>
@@ -81,8 +103,10 @@
     {{-- MESSAGES (SUCCESS & ERROR) --}}
     @if(session('success'))
     <div class="mb-5 bg-emerald-50 border border-emerald-300 text-emerald-800 px-5 py-4 rounded-xl font-bold text-base flex justify-between items-center shadow-sm">
-        <span class="flex items-center gap-2">
-            <i class="fa-solid fa-circle-check text-emerald-600 text-lg"></i> 
+        <span class="flex items-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
             {{ session('success') }}
         </span>
         <button type="button" onclick="this.parentElement.remove()" class="text-emerald-900 font-black text-xl hover:opacity-70">&times;</button>
@@ -91,8 +115,10 @@
 
     @if(session('error'))
     <div class="mb-5 bg-rose-50 border border-rose-300 text-rose-800 px-5 py-4 rounded-xl font-bold text-base flex justify-between items-center shadow-sm">
-        <span class="flex items-center gap-2">
-            <i class="fa-solid fa-circle-exclamation text-rose-600 text-lg"></i> 
+        <span class="flex items-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
             {{ session('error') }}
         </span>
         <button type="button" onclick="this.parentElement.remove()" class="text-rose-900 font-black text-xl hover:opacity-70">&times;</button>
@@ -100,7 +126,7 @@
     @endif
 
     {{-- DATA TABLE --}}
-    <div class="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
@@ -116,12 +142,12 @@
 
                 <tbody class="text-base divide-y divide-slate-200">
                     @forelse($pendaftaran as $item)
-                    <tr class="hover:bg-emerald-50/40 transition-colors">
+                    <tr class="hover:bg-emerald-50/60 transition-colors">
                         
                         {{-- NO & ANTREAN --}}
                         <td class="py-5 px-6 text-center align-middle">
-                            <div class="font-extrabold text-slate-500 text-lg">#{{ $loop->iteration }}</div>
-                            <div class="inline-block text-[11px] font-black bg-slate-100 text-slate-600 rounded-lg px-2 py-0.5 mt-1.5 border border-slate-300 shadow-sm">
+                            <div class="font-extrabold text-slate-500 text-lg">{{ $loop->iteration }}</div>
+                            <div class="inline-flex items-center justify-center text-xs font-black bg-slate-100 text-slate-600 rounded-lg px-2.5 py-1 mt-1 border border-slate-300 shadow-sm">
                                 Q-{{ str_pad($item->nomor_antrian, 2, '0', STR_PAD_LEFT) }}
                             </div>
                         </td>
@@ -129,15 +155,15 @@
                         {{-- PASIEN & DOKTER --}}
                         <td class="py-5 px-6 align-middle">
                             <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 rounded-xl bg-slate-900 text-white flex items-center justify-center font-black text-xl shadow-md flex-shrink-0">
+                                <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-black text-xl border border-emerald-200 shadow-sm flex-shrink-0">
                                     {{ strtoupper(substr($item->nama_pasien,0,1)) }}
                                 </div>
                                 <div>
                                     <p class="font-extrabold text-slate-800 text-lg uppercase tracking-tight leading-tight mb-1">{{ $item->nama_pasien }}</p>
-                                    <p class="text-xs text-slate-400 font-extrabold tracking-wider">NIK: {{ $item->no_identitas }}</p>
-                                    <div class="mt-2 flex items-center gap-1.5">
+                                    <p class="text-xs text-slate-500 font-bold tracking-wider">NIK: {{ $item->no_identitas }}</p>
+                                    <div class="mt-1.5 flex items-center gap-1.5">
                                         <i class="fa-solid fa-user-doctor text-xs text-emerald-500"></i>
-                                        <span class="text-xs text-emerald-700 font-black uppercase tracking-wide">
+                                        <span class="text-xs text-emerald-700 font-extrabold uppercase tracking-wide">
                                             {{ $item->dokter->name ?? 'Dokter Belum Ditentukan' }}
                                         </span>
                                     </div>
@@ -164,12 +190,12 @@
                                             TB: {{ $item->tinggi_badan }} CM
                                         </span>
                                     </div>
-                                    <p class="text-sm text-slate-600 font-bold italic line-clamp-2 leading-relaxed bg-slate-50 p-2 rounded-lg border border-slate-200">
+                                    <p class="text-sm text-slate-600 font-bold italic line-clamp-2 leading-relaxed bg-slate-50 p-2.5 rounded-lg border border-slate-200">
                                         "{{ $item->keluhan }}"
                                     </p>
                                 </div>
                             @else
-                                <div class="inline-flex items-center gap-2 text-amber-600 bg-amber-50 px-3 py-1.5 rounded-xl border border-amber-200">
+                                <div class="inline-flex items-center gap-2 text-amber-600 bg-amber-50 px-4 py-2 rounded-xl border border-amber-200 shadow-sm">
                                     <i class="fa-solid fa-clock-rotate-left animate-spin" style="animation-duration: 3s;"></i>
                                     <span class="text-xs font-black uppercase italic tracking-wide">Menunggu Petugas...</span>
                                 </div>
@@ -179,57 +205,72 @@
                         {{-- STATUS --}}
                         <td class="py-5 px-6 align-middle text-center">
                             @if($item->status == 'menunggu_petugas')
-                                <span class="px-4 py-2 rounded-full bg-slate-100 text-slate-500 border border-slate-300 text-xs font-black uppercase tracking-wide shadow-sm border">
+                                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-100 border border-slate-300 text-slate-600 text-xs font-extrabold shadow-sm uppercase">
                                     Tahap Petugas
-                                </span>
+                                </div>
                             @elseif($item->status == 'menunggu_admin')
-                                <span class="px-4 py-2 rounded-full bg-amber-100 text-amber-800 border border-amber-300 text-xs font-black uppercase tracking-wide shadow-sm border animate-pulse">
+                                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-100 border border-amber-300 text-amber-800 text-xs font-extrabold shadow-sm uppercase animate-pulse">
+                                    <span class="flex h-2 w-2 relative">
+                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                                        <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                                    </span>
                                     Siap Verifikasi
-                                </span>
+                                </div>
                             @elseif($item->status == 'diproses_dokter' || $item->status == 'proses')
-                                <span class="px-4 py-2 rounded-full bg-blue-100 text-blue-800 border border-blue-300 text-xs font-black uppercase tracking-wide shadow-sm border">
+                                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-100 border border-blue-300 text-blue-800 text-xs font-extrabold shadow-sm uppercase">
                                     Siap Diperiksa
-                                </span>
+                                </div>
                             @elseif($item->status == 'selesai')
-                                <span class="px-4 py-2 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-black uppercase tracking-wide shadow-sm border">
+                                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs font-extrabold shadow-sm uppercase">
                                     Selesai
-                                </span>
+                                </div>
                             @endif
                         </td>
 
                         {{-- AKSI --}}
                         <td class="py-5 px-6 align-middle text-center">
-                            @if($item->status == 'menunggu_admin')
-                                <form method="POST" action="{{ route('admin.pendaftaran.status', $item->id) }}" class="inline">
-                                    @csrf
-                                    <input type="hidden" name="status" value="diproses_dokter">
-                                    <button type="submit" class="group inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-md shadow-emerald-500/20 transition-all active:scale-95 border border-emerald-700">
-                                        Kirim ke Dokter 
-                                        <i class="fa-solid fa-paper-plane group-hover:translate-x-1 transition-transform"></i>
-                                    </button>
-                                </form>
-                            @elseif($item->status == 'menunggu_petugas')
-                                <span class="inline-flex items-center justify-center gap-1.5 px-5 py-3 rounded-xl bg-slate-100 text-slate-400 text-xs font-black uppercase border border-slate-300 shadow-inner cursor-not-allowed">
-                                    <i class="fa-solid fa-lock"></i> Terkunci
-                                </span>
-                            @else
-                                <div class="inline-flex items-center justify-center gap-1.5 text-slate-400 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200">
-                                    <i class="fa-solid fa-circle-check text-emerald-500"></i>
-                                    <span class="text-xs font-extrabold italic">Selesai</span>
-                                </div>
-                            @endif
+                            <div class="flex items-center justify-center gap-3">
+                                @if($item->status == 'menunggu_admin')
+                                    <form method="POST" action="{{ route('admin.pendaftaran.status', $item->id) }}" class="inline">
+                                        @csrf
+                                        <input type="hidden" name="status" value="diproses_dokter">
+                                        <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white hover:bg-emerald-700 font-bold rounded-xl transition-all shadow-md text-sm border border-emerald-700 group">
+                                            Kirim ke Dokter
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
+                                                <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+                                            </svg>
+                                        </button>
+                                    </form>
+                                @elseif($item->status == 'menunggu_petugas')
+                                    <span class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-slate-100 text-slate-400 text-sm font-bold border border-slate-300 cursor-not-allowed">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+                                        </svg>
+                                        Terkunci
+                                    </span>
+                                @else
+                                    <div class="inline-flex items-center justify-center gap-2 text-slate-500 bg-slate-50 px-5 py-2.5 rounded-xl border border-slate-200">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-500" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                        </svg>
+                                        <span class="text-sm font-bold italic">Selesai</span>
+                                    </div>
+                                @endif
+                            </div>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="py-24 text-center">
+                        <td colspan="6" class="py-20 text-center">
                             <div class="flex flex-col items-center justify-center">
                                 <div class="bg-emerald-50 p-6 rounded-full mb-5 border border-emerald-100">
-                                    <i class="fa-solid fa-user-slash text-4xl text-emerald-600 opacity-60"></i>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                    </svg>
                                 </div>
-                                <h3 class="text-xl font-bold text-slate-800 mb-2 uppercase tracking-wide">Tidak Ada Antrian Pasien</h3>
-                                <p class="text-slate-500 text-base max-w-sm">
-                                    Silakan periksa kembali filter pencarian Anda atau hubungi bagian pendaftaran loket depan.
+                                <h3 class="text-xl font-bold text-slate-800 mb-2">Tidak Ada Antrian Pasien</h3>
+                                <p class="text-slate-500 text-base max-w-md">
+                                    Silakan periksa kembali filter pencarian Anda atau belum ada pasien yang mendaftar hari ini.
                                 </p>
                             </div>
                         </td>
