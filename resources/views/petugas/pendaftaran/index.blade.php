@@ -27,7 +27,7 @@
                 Riwayat <span class="text-emerald-600">Pendaftaran</span>
             </h1>
             <p class="text-slate-600 font-medium mt-3 text-base lg:text-lg">
-                Menampilkan seluruh data pemeriksaan awal pasien yang tersimpan di database.
+                Menampilkan seluruh data pemeriksaan awal pasien yang tersimpan.
             </p>
         </div>
 
