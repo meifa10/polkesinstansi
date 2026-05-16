@@ -65,91 +65,22 @@
         @endforeach
     </div>
 
-    <div class="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+    {{-- TOP ROW: CHART & SUMMARY (2 COLUMNS) --}}
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start mb-8">
         
-        {{-- LEFT COLUMN: CHART & TABLE PASIEN --}}
-        <div class="xl:col-span-8 space-y-8">
-            
-            {{-- CHART CARD --}}
-            <div class="bg-white border border-slate-200 rounded-2xl p-6 lg:p-8 shadow-sm">
-                <div class="mb-6">
-                    <h3 class="text-xl font-bold text-slate-800">Beban Antrean Poli</h3>
-                    <p class="text-sm text-slate-500 font-medium mt-1">Visualisasi distribusi beban antrean pasien aktif per unit layanan</p>
-                </div>
-                <div class="h-[320px] relative flex justify-center">
-                    <canvas id="pasienChart"></canvas>
-                </div>
+        {{-- BEBAN ANTREAN CHART --}}
+        <div class="xl:col-span-8 bg-white border border-slate-200 rounded-2xl p-6 lg:p-8 shadow-sm">
+            <div class="mb-6">
+                <h3 class="text-xl font-bold text-slate-800">Beban Antrean Poli</h3>
+                <p class="text-sm text-slate-500 font-medium mt-1">Visualisasi distribusi beban antrean pasien aktif per unit layanan</p>
             </div>
-
-            {{-- TABLE PASIEN --}}
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="p-6 lg:p-8 border-b border-slate-200 flex justify-between items-center bg-slate-50/50">
-                    <h3 class="text-xl font-bold text-slate-800">Antrean Pasien <span class="text-emerald-600">Terbaru</span></h3>
-                    <a href="{{ route('petugas.pemeriksaan_awal.index') }}" class="inline-flex items-center text-sm font-bold text-emerald-600 hover:text-emerald-700 transition-colors">
-                        Lihat Semua Antrean
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-                        </svg>
-                    </a>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-emerald-900 text-white text-xs uppercase tracking-widest font-bold">
-                                <th class="py-4 px-6">Identitas Pasien</th>
-                                <th class="py-4 px-6">Unit Layanan</th>
-                                <th class="py-4 px-6 text-center">Status Alur</th>
-                            </tr>
-                        </thead>
-                        <tbody class="text-base divide-y divide-slate-200">
-                            @forelse($pasienTerbaru as $item)
-                            <tr class="hover:bg-emerald-50/40 transition-colors">
-                                <td class="py-4 px-6">
-                                    <div class="flex items-center gap-4">
-                                        <div class="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-black text-lg border border-emerald-200 shadow-sm flex-shrink-0">
-                                            {{ strtoupper(substr($item->nama_pasien,0,1)) }}
-                                        </div>
-                                        <div>
-                                            <p class="font-extrabold text-slate-800 text-base uppercase tracking-tight">{{ $item->nama_pasien }}</p>
-                                            <p class="text-xs text-slate-400 font-bold mt-0.5 tracking-wider">ID: #PX-{{ $item->id + 1000 }}</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="py-4 px-6 align-middle">
-                                    <div class="flex flex-col">
-                                        <span class="text-sm font-extrabold text-slate-700 uppercase">{{ $item->poli }}</span>
-                                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wide mt-0.5">{{ $item->jenis_pasien ?? 'Umum' }}</span>
-                                    </div>
-                                </td>
-                                <td class="py-4 px-6 align-middle text-center">
-                                    @php
-                                        $statusStyles = [
-                                            'menunggu_petugas' => ['bg' => 'bg-amber-100', 'text' => 'text-amber-800', 'border' => 'border-amber-300', 'dot' => 'bg-amber-500', 'label' => 'Menunggu'],
-                                            'menunggu_admin' => ['bg' => 'bg-blue-100', 'text' => 'text-blue-800', 'border' => 'border-blue-300', 'dot' => 'bg-blue-500', 'label' => 'Verifikasi'],
-                                            'diproses_dokter' => ['bg' => 'bg-violet-100', 'text' => 'text-violet-800', 'border' => 'border-violet-300', 'dot' => 'bg-violet-500', 'label' => 'Ke Dokter']
-                                        ];
-                                        $style = $statusStyles[$item->status] ?? ['bg' => 'bg-emerald-100', 'text' => 'text-emerald-800', 'border' => 'border-emerald-300', 'dot' => 'bg-emerald-500', 'label' => 'Selesai'];
-                                    @endphp
-                                    <div class="inline-flex items-center justify-center gap-1.5 px-3 py-1 rounded-full {{ $style['bg'] }} {{ $style['border'] }} {{ $style['text'] }} text-xs font-black uppercase border shadow-sm">
-                                        <span class="w-1.5 h-1.5 rounded-full {{ $style['dot'] }}"></span>
-                                        {{ $style['label'] }}
-                                    </div>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="3" class="py-16 text-center text-slate-400 font-bold italic">Data antrean kosong hari ini.</td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+            <div class="h-[320px] relative flex justify-center">
+                <canvas id="pasienChart"></canvas>
             </div>
         </div>
 
-        {{-- RIGHT COLUMN: SIDEBAR INFO & PENGUMUMAN --}}
+        {{-- LOKET & SUMMARY SIDEBAR --}}
         <div class="xl:col-span-4 space-y-8">
-            
             {{-- SUMMARY CARD --}}
             <div class="bg-slate-900 rounded-2xl p-6 lg:p-8 text-white shadow-lg border border-slate-800 relative overflow-hidden">
                 <div class="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
@@ -197,43 +128,76 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            {{-- BARU: UPDATE PENGUMUMAN INTERNAL (MENGISI AREA KOSONG) --}}
-            <div class="bg-white rounded-2xl p-6 lg:p-8 shadow-sm border border-slate-200">
-                <h3 class="text-lg font-bold text-slate-800 mb-5 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                    </svg>
-                    Memo & Pengumuman Internal
-                </h3>
-                <div class="space-y-4">
-                    {{-- Item 1 --}}
-                    <div class="p-4 rounded-xl bg-emerald-50/60 border border-emerald-100 relative overflow-hidden">
-                        <div class="flex items-center justify-between mb-1.5">
-                            <span class="px-2 py-0.5 rounded bg-emerald-600 text-white text-[9px] font-black uppercase tracking-wider">Penting</span>
-                            <span class="text-[10px] font-bold text-slate-400">Hari Ini</span>
-                        </div>
-                        <p class="text-sm font-bold text-slate-800">Kalibrasi Alat Tensi Digital</p>
-                        <p class="text-xs text-slate-500 mt-1 leading-relaxed">Seluruh tensimeter digital meja 1-3 akan dikalibrasi berkala oleh tim sarpras jam 13:00 WIB.</p>
-                    </div>
-
-                    {{-- Item 2 --}}
-                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                        <div class="flex items-center justify-between mb-1.5">
-                            <span class="px-2 py-0.5 rounded bg-slate-500 text-white text-[9px] font-black uppercase tracking-wider">Info</span>
-                            <span class="text-[10px] font-bold text-slate-400">15 Mei 2026</span>
-                        </div>
-                        <p class="text-sm font-bold text-slate-800">Pembaruan Stok Obat Alergi</p>
-                        <p class="text-xs text-slate-500 mt-1 leading-relaxed">Stok Cetirizine sirup dan Cetirizine tablet di Instalasi Farmasi sudah diperbarui dan siap diresepkan.</p>
-                    </div>
-                </div>
-            </div>
-
+    {{-- BOTTOM ROW: FULL WIDTH TABLE PASIEN ANTREAN (MENTOK KANAN-KIRI) --}}
+    <div class="w-full bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-6 lg:p-8 border-b border-slate-200 flex justify-between items-center bg-slate-50/50">
+            <h3 class="text-xl font-bold text-slate-800">Antrean Pasien <span class="text-emerald-600">Terbaru</span></h3>
+            <a href="{{ route('petugas.pemeriksaan_awal.index') }}" class="inline-flex items-center text-sm font-bold text-emerald-600 hover:text-emerald-700 transition-colors">
+                Lihat Semua Antrean
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+            </a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-emerald-900 text-white text-xs uppercase tracking-widest font-bold">
+                        <th class="py-4 px-6">Identitas Pasien</th>
+                        <th class="py-4 px-6">Unit Layanan</th>
+                        <th class="py-4 px-6 text-center">Status Alur</th>
+                    </tr>
+                </thead>
+                <tbody class="text-base divide-y divide-slate-200">
+                    @forelse($pasienTerbaru as $item)
+                    <tr class="hover:bg-emerald-50/40 transition-colors">
+                        <td class="py-4 px-6">
+                            <div class="flex items-center gap-4">
+                                <div class="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-black text-lg border border-emerald-200 shadow-sm flex-shrink-0">
+                                    {{ strtoupper(substr($item->nama_pasien,0,1)) }}
+                                </div>
+                                <div>
+                                    <p class="font-extrabold text-slate-800 text-base uppercase tracking-tight">{{ $item->nama_pasien }}</p>
+                                    <p class="text-xs text-slate-400 font-bold mt-0.5 tracking-wider">ID: #PX-{{ $item->id + 1000 }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6 align-middle">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-extrabold text-slate-700 uppercase">{{ $item->poli }}</span>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wide mt-0.5">{{ $item->jenis_pasien ?? 'Umum' }}</span>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6 align-middle text-center">
+                            @php
+                                $statusStyles = [
+                                    'menunggu_petugas' => ['bg' => 'bg-amber-100', 'text' => 'text-amber-800', 'border' => 'border-amber-300', 'dot' => 'bg-amber-500', 'label' => 'Menunggu'],
+                                    'menunggu_admin' => ['bg' => 'bg-blue-100', 'text' => 'text-blue-800', 'border' => 'border-blue-300', 'dot' => 'bg-blue-500', 'label' => 'Verifikasi'],
+                                    'diproses_dokter' => ['bg' => 'bg-violet-100', 'text' => 'text-violet-800', 'border' => 'border-violet-300', 'dot' => 'bg-violet-500', 'label' => 'Ke Dokter']
+                                ];
+                                $style = $statusStyles[$item->status] ?? ['bg' => 'bg-emerald-100', 'text' => 'text-emerald-800', 'border' => 'border-emerald-300', 'dot' => 'bg-emerald-500', 'label' => 'Selesai'];
+                            @endphp
+                            <div class="inline-flex items-center justify-center gap-1.5 px-3 py-1 rounded-full {{ $style['bg'] }} {{ $style['border'] }} {{ $style['text'] }} text-xs font-black uppercase border shadow-sm">
+                                <span class="w-1.5 h-1.5 rounded-full {{ $style['dot'] }}"></span>
+                                {{ $style['label'] }}
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="3" class="py-16 text-center text-slate-400 font-bold italic">Data antrean kosong hari ini.</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 
-{{-- SCRIPT CHART.JS DENGAN WARNA POLI BERBEDA --}}
+{{-- SCRIPT CHART.JS --}}
 <script>
 const ctx = document.getElementById('pasienChart');
 
@@ -244,9 +208,9 @@ new Chart(ctx, {
         datasets: [{
             data: {!! json_encode($jumlahPasienPoli) !!},
             backgroundColor: [
-                '#10b981', // Emerald (Poli KIA & KB / Poli 1)
-                '#8b5cf6', // Violet (Poli Umum / Poli 2)
-                '#0ea5e9', // Sky Blue (Poli Gigi / Poli 3)
+                '#10b981', // Emerald (Poli KIA & KB)
+                '#8b5cf6', // Violet (Poli Umum)
+                '#0ea5e9', // Sky Blue (Poli Gigi)
                 '#f59e0b', // Amber
                 '#f43f5e'  // Rose
             ],
