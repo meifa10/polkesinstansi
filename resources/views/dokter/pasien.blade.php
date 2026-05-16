@@ -2,407 +2,242 @@
 
 @section('content')
 
-<script src="https://cdn.tailwindcss.com"></script>
-
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
 <style>
-
     body {
         font-family: 'Plus Jakarta Sans', sans-serif;
-        background: #f8fafc;
     }
-
-    .table-antrean th {
-        padding: 16px;
-        background: #0f172a;
-        color: #fff;
-        font-size: 10px;
-        text-transform: uppercase;
-        letter-spacing: .1em;
-        font-weight: 800;
-    }
-
-    .table-antrean td {
-        padding: 18px;
-        vertical-align: middle;
-    }
-
-    .card-antrean {
-        border-radius: 2rem;
-        background: white;
-        border: 1px solid #f1f5f9;
-        box-shadow: 0 10px 30px rgba(0,0,0,.04);
-    }
-
-    .btn-periksa {
-        background: #10b981;
-        transition: .3s;
-    }
-
-    .btn-periksa:hover {
-        background: #059669;
-        transform: translateY(-2px);
-    }
-
-    .row-number {
-        width: 30px;
-        height: 30px;
-        background: #f1f5f9;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 11px;
-        font-weight: 800;
-        color: #334155;
-        margin: auto;
-    }
-
 </style>
 
-<div class="p-8 max-w-[1300px] mx-auto space-y-6">
+<div class="p-4 md:p-6 lg:p-8 bg-slate-50 min-h-screen font-sans">
 
-    {{-- HEADER --}}
-    <div class="flex flex-col md:flex-row justify-between items-end md:items-center gap-4">
-
+    {{-- ================= HEADER SECTION ================= --}}
+    <div class="flex flex-col md:flex-row md:justify-between md:items-end mb-8 gap-6">
         <div>
-
-            <div class="flex items-center gap-2 mb-2">
-
-                <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
-
-                <p class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">
-                    Dashboard Pemeriksaan Dokter
-                </p>
-
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold tracking-wide uppercase mb-2 border border-emerald-200 shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                Dashboard Pemeriksaan
             </div>
-
-            <h1 class="text-3xl font-black text-slate-900 tracking-tight">
-                Daftar <span class="text-emerald-600">Pasien</span>
+            <h1 class="text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
+                Daftar <span class="text-emerald-600">Antrean Pasien</span>
             </h1>
-
+            <p class="text-slate-500 font-medium mt-1.5 text-sm md:text-base">
+                Pilih pasien dari daftar antrean di bawah untuk memulai pemeriksaan medis.
+            </p>
         </div>
 
+        {{-- Card Total Pasien --}}
         <div class="bg-white border border-slate-200 rounded-2xl px-6 py-4 shadow-sm flex items-center gap-4">
-
-            <div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600">
-                <i class="fa-solid fa-user-doctor"></i>
+            <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
             </div>
-
             <div>
-
-                <p class="text-[10px] uppercase font-black tracking-widest text-slate-400">
-                    Total Pasien
-                </p>
-
-                <h2 class="text-2xl font-black text-slate-900">
-                    {{ $pasien->count() }}
-                </h2>
-
+                <p class="text-[10px] uppercase font-black tracking-widest text-slate-400 mb-0.5">Total Antrean</p>
+                <h2 class="text-2xl font-black text-slate-900 leading-none">{{ $pasien->count() }}</h2>
             </div>
-
         </div>
-
     </div>
 
-
-    {{-- SEARCH --}}
-    <div class="grid grid-cols-1 md:grid-cols-12 gap-3 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-
-        <div class="md:col-span-8 relative">
-
-            <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 text-sm"></i>
-
-            <input
-                type="text"
-                id="searchInput"
-                placeholder="Cari nama pasien..."
-                class="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-50 border border-transparent focus:border-emerald-500 outline-none font-bold text-sm"
-            >
-
+    {{-- ================= SEARCH & FILTER ================= --}}
+    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm mb-6 flex flex-col md:flex-row gap-4">
+        
+        {{-- Search Input --}}
+        <div class="relative flex-grow">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                </svg>
+            </div>
+            <input type="text" id="searchInput" placeholder="Cari nama pasien..."
+                   class="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white outline-none font-semibold text-sm text-slate-800 transition-all">
         </div>
 
-        <div class="md:col-span-4 relative">
-
-            <select
-                id="poliFilter"
-                class="w-full pl-5 pr-10 py-3 rounded-xl bg-slate-50 border border-transparent focus:border-emerald-500 outline-none font-black text-[11px] uppercase tracking-wider appearance-none"
-            >
-
-                <option value="ALL">Semua Poli</option>
-
+        {{-- Select Filter Poli --}}
+        <div class="relative md:w-64 flex-shrink-0">
+            <select id="poliFilter" class="w-full pl-5 pr-10 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white outline-none font-bold text-[11px] uppercase tracking-wider appearance-none cursor-pointer text-slate-700 transition-all">
+                <option value="ALL">Semua Poliklinik</option>
                 <option value="Poli Umum">Poli Umum</option>
-
                 <option value="Poli Gigi">Poli Gigi</option>
-
                 <option value="Poli KIA & KB">Poli KIA & KB</option>
-
             </select>
-
-            <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 text-xs"></i>
-
+            <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+            </div>
         </div>
-
     </div>
 
-
-    {{-- TABLE --}}
-    <div class="card-antrean overflow-hidden">
-
+    {{-- ================= DATA TABLE ================= --}}
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="overflow-x-auto">
-
-            <table class="w-full table-antrean" id="pasienTable">
-
+            <table class="w-full text-left border-collapse min-w-[1000px]" id="pasienTable">
                 <thead>
-
-                    <tr>
-
-                        <th class="text-center w-16 rounded-tl-3xl">
-                            No
-                        </th>
-
-                        <th>
-                            Pasien
-                        </th>
-
-                        <th>
-                            Keluhan
-                        </th>
-
-                        <th>
-                            BB / TB
-                        </th>
-
-                        <th>
-                            Poli
-                        </th>
-
-                        <th>
-                            Status
-                        </th>
-
-                        <th class="text-center rounded-tr-3xl">
-                            Aksi
-                        </th>
-
+                    <tr class="bg-slate-900 text-white text-[11px] uppercase tracking-widest font-bold">
+                        <th class="py-4 px-6 text-center w-16">No</th>
+                        <th class="py-4 px-6 min-w-[200px]">Data Pasien</th>
+                        <th class="py-4 px-6 min-w-[250px]">Keluhan Utama</th>
+                        <th class="py-4 px-6 min-w-[150px]">Vitals (BB/TB)</th>
+                        <th class="py-4 px-6 min-w-[140px]">Poliklinik</th>
+                        <th class="py-4 px-6 min-w-[130px]">Status</th>
+                        <th class="py-4 px-6 text-center min-w-[120px]">Aksi</th>
                     </tr>
-
                 </thead>
 
-                <tbody class="divide-y divide-slate-100">
-
+                <tbody class="divide-y divide-slate-100 text-sm">
                     @forelse($pasien as $p)
-
-                    <tr
-                        class="hover:bg-emerald-50/40 transition"
-                        data-poli="{{ $p->poli }}"
-                    >
-
-                        {{-- NO --}}
-                        <td class="text-center">
-
-                            <div class="row-number"></div>
-
+                    <tr class="hover:bg-emerald-50/50 transition-colors group" data-poli="{{ $p->poli }}">
+                        
+                        {{-- NO URUT --}}
+                        <td class="py-4 px-6 text-center align-middle">
+                            <div class="row-number w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-black mx-auto group-hover:bg-emerald-100 group-hover:text-emerald-700 transition-colors"></div>
                         </td>
 
-
-                        {{-- PASIEN --}}
-                        <td>
-
-                            <div class="flex items-center gap-4">
-
-                                <div class="w-11 h-11 rounded-full bg-slate-100 flex items-center justify-center text-slate-500">
-
-                                    <i class="fa-solid fa-user"></i>
-
+                        {{-- DATA PASIEN --}}
+                        <td class="py-4 px-6 align-middle">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center flex-shrink-0 group-hover:bg-emerald-100 group-hover:text-emerald-600 transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                    </svg>
                                 </div>
-
                                 <div>
-
-                                    <h2 class="font-black text-slate-800 uppercase text-sm">
+                                    <h2 class="font-extrabold text-slate-800 uppercase text-sm leading-tight">
                                         {{ $p->nama_pasien }}
                                     </h2>
-
-                                    <p class="text-[10px] uppercase font-bold text-slate-400">
-                                        No Antrean :
-                                        {{ $p->nomor_antrian }}
+                                    <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider mt-0.5 font-mono">
+                                        Antrean: <span class="text-emerald-600">{{ $p->nomor_antrian }}</span>
                                     </p>
-
                                 </div>
-
                             </div>
-
                         </td>
-
 
                         {{-- KELUHAN --}}
-                        <td>
-
-                            <div class="max-w-[250px]">
-
-                                <p class="text-sm font-bold text-slate-700 line-clamp-2">
-
-                                    {{ $p->keluhan }}
-
+                        <td class="py-4 px-6 align-middle">
+                            <div class="bg-slate-50 p-3 rounded-lg border border-slate-100 relative">
+                                <p class="text-xs font-bold text-slate-600 italic line-clamp-2 leading-relaxed">
+                                    "{{ $p->keluhan }}"
                                 </p>
-
                             </div>
-
                         </td>
 
-
-                        {{-- BB/TB --}}
-                        <td>
-
-                            <div class="flex flex-col gap-1">
-
-                                <span class="text-xs font-black text-emerald-700">
-                                    BB : {{ $p->berat_badan }} KG
+                        {{-- VITALS (BB/TB) --}}
+                        <td class="py-4 px-6 align-middle">
+                            <div class="flex flex-col gap-1.5">
+                                <span class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                    BB: <span class="font-black text-slate-900">{{ $p->berat_badan }} KG</span>
                                 </span>
-
-                                <span class="text-xs font-black text-blue-700">
-                                    TB : {{ $p->tinggi_badan }} CM
+                                <span class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                                    TB: <span class="font-black text-slate-900">{{ $p->tinggi_badan }} CM</span>
                                 </span>
-
                             </div>
-
                         </td>
 
-
-                        {{-- POLI --}}
-                        <td>
-
-                            <span class="px-3 py-1 rounded-lg bg-emerald-50 border border-emerald-100 text-emerald-700 text-[10px] font-black uppercase">
-
+                        {{-- POLIKLINIK --}}
+                        <td class="py-4 px-6 align-middle">
+                            <span class="px-2.5 py-1 rounded-md bg-slate-100 border border-slate-200 text-slate-700 text-[10px] font-black uppercase tracking-wider">
                                 {{ $p->poli }}
-
                             </span>
-
                         </td>
-
 
                         {{-- STATUS --}}
-                        <td>
-
-                            <span class="inline-flex items-center px-3 py-1 rounded-lg bg-blue-100 border border-blue-200 text-blue-700 text-[10px] font-black uppercase">
-
-                                <span class="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></span>
-
-                                Siap Diperiksa
-
+                        <td class="py-4 px-6 align-middle">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-[10px] font-black uppercase tracking-wider">
+                                <span class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></span>
+                                Siap Periksa
                             </span>
-
                         </td>
-
 
                         {{-- AKSI --}}
-                        <td class="text-center">
-
-                            <a
-                                href="{{ route('dokter.pemeriksaan.show', $p->id) }}"
-                                class="btn-periksa inline-flex items-center gap-2 px-5 py-3 rounded-xl text-white text-[10px] font-black uppercase tracking-widest"
-                            >
-
-                                <i class="fa-solid fa-stethoscope"></i>
-
+                        <td class="py-4 px-6 align-middle text-center">
+                            <a href="{{ route('dokter.pemeriksaan.show', $p->id) }}"
+                               class="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-emerald-600 text-white rounded-lg text-[11px] font-bold uppercase tracking-wider hover:bg-emerald-700 transition-all active:scale-95 shadow-sm border border-emerald-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
                                 Periksa
-
                             </a>
-
                         </td>
 
                     </tr>
-
                     @empty
-
                     <tr>
-
-                        <td colspan="7" class="py-24 text-center">
-
-                            <div class="flex flex-col items-center opacity-30">
-
-                                <i class="fa-solid fa-folder-open text-6xl mb-4"></i>
-
-                                <p class="text-[11px] font-black uppercase tracking-[0.4em]">
+                        <td colspan="7" class="py-20 text-center bg-slate-50/50">
+                            <div class="flex flex-col items-center opacity-60">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-slate-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                                </svg>
+                                <p class="text-sm font-black uppercase tracking-widest text-slate-500">
                                     Tidak Ada Pasien
                                 </p>
-
+                                <p class="text-xs font-medium text-slate-400 mt-1">Saat ini belum ada pasien yang menunggu di antrean.</p>
                             </div>
-
                         </td>
-
                     </tr>
-
                     @endforelse
-
                 </tbody>
-
             </table>
-
         </div>
-
+        
+        {{-- FOOTER INFO --}}
+        <div class="bg-slate-50 px-6 py-4 border-t border-slate-200">
+            <p class="text-[10px] text-slate-500 font-extrabold italic uppercase tracking-wider flex items-center gap-1.5">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Menampilkan daftar antrean hari ini berdasarkan layanan poliklinik.
+            </p>
+        </div>
     </div>
-
 </div>
 
-
+{{-- ================= JAVASCRIPT UNTUK FILTER ================= --}}
 <script>
-
     const searchInput = document.getElementById('searchInput');
-
     const poliFilter = document.getElementById('poliFilter');
-
     const tableRows = document.querySelectorAll('#pasienTable tbody tr');
 
-    function filterTable()
-    {
+    function filterTable() {
         const searchTerm = searchInput.value.toLowerCase();
-
         const selectedPoli = poliFilter.value;
-
         let visibleCount = 1;
 
         tableRows.forEach(row => {
-
+            // Abaikan baris "Tidak Ada Pasien" (colspan=7)
             if (row.cells.length === 1) return;
 
             const poliValue = row.getAttribute('data-poli');
-
             const rowText = row.innerText.toLowerCase();
 
             const matchesSearch = rowText.includes(searchTerm);
-
             const matchesPoli = selectedPoli === 'ALL' || poliValue === selectedPoli;
 
             if (matchesSearch && matchesPoli) {
-
                 row.style.display = '';
-
-                const number = row.querySelector('.row-number');
-
-                if(number)
-                {
-                    number.innerText = visibleCount++;
+                // Update nomor urut
+                const numberCell = row.querySelector('.row-number');
+                if(numberCell) {
+                    numberCell.innerText = visibleCount++;
                 }
-
             } else {
-
                 row.style.display = 'none';
-
             }
-
         });
     }
 
+    // Jalankan filter setiap kali ada input teks atau perubahan dropdown
     searchInput.addEventListener('keyup', filterTable);
-
     poliFilter.addEventListener('change', filterTable);
 
+    // Inisialisasi penomoran saat halaman pertama kali dimuat
     document.addEventListener('DOMContentLoaded', filterTable);
-
 </script>
 
 @endsection
