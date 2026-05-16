@@ -22,7 +22,7 @@ class PemeriksaanController extends Controller
     */
     public function index()
     {
-        // Jika dokter punya akses semua poli
+        // Dokter global → melihat semua pasien
         if (Auth::user()->akses_semua_poli == 1) {
 
             $pasien = PendaftaranPoli::with('dokter')
@@ -32,7 +32,7 @@ class PemeriksaanController extends Controller
 
         } else {
 
-            // Dokter biasa hanya melihat pasien miliknya
+            // Dokter biasa → hanya pasien miliknya
             $pasien = PendaftaranPoli::with('dokter')
                 ->where('dokter_id', Auth::id())
                 ->where('status', 'diproses_dokter')
@@ -50,7 +50,7 @@ class PemeriksaanController extends Controller
     */
     public function show($id)
     {
-        // Jika dokter global
+        // Dokter global
         if (Auth::user()->akses_semua_poli == 1) {
 
             $pasien = PendaftaranPoli::with('dokter')
@@ -66,7 +66,7 @@ class PemeriksaanController extends Controller
                 ->firstOrFail();
         }
 
-        // Ambil data obat yang stoknya masih ada
+        // Ambil data obat yang stok masih tersedia
         $obat = Obat::where('stok', '>', 0)
             ->orderBy('nama_obat', 'asc')
             ->get();
@@ -122,7 +122,7 @@ class PemeriksaanController extends Controller
     */
     public function store($id, Request $request)
     {
-        // Jika dokter global
+        // Dokter global
         if (Auth::user()->akses_semua_poli == 1) {
 
             $pasien = PendaftaranPoli::where('id', $id)
@@ -204,7 +204,7 @@ class PemeriksaanController extends Controller
 
                     $totalObat += $subtotal;
 
-                    // Simpan resep
+                    // Simpan resep obat
                     ResepObat::create([
                         'rekam_medis_id' => $rekam->id,
                         'obat_id'        => $obatId,
@@ -227,7 +227,7 @@ class PemeriksaanController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | UPDATE RESEP DI REKAM MEDIS
+            | UPDATE RESEP REKAM MEDIS
             |--------------------------------------------------------------------------
             */
             $rekam->update([
@@ -255,13 +255,13 @@ class PemeriksaanController extends Controller
                 ],
 
                 [
-                    'total_obat'    => $totalObat,
-                    'biaya_dokter'  => $biayaDokter,
-                    'biaya_admin'   => $biayaAdmin,
-                    'total_biaya'   => $totalFinal,
-                    'metode'        => 'midtrans',
-                    'status'        => 'pending',
-                    'payment_ref'   => 'INV-' . time() . '-' . $pasien->id
+                    'total_obat'   => $totalObat,
+                    'biaya_dokter' => $biayaDokter,
+                    'biaya_admin'  => $biayaAdmin,
+                    'total_biaya'  => $totalFinal,
+                    'metode'       => 'midtrans',
+                    'status'       => 'pending',
+                    'payment_ref'  => 'INV-' . time() . '-' . $pasien->id
                 ]
             );
 
@@ -298,12 +298,12 @@ class PemeriksaanController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | RIWAYAT REKAM MEDIS DOKTER
+    | RIWAYAT REKAM MEDIS
     |--------------------------------------------------------------------------
     */
     public function rekamMedis()
     {
-        // Jika dokter global
+        // Dokter global
         if (Auth::user()->akses_semua_poli == 1) {
 
             $data = RekamMedis::with([
