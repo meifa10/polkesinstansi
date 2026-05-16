@@ -12,6 +12,34 @@
 
 <div class="p-4 md:p-6 lg:p-8 bg-slate-50 min-h-screen font-sans">
 
+    {{-- ================= GLOBAL ALERT / NOTIFIKASI ================= --}}
+    @if(session('success'))
+        <div class="mb-6 p-4 bg-emerald-100 border border-emerald-300 text-emerald-800 rounded-xl flex items-center gap-3 shadow-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-emerald-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+                <p class="text-sm font-bold">{{ session('success') }}</p>
+            </div>
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div class="mb-6 p-4 bg-rose-100 border border-rose-300 text-rose-800 rounded-xl flex items-start gap-3 shadow-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-rose-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+                <p class="text-sm font-black uppercase tracking-wide mb-1">Gagal Menyimpan Data</p>
+                <ul class="list-disc list-inside text-sm font-medium space-y-0.5">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+    @endif
+
     {{-- ================= HEADER SECTION ================= --}}
     <div class="flex flex-col md:flex-row md:justify-between md:items-end mb-8 gap-4">
         <div>
@@ -179,7 +207,8 @@
                 @csrf
                 <div>
                     <label class="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-2">Pilih Dokter</label>
-                    <select name="dokter_id" class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all cursor-pointer">
+                    {{-- DI TAMBAHKAN REQUIRED AGAR WAJIB DIISI --}}
+                    <select name="dokter_id" required class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all cursor-pointer">
                         <option value="" disabled selected>-- Pilih Dokter --</option>
                         @foreach($dokter as $d) 
                             <option value="{{ $d->id }}">{{ $d->name }}</option> 
@@ -249,7 +278,7 @@
                 
                 <div>
                     <label class="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-2">Pilih Dokter</label>
-                    <select name="dokter_id" id="edit_dokter_id" class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition-all cursor-pointer">
+                    <select name="dokter_id" id="edit_dokter_id" required class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition-all cursor-pointer">
                         @foreach($dokter as $d) 
                             <option value="{{ $d->id }}">{{ $d->name }}</option> 
                         @endforeach
