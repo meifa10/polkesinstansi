@@ -1,7 +1,6 @@
 @extends('layouts.petugas')
 
 @section('content')
-<!-- Google Fonts: Plus Jakarta Sans -->
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -66,7 +65,7 @@
         @endforeach
     </div>
 
-    <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
         
         {{-- LEFT COLUMN: CHART & TABLE PASIEN --}}
         <div class="xl:col-span-8 space-y-8">
@@ -148,7 +147,7 @@
             </div>
         </div>
 
-        {{-- RIGHT COLUMN: ACTIVITY & INFO --}}
+        {{-- RIGHT COLUMN: SIDEBAR INFO & PENGUMUMAN --}}
         <div class="xl:col-span-4 space-y-8">
             
             {{-- SUMMARY CARD --}}
@@ -198,6 +197,38 @@
                     </div>
                 </div>
             </div>
+
+            {{-- BARU: UPDATE PENGUMUMAN INTERNAL (MENGISI AREA KOSONG) --}}
+            <div class="bg-white rounded-2xl p-6 lg:p-8 shadow-sm border border-slate-200">
+                <h3 class="text-lg font-bold text-slate-800 mb-5 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                    Memo & Pengumuman Internal
+                </h3>
+                <div class="space-y-4">
+                    {{-- Item 1 --}}
+                    <div class="p-4 rounded-xl bg-emerald-50/60 border border-emerald-100 relative overflow-hidden">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="px-2 py-0.5 rounded bg-emerald-600 text-white text-[9px] font-black uppercase tracking-wider">Penting</span>
+                            <span class="text-[10px] font-bold text-slate-400">Hari Ini</span>
+                        </div>
+                        <p class="text-sm font-bold text-slate-800">Kalibrasi Alat Tensi Digital</p>
+                        <p class="text-xs text-slate-500 mt-1 leading-relaxed">Seluruh tensimeter digital meja 1-3 akan dikalibrasi berkala oleh tim sarpras jam 13:00 WIB.</p>
+                    </div>
+
+                    {{-- Item 2 --}}
+                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="px-2 py-0.5 rounded bg-slate-500 text-white text-[9px] font-black uppercase tracking-wider">Info</span>
+                            <span class="text-[10px] font-bold text-slate-400">15 Mei 2026</span>
+                        </div>
+                        <p class="text-sm font-bold text-slate-800">Pembaruan Stok Obat Alergi</p>
+                        <p class="text-xs text-slate-500 mt-1 leading-relaxed">Stok Cetirizine sirup dan Cetirizine tablet di Instalasi Farmasi sudah diperbarui dan siap diresepkan.</p>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
@@ -213,11 +244,11 @@ new Chart(ctx, {
         datasets: [{
             data: {!! json_encode($jumlahPasienPoli) !!},
             backgroundColor: [
-                '#10b981', // Emerald (Poli 1)
-                '#8b5cf6', // Violet (Poli 2)
-                '#0ea5e9', // Sky Blue (Poli 3)
-                '#f59e0b', // Amber (Poli 4 jika ada)
-                '#f43f5e'  // Rose (Poli 5 jika ada)
+                '#10b981', // Emerald (Poli KIA & KB / Poli 1)
+                '#8b5cf6', // Violet (Poli Umum / Poli 2)
+                '#0ea5e9', // Sky Blue (Poli Gigi / Poli 3)
+                '#f59e0b', // Amber
+                '#f43f5e'  // Rose
             ],
             hoverOffset: 15,
             borderWidth: 4,
