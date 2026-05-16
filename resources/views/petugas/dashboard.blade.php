@@ -15,7 +15,7 @@
         <div class="relative pl-4">
             <div class="absolute left-0 top-0 w-1.5 h-full bg-emerald-600 rounded-full"></div>
             <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight">
-                Polkes <span class="text-emerald-600">Jombang</span>
+                Polkes 05.09.15<span class="text-emerald-600">Jombang</span>
             </h1>
             <p class="text-slate-600 font-medium mt-2 flex items-center gap-2 text-base">
                 <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse"></span>
@@ -120,7 +120,7 @@
                 <div class="space-y-4">
                     <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
                         <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Shift Aktif</p>
-                        <p class="text-sm font-extrabold text-slate-700">Pagi (08:00 - 14:00)</p>
+                        <p class="text-sm font-extrabold text-slate-700">Senin - Jum'at (07:00 - 15:30)</p>
                     </div>
                     <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
                         <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Lokasi Counter</p>
