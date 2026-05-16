@@ -15,7 +15,7 @@
         <div class="relative pl-4">
             <div class="absolute left-0 top-0 w-1.5 h-full bg-emerald-600 rounded-full"></div>
             <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight">
-                Polkes 05.09.15<span class="text-emerald-600">Jombang</span>
+                Polkes 05.09.15 <span class="text-emerald-600">Jombang</span>
             </h1>
             <p class="text-slate-600 font-medium mt-2 flex items-center gap-2 text-base">
                 <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse"></span>
