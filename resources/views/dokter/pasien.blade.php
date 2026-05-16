@@ -78,7 +78,8 @@
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse min-w-[1000px]" id="pasienTable">
                 <thead>
-                    <tr class="bg-slate-900 text-white text-[11px] uppercase tracking-widest font-bold">
+                    {{-- MENGGUNAKAN WARNA EMERALD UNTUK HEADER TABEL --}}
+                    <tr class="bg-emerald-900 text-white text-[11px] uppercase tracking-widest font-bold">
                         <th class="py-4 px-6 text-center w-16">No</th>
                         <th class="py-4 px-6 min-w-[200px]">Data Pasien</th>
                         <th class="py-4 px-6 min-w-[250px]">Keluhan Utama</th>
