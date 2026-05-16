@@ -114,7 +114,9 @@
                     </tr>
                 </thead>
                 <tbody class="text-base divide-y divide-slate-200">
-                    @forelse($obat as $item)
+                    
+                    {{-- PERUBAHAN DI SINI: Menambahkan sortBy('nama_obat') agar urut A-Z --}}
+                    @forelse($obat->sortBy('nama_obat', SORT_NATURAL | SORT_FLAG_CASE) as $item)
                     
                     {{-- 1. BARIS TAMPILAN (VIEW MODE) --}}
                     <tr id="view-{{ $item->id }}" class="hover:bg-emerald-50/60 transition-colors">
