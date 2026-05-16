@@ -22,11 +22,23 @@ class PemeriksaanController extends Controller
     */
     public function index()
     {
-        $pasien = PendaftaranPoli::with('dokter')
-            ->where('dokter_id', Auth::id())
-            ->where('status', 'diproses_dokter')
-            ->orderBy('nomor_antrian', 'asc')
-            ->get();
+        // Jika dokter punya akses semua poli
+        if (Auth::user()->akses_semua_poli == 1) {
+
+            $pasien = PendaftaranPoli::with('dokter')
+                ->where('status', 'diproses_dokter')
+                ->orderBy('nomor_antrian', 'asc')
+                ->get();
+
+        } else {
+
+            // Dokter biasa hanya melihat pasien miliknya
+            $pasien = PendaftaranPoli::with('dokter')
+                ->where('dokter_id', Auth::id())
+                ->where('status', 'diproses_dokter')
+                ->orderBy('nomor_antrian', 'asc')
+                ->get();
+        }
 
         return view('dokter.pasien', compact('pasien'));
     }
@@ -38,10 +50,21 @@ class PemeriksaanController extends Controller
     */
     public function show($id)
     {
-        $pasien = PendaftaranPoli::with('dokter')
-            ->where('id', $id)
-            ->where('dokter_id', Auth::id())
-            ->firstOrFail();
+        // Jika dokter global
+        if (Auth::user()->akses_semua_poli == 1) {
+
+            $pasien = PendaftaranPoli::with('dokter')
+                ->where('id', $id)
+                ->firstOrFail();
+
+        } else {
+
+            // Dokter biasa
+            $pasien = PendaftaranPoli::with('dokter')
+                ->where('id', $id)
+                ->where('dokter_id', Auth::id())
+                ->firstOrFail();
+        }
 
         // Ambil data obat yang stoknya masih ada
         $obat = Obat::where('stok', '>', 0)
@@ -99,10 +122,19 @@ class PemeriksaanController extends Controller
     */
     public function store($id, Request $request)
     {
-        // Pastikan pasien milik dokter yang login
-        $pasien = PendaftaranPoli::where('id', $id)
-            ->where('dokter_id', Auth::id())
-            ->firstOrFail();
+        // Jika dokter global
+        if (Auth::user()->akses_semua_poli == 1) {
+
+            $pasien = PendaftaranPoli::where('id', $id)
+                ->firstOrFail();
+
+        } else {
+
+            // Dokter biasa
+            $pasien = PendaftaranPoli::where('id', $id)
+                ->where('dokter_id', Auth::id())
+                ->firstOrFail();
+        }
 
         // Validasi input
         $request->validate([
@@ -271,13 +303,27 @@ class PemeriksaanController extends Controller
     */
     public function rekamMedis()
     {
-        $data = RekamMedis::with([
-                'pendaftaran',
-                'dokter'
-            ])
-            ->where('dokter_id', Auth::id())
-            ->latest()
-            ->get();
+        // Jika dokter global
+        if (Auth::user()->akses_semua_poli == 1) {
+
+            $data = RekamMedis::with([
+                    'pendaftaran',
+                    'dokter'
+                ])
+                ->latest()
+                ->get();
+
+        } else {
+
+            // Dokter biasa
+            $data = RekamMedis::with([
+                    'pendaftaran',
+                    'dokter'
+                ])
+                ->where('dokter_id', Auth::id())
+                ->latest()
+                ->get();
+        }
 
         return view('dokter.rekammedis', compact('data'));
     }
