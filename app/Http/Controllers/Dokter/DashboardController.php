@@ -13,7 +13,9 @@ class DashboardController extends Controller
     {
         $today = today();
         $dokterId = Auth::id();
-        $isSuperDokter = Auth::user()->akses_semua_poli == 1; // Cek status Super Dokter
+        
+        // PERBAIKAN DI SINI: Menggunakan kolom kategori_poli
+        $isSuperDokter = Auth::user()->kategori_poli == 'semua_poli'; 
 
         // 1. Daftar Pasien yang siap diperiksa (Status: diproses_dokter)
         if ($isSuperDokter) {

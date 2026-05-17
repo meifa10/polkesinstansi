@@ -22,8 +22,8 @@ class PemeriksaanController extends Controller
     */
     public function index()
     {
-        // Dokter global → melihat semua pasien
-        if (Auth::user()->akses_semua_poli == 1) {
+        // PERBAIKAN DI SINI
+        if (Auth::user()->kategori_poli == 'semua_poli') {
 
             $pasien = PendaftaranPoli::with('dokter')
                 ->where('status', 'diproses_dokter')
@@ -32,7 +32,6 @@ class PemeriksaanController extends Controller
 
         } else {
 
-            // Dokter biasa → hanya pasien miliknya
             $pasien = PendaftaranPoli::with('dokter')
                 ->where('dokter_id', Auth::id())
                 ->where('status', 'diproses_dokter')
@@ -50,8 +49,8 @@ class PemeriksaanController extends Controller
     */
     public function show($id)
     {
-        // Dokter global
-        if (Auth::user()->akses_semua_poli == 1) {
+        // PERBAIKAN DI SINI
+        if (Auth::user()->kategori_poli == 'semua_poli') {
 
             $pasien = PendaftaranPoli::with('dokter')
                 ->where('id', $id)
@@ -59,52 +58,32 @@ class PemeriksaanController extends Controller
 
         } else {
 
-            // Dokter biasa
             $pasien = PendaftaranPoli::with('dokter')
                 ->where('id', $id)
                 ->where('dokter_id', Auth::id())
                 ->firstOrFail();
         }
 
-        // Ambil data obat yang stok masih tersedia
         $obat = Obat::where('stok', '>', 0)
             ->orderBy('nama_obat', 'asc')
             ->get();
 
-        // Tindakan berdasarkan poli
         $tindakan = [];
 
         if ($pasien->poli == 'Poli Umum') {
-
             $tindakan = [
-                'Pemeriksaan Umum',
-                'Pemberian Obat',
-                'Infus',
-                'Suntik Vitamin',
-                'Nebulizer',
-                'Rujukan'
+                'Pemeriksaan Umum', 'Pemberian Obat', 'Infus', 
+                'Suntik Vitamin', 'Nebulizer', 'Rujukan'
             ];
-
         } elseif ($pasien->poli == 'Poli Gigi') {
-
             $tindakan = [
-                'Tambal Gigi',
-                'Cabut Gigi',
-                'Pembersihan Karang Gigi',
-                'Scalling',
-                'Pemberian Obat',
-                'Rujukan'
+                'Tambal Gigi', 'Cabut Gigi', 'Pembersihan Karang Gigi', 
+                'Scalling', 'Pemberian Obat', 'Rujukan'
             ];
-
         } elseif ($pasien->poli == 'Poli KIA & KB') {
-
             $tindakan = [
-                'Pemeriksaan Kehamilan',
-                'USG',
-                'Konsultasi KB',
-                'Pemberian Vitamin',
-                'Imunisasi',
-                'Rujukan'
+                'Pemeriksaan Kehamilan', 'USG', 'Konsultasi KB', 
+                'Pemberian Vitamin', 'Imunisasi', 'Rujukan'
             ];
         }
 
@@ -122,21 +101,19 @@ class PemeriksaanController extends Controller
     */
     public function store($id, Request $request)
     {
-        // Dokter global
-        if (Auth::user()->akses_semua_poli == 1) {
+        // PERBAIKAN DI SINI
+        if (Auth::user()->kategori_poli == 'semua_poli') {
 
             $pasien = PendaftaranPoli::where('id', $id)
                 ->firstOrFail();
 
         } else {
 
-            // Dokter biasa
             $pasien = PendaftaranPoli::where('id', $id)
                 ->where('dokter_id', Auth::id())
                 ->firstOrFail();
         }
 
-        // Validasi input
         $request->validate([
             'keluhan'        => 'required',
             'diagnosis'      => 'required',
@@ -153,11 +130,6 @@ class PemeriksaanController extends Controller
             $resepText = '';
             $totalObat = 0;
 
-            /*
-            |--------------------------------------------------------------------------
-            | SIMPAN REKAM MEDIS
-            |--------------------------------------------------------------------------
-            */
             $rekam = RekamMedis::create([
                 'pendaftaran_id' => $pasien->id,
                 'dokter_id'      => Auth::id(),
@@ -167,16 +139,10 @@ class PemeriksaanController extends Controller
                 'resep'          => '-'
             ]);
 
-            /*
-            |--------------------------------------------------------------------------
-            | SIMPAN RESEP OBAT
-            |--------------------------------------------------------------------------
-            */
             if ($request->has('obat_id')) {
 
                 foreach ($request->obat_id as $key => $obatId) {
 
-                    // Skip jika kosong
                     if (empty($obatId)) {
                         continue;
                     }
@@ -189,22 +155,15 @@ class PemeriksaanController extends Controller
 
                     $qty = (int) ($request->qty[$key] ?? 0);
 
-                    // Validasi stok
                     if ($qty > $obat->stok) {
-
                         throw new \Exception(
-                            'Stok obat ' .
-                            $obat->nama_obat .
-                            ' tidak mencukupi.'
+                            'Stok obat ' . $obat->nama_obat . ' tidak mencukupi.'
                         );
                     }
 
-                    // Hitung subtotal
                     $subtotal = $obat->harga * $qty;
-
                     $totalObat += $subtotal;
 
-                    // Simpan resep obat
                     ResepObat::create([
                         'rekam_medis_id' => $rekam->id,
                         'obat_id'        => $obatId,
@@ -213,47 +172,24 @@ class PemeriksaanController extends Controller
                         'subtotal'       => $subtotal
                     ]);
 
-                    // Text resep
-                    $resepText .=
-                        $obat->nama_obat .
-                        ' (' . $qty . ' pcs) - ' .
-                        ($request->aturan_minum[$key] ?? '-') .
-                        "\n";
+                    $resepText .= $obat->nama_obat . ' (' . $qty . ' pcs) - ' . 
+                                  ($request->aturan_minum[$key] ?? '-') . "\n";
 
-                    // Kurangi stok obat
                     $obat->decrement('stok', $qty);
                 }
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | UPDATE RESEP REKAM MEDIS
-            |--------------------------------------------------------------------------
-            */
             $rekam->update([
                 'resep' => $resepText ?: '-'
             ]);
 
-            /*
-            |--------------------------------------------------------------------------
-            | PEMBAYARAN
-            |--------------------------------------------------------------------------
-            */
             $biayaDokter = 50000;
             $biayaAdmin  = 10000;
 
-            $totalFinal = (
-                $totalObat +
-                $biayaDokter +
-                $biayaAdmin
-            );
+            $totalFinal = ($totalObat + $biayaDokter + $biayaAdmin);
 
             Pembayaran::updateOrCreate(
-
-                [
-                    'pendaftaran_id' => $pasien->id
-                ],
-
+                ['pendaftaran_id' => $pasien->id],
                 [
                     'total_obat'   => $totalObat,
                     'biaya_dokter' => $biayaDokter,
@@ -265,11 +201,6 @@ class PemeriksaanController extends Controller
                 ]
             );
 
-            /*
-            |--------------------------------------------------------------------------
-            | UPDATE STATUS PASIEN
-            |--------------------------------------------------------------------------
-            */
             $pasien->update([
                 'status' => 'menunggu_pembayaran'
             ]);
@@ -278,10 +209,7 @@ class PemeriksaanController extends Controller
 
             return redirect()
                 ->route('dokter.pasien')
-                ->with(
-                    'success',
-                    'Pemeriksaan pasien berhasil disimpan.'
-                );
+                ->with('success', 'Pemeriksaan pasien berhasil disimpan.');
 
         } catch (\Exception $e) {
 
@@ -289,10 +217,7 @@ class PemeriksaanController extends Controller
 
             return back()
                 ->withInput()
-                ->with(
-                    'error',
-                    $e->getMessage()
-                );
+                ->with('error', $e->getMessage());
         }
     }
 
@@ -303,23 +228,16 @@ class PemeriksaanController extends Controller
     */
     public function rekamMedis()
     {
-        // Dokter global
-        if (Auth::user()->akses_semua_poli == 1) {
+        // PERBAIKAN DI SINI
+        if (Auth::user()->kategori_poli == 'semua_poli') {
 
-            $data = RekamMedis::with([
-                    'pendaftaran',
-                    'dokter'
-                ])
+            $data = RekamMedis::with(['pendaftaran', 'dokter'])
                 ->latest()
                 ->get();
 
         } else {
 
-            // Dokter biasa
-            $data = RekamMedis::with([
-                    'pendaftaran',
-                    'dokter'
-                ])
+            $data = RekamMedis::with(['pendaftaran', 'dokter'])
                 ->where('dokter_id', Auth::id())
                 ->latest()
                 ->get();
