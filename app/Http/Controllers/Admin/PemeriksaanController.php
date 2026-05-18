@@ -4,57 +4,55 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\RekamMedis;
+use App\Models\Pendaftaran; // Asumsi model pendaftaran/pasien Anda
 use Illuminate\Http\Request;
 
 class PemeriksaanController extends Controller
 {
+    /**
+     * Halaman Utama: Menampilkan daftar pasien unik yang memiliki rekam medis
+     */
     public function index(Request $request)
     {
-        // Load relasi
-        $query = RekamMedis::with(['pendaftaran', 'dokter'])->latest();
+        // Query dasar mengambil data pendaftaran yang memiliki rekam medis
+        $query = Pendaftaran::whereHas('rekamMedis')->with(['rekamMedis']);
 
-        // Filter pencarian
+        // Filter Pencarian Teks (Nama / NIK)
         if ($request->filled('q')) {
-
             $search = trim($request->q);
-
-            $query->where(function ($main) use ($search) {
-
-                $main->where('diagnosis', 'like', "%{$search}%")
-                    ->orWhere('tindakan', 'like', "%{$search}%")
-                    ->orWhere('keluhan', 'like', "%{$search}%")
-                    ->orWhereHas('pendaftaran', function ($q) use ($search) {
-
-                        $q->where('nama_pasien', 'like', "%{$search}%")
-                          ->orWhere('no_identitas', 'like', "%{$search}%");
-
-                    });
-
+            $query->where(function ($q) use ($search) {
+                $q->where('nama_pasien', 'like', "%{$search}%")
+                  ->orWhere('no_identitas', 'like', "%{$search}%");
             });
         }
 
-        // Filter poli
+        // Filter Poli
         if ($request->filled('poli')) {
-
-            $query->whereHas('pendaftaran', function ($q) use ($request) {
-
-                $q->where('poli', $request->poli);
-
-            });
+            $query->where('poli', $request->poli);
         }
 
-        // Filter tanggal
+        $pasien = $query->latest()->paginate(10);
+
+        return view('admin.pemeriksaan.index', compact('pasien'));
+    }
+
+    /**
+     * Halaman Detail: Menampilkan runtunan seluruh riwayat pemeriksaan spesifik milik 1 pasien
+     */
+    public function show(Request $request, $id)
+    {
+        $pasien = Pendaftaran::findOrFail($id);
+
+        $query = RekamMedis::where('pendaftaran_id', $id)->with('dokter');
+
+        // Filter tanggal spesifik di dalam riwayat pasien
         if ($request->filled('tanggal')) {
-
             $query->whereDate('created_at', $request->tanggal);
-
         }
 
-        // Export Excel Tanpa Package
+        // --- FITUR EXPORT EXCEL DATA RIWAYAT PASIEN ---
         if ($request->has('download')) {
-
-            $filename = 'Laporan-Pemeriksaan-' . now()->format('d-m-Y') . '.xls';
-
+            $filename = 'Riwayat-Pemeriksaan-' . str_replace(' ', '-', $pasien->nama_pasien) . '-' . now()->format('d-m-Y') . '.xls';
             $headers = [
                 "Content-Type" => "application/vnd.ms-excel",
                 "Content-Disposition" => "attachment; filename=\"$filename\"",
@@ -64,166 +62,70 @@ class PemeriksaanController extends Controller
             <html>
             <head>
                 <meta charset="UTF-8">
-
                 <style>
-
-                    body{
-                        font-family: Arial, sans-serif;
-                        padding:20px;
-                        color:#1f2937;
-                    }
-
-                    .header{
-                        text-align:center;
-                        margin-bottom:25px;
-                    }
-
-                    .title{
-                        font-size:24px;
-                        font-weight:bold;
-                        color:white;
-                        background:#059669;
-                        padding:18px;
-                        border-radius:10px;
-                        letter-spacing:1px;
-                    }
-
-                    .subtitle{
-                        margin-top:15px;
-                        line-height:1.8;
-                        font-size:13px;
-                        color:#374151;
-                    }
-
-                    .report-date{
-                        margin-top:20px;
-                        font-size:12px;
-                        color:#6b7280;
-                    }
-
-                    table{
-                        width:100%;
-                        border-collapse:collapse;
-                        margin-top:30px;
-                    }
-
-                    th{
-                        background:#059669;
-                        color:white;
-                        padding:12px;
-                        border:1px solid #d1d5db;
-                        text-align:center;
-                        font-size:12px;
-                        font-weight:bold;
-                    }
-
-                    td{
-                        border:1px solid #d1d5db;
-                        padding:10px;
-                        font-size:12px;
-                        vertical-align:top;
-                    }
-
-                    tr:nth-child(even){
-                        background:#f9fafb;
-                    }
-
-                    .text-center{
-                        text-align:center;
-                    }
-
+                    body { font-family: Arial, sans-serif; padding:20px; color:#1f2937; }
+                    .header { text-align:center; margin-bottom:25px; }
+                    .title { font-size:20px; font-weight:bold; color:white; background:#059669; padding:15px; border-radius:8px; }
+                    .subtitle { margin-top:10px; line-height:1.6; font-size:12px; color:#374151; }
+                    table { width:100%; border-collapse:collapse; margin-top:20px; }
+                    th { background:#059669; color:white; padding:10px; border:1px solid #d1d5db; font-size:11px; font-weight:bold; }
+                    td { border:1px solid #d1d5db; padding:8px; font-size:11px; vertical-align:top; }
+                    tr:nth-child(even) { background:#f9fafb; }
+                    .text-center { text-align:center; }
                 </style>
             </head>
-
             <body>
-
                 <div class="header">
-
-                    <div class="title">
-                        LAPORAN PEMERIKSAAN POLKES 05.09.15 JOMBANG
-                    </div>
-
+                    <div class="title">RIWAYAT REKAM MEDIS PASIEN</div>
                     <div class="subtitle">
-                        Jl. KH. Wahid Hasyim No.28 B<br>
-                        Jombang, Jawa Timur<br><br>
-
-                        Telp / WA: 0877-7723-5386<br>
-                        Email: jombangposkes@gmail.com
+                        <b>Nama Pasien:</b> ' . $pasien->nama_pasien . ' | <b>NIK:</b> ' . $pasien->no_identitas . ' | <b>Poli:</b> ' . $pasien->poli . '<br>
+                        POLKES 05.09.15 JOMBANG<br>
+                        Dicetak pada: ' . now()->format('d-m-Y H:i') . ' WIB
                     </div>
-
-                    <div class="report-date">
-                        Dicetak pada: '.now()->format('d-m-Y H:i').'
-                    </div>
-
                 </div>
-
                 <table>
-
                     <thead>
                         <tr>
-                            <th width="5%">No</th>
-                            <th width="18%">Nama Pasien</th>
-                            <th width="14%">NIK</th>
-                            <th width="12%">Poli</th>
+                            <th width="4%">No</th>
+                            <th width="12%">Waktu Periksa</th>
                             <th width="15%">Keluhan</th>
+                            <th width="8%">Tensi</th>
+                            <th width="6%">BB</th>
+                            <th width="6%">TB</th>
                             <th width="15%">Diagnosis</th>
                             <th width="15%">Tindakan</th>
-                            <th width="12%">Dokter</th>
-                            <th width="10%">Tanggal</th>
+                            <th width="19%">Resep Obat</th>
                         </tr>
                     </thead>
-
-                    <tbody>
-            ';
+                    <tbody>';
 
             $no = 1;
-
-            foreach ($query->get() as $item) {
-
+            foreach ($query->latest()->get() as $item) {
                 $html .= '
-                    <tr>
-
-                        <td class="text-center">'.$no++.'</td>
-
-                        <td>'.($item->pendaftaran->nama_pasien ?? '-').'</td>
-
-                        <td>'.($item->pendaftaran->no_identitas ?? '-').'</td>
-
-                        <td>'.($item->pendaftaran->poli ?? '-').'</td>
-
-                        <td>'.($item->keluhan ?? '-').'</td>
-
-                        <td>'.($item->diagnosis ?? '-').'</td>
-
-                        <td>'.($item->tindakan ?? '-').'</td>
-
-                        <td>'.($item->dokter->name ?? '-').'</td>
-
-                        <td class="text-center">'.
-                            ($item->created_at
-                                ? $item->created_at->format('d-m-Y')
-                                : '-') .
-                        '</td>
-
-                    </tr>
-                ';
+                        <tr>
+                            <td class="text-center">' . $no++ . '</td>
+                            <td class="text-center">' . ($item->created_at ? $item->created_at->format('d-m-Y H:i') : '-') . ' WIB</td>
+                            <td>' . ($item->keluhan ?? '-') . '</td>
+                            <td class="text-center">' . ($item->tensi ?? '-') . ' mmHg</td>
+                            <td class="text-center">' . ($item->bb ?? '-') . ' kg</td>
+                            <td class="text-center">' . ($item->tb ?? '-') . ' cm</td>
+                            <td>' . ($item->diagnosis ?? '-') . '</td>
+                            <td>' . ($item->tindakan ?? '-') . '</td>
+                            <td>' . str_replace("\n", ", ", $item->resep ?? '-') . '</td>
+                        </tr>';
             }
 
             $html .= '
                     </tbody>
-
                 </table>
-
             </body>
-            </html>
-            ';
+            </html>';
 
             return response($html, 200, $headers);
         }
 
-        // Tampilkan data ke view
-        $pemeriksaan = $query->get();
+        $riwayat = $query->latest()->get();
 
-        return view('admin.pemeriksaan.index', compact('pemeriksaan'));
+        return view('admin.pemeriksaan.show', compact('pasien', 'riwayat'));
     }
 }
