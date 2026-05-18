@@ -90,13 +90,7 @@
                 <h3 class="text-lg font-bold mb-6 relative z-10 text-emerald-400 uppercase tracking-widest text-xs">Ringkasan Aktivitas</h3>
                 
                 <div class="space-y-6 relative z-10">
-                    <div class="flex gap-4 items-center">
-                        <div class="w-1.5 bg-emerald-500 rounded-full h-10"></div>
-                        <div>
-                            <p class="text-3xl font-black leading-none text-white">{{ $totalPasien }}</p>
-                            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider mt-1">Pasien Terdaftar</p>
-                        </div>
-                    </div>
+                    {{-- Bagian Pasien Terdaftar telah dihapus --}}
                     <div class="flex gap-4 items-center">
                         <div class="w-1.5 bg-sky-400 rounded-full h-10"></div>
                         <div>
@@ -144,7 +138,6 @@
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse whitespace-nowrap">
                 <thead>
-                    {{-- HEADER TABEL: Warna diganti ke Emerald --}}
                     <tr class="bg-emerald-600 text-white text-[11px] uppercase tracking-widest font-bold shadow-sm">
                         <th class="py-4 px-4 text-center">No</th>
                         <th class="py-4 px-4">Waktu Masuk</th>
@@ -157,7 +150,6 @@
                 </thead>
                 <tbody class="text-sm divide-y divide-slate-200">
                     @forelse($pasienTerbaru as $index => $item)
-                    {{-- HOVER ROW: Diganti jadi emerald tipis biar matching --}}
                     <tr class="hover:bg-emerald-50/40 transition-colors">
                         {{-- 1. No --}}
                         <td class="py-4 px-4 text-center font-bold text-slate-500">
@@ -196,7 +188,6 @@
                         <td class="py-4 px-4">
                             <p class="text-sm font-extrabold text-slate-800 uppercase">{{ $item->poli }}</p>
                             <p class="text-[10px] font-bold text-emerald-600 uppercase mt-0.5">
-                                {{-- Menampilkan HANYA kolom 'name' dari tabel dokter (otomatis pakai gelar DR. dari DB) --}}
                                 {{ $item->dokter->name ?? 'Belum Ditentukan' }}
                             </p>
                         </td>
@@ -204,15 +195,12 @@
                         {{-- 6. Tanda-Tanda Vital --}}
                         <td class="py-4 px-4">
                             <div class="flex flex-col gap-1.5 min-w-[130px]">
-                                {{-- Tensi --}}
                                 <div class="bg-red-50/80 text-red-700 px-2 py-1 rounded border border-red-100 text-[10px] font-black flex justify-between items-center">
                                     <span>Tensi</span> <span>{{ $item->tensi ?? '-' }} <span class="font-medium text-[9px]">mmHg</span></span>
                                 </div>
-                                {{-- Tinggi Badan (TB) --}}
                                 <div class="bg-blue-50/80 text-blue-700 px-2 py-1 rounded border border-blue-100 text-[10px] font-black flex justify-between items-center">
                                     <span>TB</span> <span>{{ $item->tinggi_badan ?? '-' }} <span class="font-medium text-[9px]">cm</span></span>
                                 </div>
-                                {{-- Berat Badan (BB) --}}
                                 <div class="bg-emerald-50/80 text-emerald-700 px-2 py-1 rounded border border-emerald-100 text-[10px] font-black flex justify-between items-center">
                                     <span>BB</span> <span>{{ $item->berat_badan ?? '-' }} <span class="font-medium text-[9px]">kg</span></span>
                                 </div>
@@ -266,9 +254,9 @@ new Chart(ctx, {
         datasets: [{
             data: {!! json_encode($jumlahPasienPoli) !!},
             backgroundColor: [
-                '#10b981', // Emerald (Poli KIA & KB)
-                '#8b5cf6', // Violet (Poli Umum)
-                '#0ea5e9', // Sky Blue (Poli Gigi)
+                '#10b981', // Emerald
+                '#8b5cf6', // Violet
+                '#0ea5e9', // Sky Blue
                 '#f59e0b', // Amber
                 '#f43f5e'  // Rose
             ],
