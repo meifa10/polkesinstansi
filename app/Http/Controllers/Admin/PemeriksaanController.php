@@ -4,20 +4,16 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\RekamMedis;
-use App\Models\Pendaftaran; // Asumsi model pendaftaran/pasien Anda
+use App\Models\PendaftaranPoli; 
 use Illuminate\Http\Request;
 
 class PemeriksaanController extends Controller
 {
-    /**
-     * Halaman Utama: Menampilkan daftar pasien unik yang memiliki rekam medis
-     */
+   
     public function index(Request $request)
     {
-        // Query dasar mengambil data pendaftaran yang memiliki rekam medis
-        $query = Pendaftaran::whereHas('rekamMedis')->with(['rekamMedis']);
+        $query = PendaftaranPoli::whereHas('rekamMedis')->with(['rekamMedis']);
 
-        // Filter Pencarian Teks (Nama / NIK)
         if ($request->filled('q')) {
             $search = trim($request->q);
             $query->where(function ($q) use ($search) {
@@ -36,21 +32,17 @@ class PemeriksaanController extends Controller
         return view('admin.pemeriksaan.index', compact('pasien'));
     }
 
-    /**
-     * Halaman Detail: Menampilkan runtunan seluruh riwayat pemeriksaan spesifik milik 1 pasien
-     */
+
     public function show(Request $request, $id)
     {
-        $pasien = Pendaftaran::findOrFail($id);
+        $pasien = PendaftaranPoli::findOrFail($id);
 
         $query = RekamMedis::where('pendaftaran_id', $id)->with('dokter');
 
-        // Filter tanggal spesifik di dalam riwayat pasien
         if ($request->filled('tanggal')) {
             $query->whereDate('created_at', $request->tanggal);
         }
 
-        // --- FITUR EXPORT EXCEL DATA RIWAYAT PASIEN ---
         if ($request->has('download')) {
             $filename = 'Riwayat-Pemeriksaan-' . str_replace(' ', '-', $pasien->nama_pasien) . '-' . now()->format('d-m-Y') . '.xls';
             $headers = [
