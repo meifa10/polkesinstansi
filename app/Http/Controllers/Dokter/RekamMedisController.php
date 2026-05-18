@@ -9,9 +9,6 @@ use Illuminate\Http\Request;
 
 class RekamMedisController extends Controller
 {
-    // Pastikan pada fungsi index/tampil data, Anda memanggilnya seperti ini:
-    // $data = RekamMedis::with('pendaftaran')->latest()->get();
-
     public function store(Request $request)
     {
         $request->validate([
