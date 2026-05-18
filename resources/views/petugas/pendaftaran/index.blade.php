@@ -43,7 +43,7 @@
         </div>
     </div>
 
-    {{-- FILTER & SEARCH BOX BARU --}}
+    {{-- FILTER & SEARCH BOX --}}
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 lg:p-8 mb-8">
         <form method="GET" action="{{ route('petugas.pendaftaran.index') }}" class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
             
@@ -57,14 +57,14 @@
                     class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all">
             </div>
 
-            {{-- Filter Tanggal (NEW FEATURE) --}}
+            {{-- Filter Tanggal --}}
             <div class="md:col-span-3">
                 <label class="block text-xs font-black text-slate-500 uppercase tracking-wider mb-2">Saring Tanggal</label>
-                <input type="date" name="date" value="{{ request('date', date('Y-m-y')) }}" 
+                <input type="date" name="date" value="{{ request('date', date('Y-m-d')) }}" 
                     class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all cursor-pointer">
             </div>
 
-            {{-- Dropdown Status (Menunggu Admin Dihapus) --}}
+            {{-- Dropdown Status --}}
             <div class="md:col-span-2 relative">
                 <label class="block text-xs font-black text-slate-500 uppercase tracking-wider mb-2">Status Alur</label>
                 <select name="status" onchange="this.form.submit()" 
@@ -98,7 +98,8 @@
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse min-w-[1200px]">
                 <thead>
-                    <tr class="bg-slate-900 text-white text-xs uppercase tracking-widest font-black border-b border-slate-800">
+                    {{-- DI-SET KEMBALI KE EMERALD KONTRAST --}}
+                    <tr class="bg-emerald-900 text-white text-xs uppercase tracking-widest font-black border-b border-emerald-950">
                         <th class="py-5 px-6 w-16 text-center rounded-tl-2xl">No</th>
                         <th class="py-5 px-6 w-48 text-center">Waktu Masuk</th>
                         <th class="py-5 px-6 min-w-[280px]">Biodata Pasien / NIK</th>
@@ -110,14 +111,14 @@
                 </thead>
                 <tbody class="text-base divide-y divide-slate-200">
                     @forelse($pendaftaran as $item)
-                    <tr class="hover:bg-slate-50/80 transition-colors group">
+                    <tr class="hover:bg-emerald-50/40 transition-colors group">
                         
                         {{-- Nomor dengan Urutan Pagination --}}
                         <td class="py-6 px-6 text-center text-slate-400 font-extrabold align-middle">
                             {{ ($pendaftaran->currentPage() - 1) * $pendaftaran->perPage() + $loop->iteration }}
                         </td>
                         
-                        {{-- Waktu Masuk (NEW FEATURE) --}}
+                        {{-- Waktu Masuk --}}
                         <td class="py-6 px-6 align-middle text-center">
                             <p class="font-extrabold text-slate-800 text-sm">{{ $item->created_at->translatedFormat('d M Y') }}</p>
                             <span class="text-xs font-bold font-mono text-emerald-600 block mt-1 bg-emerald-50 rounded-md py-0.5 px-2 border border-emerald-100 inline-block">
@@ -128,7 +129,7 @@
                         {{-- Biodata Pasien --}}
                         <td class="py-6 px-6 align-middle">
                             <div class="flex items-center gap-4">
-                                <div class="w-11 h-11 rounded-xl bg-slate-900 text-white flex items-center justify-center font-black text-lg shadow-sm flex-shrink-0 uppercase">
+                                <div class="w-11 h-11 rounded-xl bg-emerald-700 text-white flex items-center justify-center font-black text-lg shadow-sm flex-shrink-0 uppercase">
                                     {{ strtoupper(substr($item->nama_pasien, 0, 1)) }}
                                 </div>
                                 <div>
@@ -138,14 +139,14 @@
                             </div>
                         </td>
 
-                        {{-- Keluhan Utama Pasien (NEW FEATURE) --}}
+                        {{-- Keluhan Utama Pasien --}}
                         <td class="py-6 px-6 align-middle italic text-slate-600 font-medium text-sm leading-relaxed max-w-[220px]">
                             "{{ $item->keluhan ?? 'Tidak ada keluhan tertulis' }}"
                         </td>
 
                         {{-- Unit Layanan & Dokter Tujuan --}}
                         <td class="py-6 px-6 align-middle">
-                            <span class="inline-flex px-3 py-1 rounded-md bg-slate-100 text-slate-700 text-xs font-black uppercase tracking-wider border border-slate-200 mb-1.5">
+                            <span class="inline-flex px-3 py-1 rounded-md bg-emerald-50 text-emerald-800 text-xs font-black uppercase tracking-wider border border-emerald-200 mb-1.5">
                                 {{ $item->poli }}
                             </span>
                             <p class="text-xs font-bold text-slate-500">
@@ -165,7 +166,7 @@
                                 <div class="flex items-center justify-between border-2 border-slate-300 px-2 py-1 rounded-xl bg-white shadow-sm">
                                     <span class="text-[11px] font-black text-slate-700 uppercase">Berat:</span>
                                     <span class="text-slate-950 font-mono font-black text-sm">
-                                        {{ $item->berat_badan ?? '-' }} <span class="text-[11px] font-black text-slate-950 ml-0.5">Solusi/kg</span>
+                                        {{ $item->berat_badan ?? '-' }} <span class="text-[11px] font-black text-slate-950 ml-0.5">kg</span>
                                     </span>
                                 </div>
                                 <div class="flex items-center justify-between border-2 border-slate-300 px-2 py-1 rounded-xl bg-white shadow-sm">
