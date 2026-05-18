@@ -80,7 +80,7 @@
                         <th class="py-5 px-6 w-20 text-center rounded-tl-2xl">No</th>
                         <th class="py-5 px-6 w-44 text-center">Waktu Kunjungan</th>
                         <th class="py-5 px-6 min-w-[200px]">Keluhan Utama</th>
-                        <th class="py-5 px-6 min-w-[210px] text-center">Tanda-Tanda Vital</th>
+                        <th class="py-5 px-6 min-w-[220px] text-center">Tanda-Tanda Vital</th>
                         <th class="py-5 px-6 min-w-[300px]">Diagnosis & Tindakan Klinis</th>
                         <th class="py-5 px-6 min-w-[220px]">Resep Obat</th>
                         <th class="py-5 px-6 min-w-[160px] rounded-tr-2xl">Dokter</th>
@@ -106,31 +106,31 @@
                             "{{ $item->keluhan ?? 'Tidak ada keluhan tertulis' }}"
                         </td>
                         
-                        {{-- TANDA VITAL (TEKS LEBIH TEBAL, GELAP, DAN JELAS) --}}
+                        {{-- TANDA VITAL (SATUAN UNIT DI-UPGRADE JADI HITAM TEBAL) --}}
                         <td class="py-6 px-6 align-middle">
-                            <div class="space-y-2 w-full max-w-[190px] mx-auto">
+                            <div class="space-y-2 w-full max-w-[200px] mx-auto">
                                 
                                 {{-- Tensi Box --}}
                                 <div class="flex items-center justify-between border border-slate-300 p-2 rounded-xl bg-white shadow-sm">
-                                    <span class="text-[11px] font-black text-slate-700 uppercase tracking-wide">TENSI:</span>
+                                    <span class="text-[11px] font-black text-slate-800 uppercase tracking-wide">TENSI:</span>
                                     <span class="text-slate-900 font-mono font-black text-sm">
-                                        {{ $item->tensi ?? '-' }} <span class="text-[10px] font-bold text-slate-500">mmHg</span>
+                                        {{ $item->tensi ?? '-' }} <span class="text-[11px] font-black text-slate-900 ml-0.5">mmHg</span>
                                     </span>
                                 </div>
                                 
                                 {{-- Berat Badan Box --}}
                                 <div class="flex items-center justify-between border border-slate-300 p-2 rounded-xl bg-white shadow-sm">
-                                    <span class="text-[11px] font-black text-slate-700 uppercase tracking-wide">BERAT:</span>
+                                    <span class="text-[11px] font-black text-slate-800 uppercase tracking-wide">BERAT:</span>
                                     <span class="text-slate-900 font-mono font-black text-sm">
-                                        {{ $item->berat_badan ?? '-' }} <span class="text-[10px] font-bold text-slate-500">kg</span>
+                                        {{ $item->berat_badan ?? '-' }} <span class="text-[11px] font-black text-slate-900 ml-0.5">kg</span>
                                     </span>
                                 </div>
                                 
                                 {{-- Tinggi Badan Box --}}
                                 <div class="flex items-center justify-between border border-slate-300 p-2 rounded-xl bg-white shadow-sm">
-                                    <span class="text-[11px] font-black text-slate-700 uppercase tracking-wide">TINGGI:</span>
+                                    <span class="text-[11px] font-black text-slate-800 uppercase tracking-wide">TINGGI:</span>
                                     <span class="text-slate-900 font-mono font-black text-sm">
-                                        {{ $item->tinggi_badan ?? '-' }} <span class="text-[10px] font-bold text-slate-500">cm</span>
+                                        {{ $item->tinggi_badan ?? '-' }} <span class="text-[11px] font-black text-slate-900 ml-0.5">cm</span>
                                     </span>
                                 </div>
 
