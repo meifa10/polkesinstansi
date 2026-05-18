@@ -33,7 +33,7 @@ class PendaftaranController extends Controller
             $query->where('status', '!=', 'menunggu_admin');
         }
 
-        $pendaftaran = $query->latest()->paginate(10);
+        $pendaftaran = $query->latest()->paginate(5);
 
         return view('petugas.pendaftaran.index', compact('pendaftaran'));
     }

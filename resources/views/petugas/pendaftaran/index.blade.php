@@ -98,7 +98,6 @@
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse min-w-[1250px]">
                 <thead>
-                    {{-- HEADER TABEL: Tetap Hijau Emerald Kontras --}}
                     <tr class="bg-emerald-900 text-white text-xs uppercase tracking-widest font-black border-b border-emerald-950">
                         <th class="py-5 px-6 w-16 text-center rounded-tl-2xl">No</th>
                         <th class="py-5 px-6 w-48 text-center">Waktu Masuk</th>
@@ -109,7 +108,7 @@
                         <th class="py-5 px-6 min-w-[180px] text-center rounded-tr-2xl">Status Alur</th>
                     </tr>
                 </thead>
-                <tbody class="text-base divide-y divide-slate-200">
+                <tbody class="text-sm divide-y divide-slate-200">
                     @forelse($pendaftaran as $item)
                     <tr class="hover:bg-emerald-50/40 transition-colors group">
                         
@@ -141,7 +140,7 @@
 
                         {{-- Keluhan Utama Pasien --}}
                         <td class="py-6 px-6 align-middle italic text-slate-600 font-medium text-sm leading-relaxed max-w-[220px]">
-                            "{{ $item->keluhan ?? 'Tidak ada keluhan tertulis' }}"
+                            "{-- $item->keluhan ?? 'Tidak ada keluhan tertulis' --}"
                         </td>
 
                         {{-- Unit Layanan & Dokter Tujuan --}}
@@ -154,7 +153,7 @@
                             </p>
                         </td>
 
-                        {{-- Tanda Vital Terperinci (Ultra-Jelas, Besar, Hitam Pekat) --}}
+                        {{-- Tanda Vital Terperinci --}}
                         <td class="py-6 px-6 align-middle">
                             <div class="space-y-1.5 w-full max-w-[200px] mx-auto">
                                 <div class="flex items-center justify-between border-2 border-slate-300 px-2 py-1 rounded-xl bg-white shadow-sm">
@@ -188,7 +187,6 @@
                                     'diproses_dokter' => [
                                         'bg' => 'bg-indigo-100', 'text' => 'text-indigo-800', 'border' => 'border-indigo-300', 'dot' => 'bg-indigo-500', 'pulse' => true
                                     ],
-                                    // NEW UPDATE: Warna Selesai Hijau Emerald Menyala
                                     'selesai' => [
                                         'bg' => 'bg-emerald-600', 'text' => 'text-white', 'border' => 'border-emerald-700', 'dot' => 'bg-emerald-100', 'pulse' => false
                                     ]
@@ -224,7 +222,7 @@
             </table>
         </div>
 
-        {{-- NAVIGASI LINKS PAGINATION (MAXIMAL 10 DATA) --}}
+        {{-- NAVIGASI LINKS PAGINATION (MAXIMAL 5 DATA PER HALAMAN) --}}
         @if($pendaftaran->hasPages())
         <div class="p-5 border-t border-slate-200 bg-slate-50 rounded-b-2xl">
             {{ $pendaftaran->withQueryString()->links() }}
