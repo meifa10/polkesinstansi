@@ -8,6 +8,17 @@
     body { 
         font-family: 'Plus Jakarta Sans', sans-serif;
     }
+    /* Menghilangkan panah default pada tag summary */
+    summary {
+        list-style: none;
+    }
+    summary::-webkit-details-marker {
+        display: none;
+    }
+    /* Animasi panah custom saat details dibuka */
+    details[open] summary .accordion-icon {
+        transform: rotate(180deg);
+    }
 </style>
 
 <div class="p-6 lg:p-8 bg-slate-50 min-h-screen font-sans">
@@ -15,7 +26,7 @@
     {{-- HEADER SECTION --}}
     <div class="flex flex-col md:flex-row md:justify-between md:items-end mb-8 gap-4">
         <div>
-            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100 text-emerald-800 text-sm font-bold tracking-wide uppercase mb-3 border border-emerald-200">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100 text-emerald-800 text-sm font-bold tracking-wide uppercase mb-3 border border-emerald-300">
                 <a href="{{ route('admin.data_pasien.index') }}" class="hover:text-emerald-600 transition-colors">Data Pasien</a>
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-500" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
@@ -31,7 +42,7 @@
         </div>
 
         <a href="{{ route('admin.data_pasien.index') }}" 
-           class="inline-flex items-center gap-2 px-6 py-3 bg-white text-slate-700 border border-slate-300 rounded-xl text-sm font-bold hover:bg-slate-100 hover:text-slate-900 transition-all shadow-sm active:scale-95">
+           class="inline-flex items-center gap-2 px-6 py-3 bg-white text-slate-700 border-2 border-slate-300 rounded-xl text-sm font-bold hover:bg-slate-100 hover:text-slate-900 transition-all shadow-sm active:scale-95">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
             </svg>
@@ -45,7 +56,7 @@
         <div class="xl:col-span-4 space-y-6">
             
             {{-- PROFIL CARD --}}
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden relative">
+            <div class="bg-white rounded-2xl shadow-md border-2 border-slate-200 overflow-hidden relative">
                 <div class="h-32 bg-slate-900 w-full relative">
                     <div class="absolute -bottom-12 left-8">
                         <div class="w-24 h-24 bg-emerald-100 text-emerald-700 rounded-2xl border-4 border-white shadow-sm flex items-center justify-center text-4xl font-black">
@@ -68,27 +79,27 @@
                         @endif
                     </div>
 
-                    <div class="mt-8 space-y-6 border-t border-slate-100 pt-6">
+                    <div class="mt-8 space-y-6 border-t-2 border-slate-100 pt-6">
                         <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-500">
+                            <div class="w-10 h-10 rounded-xl bg-slate-50 border-2 border-slate-200 flex items-center justify-center text-slate-500 shadow-sm">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
                                 </svg>
                             </div>
                             <div>
-                                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Nomor Identitas</p>
+                                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest leading-none mb-1">Nomor Identitas</p>
                                 <p class="text-base font-extrabold text-slate-800 font-mono tracking-tight">{{ $pasien->no_identitas }}</p>
                             </div>
                         </div>
 
                         <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-500">
+                            <div class="w-10 h-10 rounded-xl bg-slate-50 border-2 border-slate-200 flex items-center justify-center text-slate-500 shadow-sm">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.701 2.701 0 00-1.5-.454M9 6v2m3-2v2m3-2v2M9 3h.01M12 3h.01M15 3h.01M21 21v-7a2 2 0 00-2-2H5a2 2 0 00-2 2v7h18zm-3-9v-2a2 2 0 00-2-2H8a2 2 0 00-2 2v2h12z" />
                                 </svg>
                             </div>
                             <div>
-                                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Tanggal Lahir</p>
+                                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest leading-none mb-1">Tanggal Lahir</p>
                                 <p class="text-base font-extrabold text-slate-800">{{ \Carbon\Carbon::parse($pasien->tanggal_lahir)->translatedFormat('d F Y') }}</p>
                             </div>
                         </div>
@@ -110,13 +121,13 @@
             </div>
         </div>
 
-        {{-- ================= KANAN: RIWAYAT AKTIVITAS ================= --}}
+        {{-- ================= KANAN: RIWAYAT AKTIVITAS (ACCORDION) ================= --}}
         <div class="xl:col-span-8 space-y-8">
             
             {{-- SEKSI KUNJUNGAN & PEMBAYARAN --}}
-            <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
-                <div class="flex items-center gap-3 mb-6 pb-5 border-b border-slate-100">
-                    <div class="bg-emerald-100 p-2 rounded-lg text-emerald-600">
+            <section class="bg-white rounded-2xl shadow-md border-2 border-slate-200 p-6 md:p-8">
+                <div class="flex items-center gap-3 mb-6 pb-5 border-b-2 border-slate-100">
+                    <div class="bg-emerald-100 p-2 rounded-lg text-emerald-600 border border-emerald-200">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                         </svg>
@@ -126,69 +137,101 @@
 
                 <div class="space-y-4">
                     @forelse($kunjungan as $k)
-                    <div class="bg-slate-50 rounded-xl border border-slate-200 p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-5 hover:border-emerald-400 hover:bg-white transition-all group">
+                    {{-- ACCORDION KUNJUNGAN --}}
+                    {{-- $loop->first ? 'open' : '' membuat baris pertama otomatis terbuka --}}
+                    <details class="group bg-white border-2 border-slate-200 rounded-xl overflow-hidden shadow-sm" {{ $loop->first ? 'open' : '' }}>
                         
-                        <div class="flex items-center gap-4">
-                            <div class="w-14 h-14 bg-white rounded-xl flex items-center justify-center text-slate-400 border border-slate-200 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors shadow-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="text-base font-extrabold text-slate-900">{{ $k->created_at->translatedFormat('d M Y') }}</p>
-                                <div class="flex items-center gap-2 mt-1">
-                                    <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Poli:</span>
-                                    <span class="inline-flex px-2 py-0.5 rounded bg-slate-200 text-slate-700 text-[10px] font-black uppercase border border-slate-300">
-                                        {{ $k->poli }}
-                                    </span>
+                        {{-- HEADER ACCORDION --}}
+                        <summary class="flex justify-between items-center cursor-pointer p-5 bg-slate-50 hover:bg-slate-100 transition-colors">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-emerald-600 border border-slate-200 shadow-sm">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-base font-extrabold text-slate-900">{{ $k->created_at->translatedFormat('d M Y') }}</p>
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <span class="inline-flex px-2 py-0.5 rounded bg-slate-200 text-slate-700 text-[10px] font-black uppercase border border-slate-300">
+                                            {{ $k->poli }}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="flex flex-col items-end gap-3 w-full md:w-auto mt-2 md:mt-0 pt-4 md:pt-0 border-t md:border-t-0 border-slate-200">
-                            @if($k->pembayaran)
-                                @if($k->pembayaran->status === 'lunas')
-                                    <div class="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
-                                        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs font-extrabold shadow-sm uppercase tracking-wider">
-                                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                                            Terverifikasi Lunas
+                            <div class="flex items-center gap-4">
+                                {{-- Status Singkat di Header --}}
+                                <div class="hidden md:block">
+                                    @if($k->pembayaran)
+                                        @if($k->pembayaran->status === 'lunas')
+                                            <span class="text-xs font-bold text-emerald-600 uppercase tracking-widest">Lunas</span>
+                                        @else
+                                            <span class="text-xs font-bold text-amber-600 uppercase tracking-widest animate-pulse">Pending</span>
+                                        @endif
+                                    @else
+                                        <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Tidak Ada</span>
+                                    @endif
+                                </div>
+                                {{-- Panah Icon --}}
+                                <div class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-200 text-slate-500 accordion-icon transition-transform duration-300">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </summary>
+
+                        {{-- BODY ACCORDION --}}
+                        <div class="p-5 border-t-2 border-slate-200 bg-white flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <div class="text-sm text-slate-600">
+                                Waktu Kunjungan: <span class="font-bold text-slate-800">{{ $k->created_at->format('H:i') }} WIB</span>
+                            </div>
+
+                            <div class="w-full md:w-auto">
+                                @if($k->pembayaran)
+                                    @if($k->pembayaran->status === 'lunas')
+                                        <div class="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
+                                            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs font-extrabold shadow-sm uppercase tracking-wider">
+                                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                                Terverifikasi Lunas
+                                            </div>
+                                            <a href="{{ route('admin.pembayaran.print', $k->pembayaran->id) }}" 
+                                               class="p-2.5 bg-slate-800 text-white rounded-lg hover:bg-emerald-600 transition-all shadow-md active:scale-95 border border-slate-800" title="Cetak Struk">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                                                </svg>
+                                            </a>
                                         </div>
-                                        <a href="{{ route('admin.pembayaran.print', $k->pembayaran->id) }}" 
-                                           class="p-2.5 bg-slate-800 text-white rounded-lg hover:bg-emerald-600 transition-all shadow-md active:scale-95 border border-slate-800" title="Cetak Struk">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                                            </svg>
-                                        </a>
-                                    </div>
+                                    @else
+                                        <div class="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
+                                            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-100 border border-amber-300 text-amber-800 text-xs font-extrabold shadow-sm uppercase tracking-wider animate-pulse">
+                                                <span class="flex h-2 w-2 relative">
+                                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                                                    <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                                                </span>
+                                                Menunggu Pembayaran
+                                            </div>
+                                            <a href="{{ route('admin.pembayaran.show', $k->pembayaran->id) }}" 
+                                               class="p-2.5 bg-white text-slate-700 border-2 border-slate-300 rounded-lg hover:bg-slate-100 transition-all shadow-sm active:scale-95" title="Lihat Detail Tagihan">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                </svg>
+                                            </a>
+                                        </div>
+                                    @endif
                                 @else
-                                    <div class="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
-                                        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-100 border border-amber-300 text-amber-800 text-xs font-extrabold shadow-sm uppercase tracking-wider animate-pulse">
-                                            <span class="flex h-2 w-2 relative">
-                                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                                                <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
-                                            </span>
-                                            Menunggu Pembayaran
-                                        </div>
-                                        <a href="{{ route('admin.pembayaran.show', $k->pembayaran->id) }}" 
-                                           class="p-2.5 bg-white text-slate-700 border border-slate-300 rounded-lg hover:bg-slate-100 transition-all shadow-sm active:scale-95" title="Lihat Detail Tagihan">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                            </svg>
-                                        </a>
+                                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 border border-slate-300 text-slate-500 text-xs font-extrabold shadow-sm uppercase tracking-wider">
+                                        Belum Ada Tagihan
                                     </div>
                                 @endif
-                            @else
-                                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 border border-slate-300 text-slate-500 text-xs font-extrabold shadow-sm uppercase tracking-wider">
-                                    Belum Ada Tagihan
-                                </div>
-                            @endif
+                            </div>
                         </div>
-                    </div>
+                    </details>
                     @empty
-                    <div class="py-12 text-center">
+                    <div class="py-12 text-center border-2 border-dashed border-slate-300 rounded-xl bg-slate-50">
                         <div class="flex flex-col items-center justify-center">
-                            <div class="bg-emerald-50 p-5 rounded-full mb-4 border border-emerald-100">
+                            <div class="bg-emerald-50 p-5 rounded-full mb-4 border border-emerald-200">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
@@ -202,9 +245,9 @@
             </section>
 
             {{-- SEKSI REKAM MEDIS --}}
-            <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
-                <div class="flex items-center gap-3 mb-6 pb-5 border-b border-slate-100">
-                    <div class="bg-blue-100 p-2 rounded-lg text-blue-600">
+            <section class="bg-white rounded-2xl shadow-md border-2 border-slate-200 p-6 md:p-8">
+                <div class="flex items-center gap-3 mb-6 pb-5 border-b-2 border-slate-100">
+                    <div class="bg-blue-100 p-2 rounded-lg text-blue-600 border border-blue-200">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
                         </svg>
@@ -212,70 +255,89 @@
                     <h2 class="text-xl font-bold text-slate-800">Riwayat Klinis & Rekam Medis</h2>
                 </div>
 
-                <div class="space-y-6">
+                <div class="space-y-4">
                     @forelse($rekamMedis as $rm)
-                    <div class="bg-slate-50 rounded-2xl border border-slate-200 p-6 md:p-8 hover:shadow-md transition-shadow">
-                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 pb-5 border-b border-slate-200 gap-4">
-                            <div>
-                                <p class="text-xs font-black text-blue-600 uppercase tracking-widest leading-none mb-1.5">Tanggal Periksa</p>
-                                <h4 class="text-lg font-extrabold text-slate-900">{{ $rm->created_at->translatedFormat('d M Y') }}</h4>
-                            </div>
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white text-slate-600 text-xs font-bold border border-slate-300 shadow-sm uppercase tracking-wide">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                </svg>
-                                Poli: {{ $rm->pendaftaran->poli ?? '-' }}
-                            </span>
-                        </div>
-
-                        <div class="grid md:grid-cols-2 gap-5">
-                            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                                <div class="flex items-center gap-2 mb-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    {{-- ACCORDION REKAM MEDIS --}}
+                    <details class="group bg-white border-2 border-slate-200 rounded-xl overflow-hidden shadow-sm" {{ $loop->first ? 'open' : '' }}>
+                        
+                        {{-- HEADER ACCORDION --}}
+                        <summary class="flex justify-between items-center cursor-pointer p-5 bg-slate-50 hover:bg-slate-100 transition-colors">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-blue-600 border border-slate-200 shadow-sm">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                     </svg>
-                                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest">Diagnosis</p>
                                 </div>
-                                <p class="text-sm font-bold text-slate-800 leading-relaxed italic">"{{ $rm->diagnosis }}"</p>
-                            </div>
-                            
-                            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                                <div class="flex items-center gap-2 mb-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                                    </svg>
-                                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest">Tindakan Medis</p>
+                                <div>
+                                    <p class="text-base font-extrabold text-slate-900">{{ $rm->created_at->translatedFormat('d M Y') }}</p>
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <span class="inline-flex px-2 py-0.5 rounded bg-blue-100 text-blue-700 text-[10px] font-black uppercase border border-blue-200">
+                                            Poli: {{ $rm->pendaftaran->poli ?? '-' }}
+                                        </span>
+                                    </div>
                                 </div>
-                                <p class="text-sm font-medium text-slate-800 leading-relaxed">{{ $rm->tindakan }}</p>
                             </div>
-                        </div>
 
-                        @if($rm->resep)
-                        <div class="mt-5 pt-5 border-t border-slate-200">
-                            <div class="flex items-center gap-2 mb-3">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                                </svg>
-                                <p class="text-xs font-black text-slate-500 uppercase tracking-widest">Resep Obat</p>
+                            <div class="flex items-center gap-4">
+                                <div class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-200 text-slate-500 accordion-icon transition-transform duration-300">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
                             </div>
-                            <div class="flex flex-wrap gap-2.5">
-                                @php
-                                    $obatArray = explode(',', $rm->resep);
-                                @endphp
-                                @foreach($obatArray as $obat)
-                                <span class="px-3 py-1.5 bg-white border border-slate-300 text-xs font-extrabold text-slate-700 rounded-lg shadow-sm uppercase">
-                                    {{ trim($obat) }}
-                                </span>
-                                @endforeach
+                        </summary>
+
+                        {{-- BODY ACCORDION --}}
+                        <div class="p-6 md:p-8 border-t-2 border-slate-200 bg-white">
+                            <div class="grid md:grid-cols-2 gap-5">
+                                <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 shadow-sm">
+                                    <div class="flex items-center gap-2 mb-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                        <p class="text-xs font-black text-slate-500 uppercase tracking-widest">Diagnosis</p>
+                                    </div>
+                                    <p class="text-sm font-bold text-slate-800 leading-relaxed italic">"{{ $rm->diagnosis }}"</p>
+                                </div>
+                                
+                                <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 shadow-sm">
+                                    <div class="flex items-center gap-2 mb-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                                        </svg>
+                                        <p class="text-xs font-black text-slate-500 uppercase tracking-widest">Tindakan Medis</p>
+                                    </div>
+                                    <p class="text-sm font-medium text-slate-800 leading-relaxed">{{ $rm->tindakan }}</p>
+                                </div>
                             </div>
+
+                            @if($rm->resep)
+                            <div class="mt-5 pt-5 border-t-2 border-slate-100">
+                                <div class="flex items-center gap-2 mb-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                                    </svg>
+                                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest">Resep Obat</p>
+                                </div>
+                                <div class="flex flex-wrap gap-2.5">
+                                    @php
+                                        $obatArray = explode(',', $rm->resep);
+                                    @endphp
+                                    @foreach($obatArray as $obat)
+                                    <span class="px-3 py-1.5 bg-emerald-50 border border-emerald-200 text-xs font-extrabold text-emerald-800 rounded-lg shadow-sm uppercase">
+                                        {{ trim($obat) }}
+                                    </span>
+                                    @endforeach
+                                </div>
+                            </div>
+                            @endif
                         </div>
-                        @endif
-                    </div>
+                    </details>
                     @empty
-                    <div class="py-12 text-center">
+                    <div class="py-12 text-center border-2 border-dashed border-slate-300 rounded-xl bg-slate-50">
                         <div class="flex flex-col items-center justify-center">
-                            <div class="bg-slate-100 p-5 rounded-full mb-4 border border-slate-200">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <div class="bg-slate-200 p-5 rounded-full mb-4 border border-slate-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
                             </div>
