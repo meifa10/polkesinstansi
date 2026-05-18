@@ -97,13 +97,14 @@ class DataPasienController extends Controller
 
     public function detail($no_identitas)
     {
+        // PERBAIKAN: Menambahkan with('dokter') untuk menghindari N+1 issue
         if (str_starts_with($no_identitas, 'TEMP-')) {
             $id = str_replace('TEMP-', '', $no_identitas);
-            $pendaftaran = PendaftaranPoli::where('id', $id)
+            $pendaftaran = PendaftaranPoli::with('dokter')->where('id', $id)
                 ->orWhere('no_identitas', $id)
                 ->get();
         } else {
-            $pendaftaran = PendaftaranPoli::where('no_identitas', $no_identitas)
+            $pendaftaran = PendaftaranPoli::with('dokter')->where('no_identitas', $no_identitas)
                 ->orWhere('id', $no_identitas)
                 ->orderByDesc('created_at')
                 ->get();
@@ -113,7 +114,9 @@ class DataPasienController extends Controller
             abort(404, 'Pasien tidak ditemukan');
         }
 
-        $rekamMedis = RekamMedis::whereIn('pendaftaran_id', $pendaftaran->pluck('id'))
+        // PERBAIKAN: Membawa relasi pendaftaran.dokter ke dalam RekamMedis
+        $rekamMedis = RekamMedis::with(['pendaftaran', 'pendaftaran.dokter'])
+            ->whereIn('pendaftaran_id', $pendaftaran->pluck('id'))
             ->latest()
             ->get();
 
