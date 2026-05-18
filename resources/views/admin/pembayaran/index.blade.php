@@ -31,12 +31,12 @@
     </div>
 
     {{-- METRIC CARDS --}}
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         
         {{-- Card 1: Total Pendapatan/Tagihan --}}
         <div class="bg-slate-900 px-8 py-6 rounded-2xl shadow-md border-b-4 border-emerald-500 relative overflow-hidden group">
             <div class="relative z-10">
-                <p class="text-xs uppercase font-black text-slate-400 tracking-[0.2em] mb-2">Total Nilai Tagihan</p>
+                <p class="text-xs uppercase font-black text-slate-400 tracking-[0.2em] mb-2">Total Nilai Tagihan (Halaman Ini)</p>
                 <h2 class="text-3xl lg:text-4xl font-black text-white flex items-baseline gap-1">
                     <span class="text-lg text-emerald-400 font-bold">Rp</span>
                     {{ number_format($data->sum(fn($i) => (int) str_replace(['.', ','], '', $i->total_biaya)), 0, ',', '.') }}
@@ -50,7 +50,7 @@
         {{-- Card 2: Sudah Terbayar --}}
         <div class="bg-white px-8 py-6 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between group hover:border-emerald-300 transition-colors">
             <div>
-                <p class="text-xs uppercase font-black text-slate-400 tracking-[0.2em] mb-2">Sudah Terbayar</p>
+                <p class="text-xs uppercase font-black text-slate-400 tracking-[0.2em] mb-2">Sudah Terbayar (Halaman Ini)</p>
                 <h2 class="text-3xl lg:text-4xl font-black text-slate-800 flex items-baseline gap-2">
                     {{ $data->where('status','lunas')->count() }}
                     <span class="text-sm font-bold text-slate-400 uppercase tracking-wider">Pasien</span>
@@ -63,21 +63,6 @@
             </div>
         </div>
 
-        {{-- Card 3: Piutang Pending --}}
-        <div class="bg-white px-8 py-6 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between group hover:border-rose-300 transition-colors">
-            <div>
-                <p class="text-xs uppercase font-black text-slate-400 tracking-[0.2em] mb-2">Piutang Pending</p>
-                <h2 class="text-3xl lg:text-4xl font-black text-slate-800 flex items-baseline gap-2">
-                    {{ $data->where('status','pending')->count() }}
-                    <span class="text-sm font-bold text-slate-400 uppercase tracking-wider">Pasien</span>
-                </h2>
-            </div>
-            <div class="p-4 bg-rose-50 rounded-xl text-rose-600 border border-rose-100 group-hover:bg-rose-600 group-hover:text-white transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-            </div>
-        </div>
     </div>
 
     {{-- FILTER BOX --}}
@@ -281,6 +266,13 @@
                 </tbody>
             </table>
         </div>
+        
+        {{-- PAGINATION LINK (Baru ditambahkan) --}}
+        @if($data->hasPages())
+        <div class="p-6 border-t border-slate-200">
+            {{ $data->withQueryString()->links() }}
+        </div>
+        @endif
         
         {{-- FOOTER INFO --}}
         <div class="bg-slate-50 px-6 py-4 border-t border-slate-200">
