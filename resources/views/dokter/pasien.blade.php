@@ -76,14 +76,14 @@
     {{-- ================= DATA TABLE ================= --}}
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse min-w-[1000px]" id="pasienTable">
+            <table class="w-full text-left border-collapse min-w-[1050px]" id="pasienTable">
                 <thead>
                     {{-- MENGGUNAKAN WARNA EMERALD UNTUK HEADER TABEL --}}
                     <tr class="bg-emerald-900 text-white text-[11px] uppercase tracking-widest font-bold">
                         <th class="py-4 px-6 text-center w-16">No</th>
                         <th class="py-4 px-6 min-w-[200px]">Data Pasien</th>
                         <th class="py-4 px-6 min-w-[250px]">Keluhan Utama</th>
-                        <th class="py-4 px-6 min-w-[150px]">Vitals (BB/TB)</th>
+                        <th class="py-4 px-6 min-w-[180px]">Vitals (BB/TB/Tensi)</th>
                         <th class="py-4 px-6 min-w-[140px]">Poliklinik</th>
                         <th class="py-4 px-6 min-w-[130px]">Status</th>
                         <th class="py-4 px-6 text-center min-w-[120px]">Aksi</th>
@@ -127,7 +127,7 @@
                             </div>
                         </td>
 
-                        {{-- VITALS (BB/TB) --}}
+                        {{-- VITALS (BB/TB/TENSI) --}}
                         <td class="py-4 px-6 align-middle">
                             <div class="flex flex-col gap-1.5">
                                 <span class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600">
@@ -137,6 +137,11 @@
                                 <span class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600">
                                     <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
                                     TB: <span class="font-black text-slate-900">{{ $p->tinggi_badan }} CM</span>
+                                </span>
+                                {{-- PENAMBAHAN TENSI --}}
+                                <span class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                                    Tensi: <span class="font-black text-slate-900">{{ $p->tensi ?? '-' }} mmHg</span>
                                 </span>
                             </div>
                         </td>
