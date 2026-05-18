@@ -12,13 +12,13 @@
 
     {{-- BREADCRUMB & HEADER TOMBOL KEMBALI --}}
     <div class="mb-6 flex items-center justify-between border-b border-slate-200 pb-5">
-        <a href="{{ route('admin.pemeriksaan') }}" class="inline-flex items-center gap-2.5 px-4 py-2 bg-white hover:bg-emerald-50 text-emerald-700 hover:text-emerald-800 rounded-xl border border-slate-200 hover:border-emerald-300 transition-all text-sm font-bold shadow-sm group cursor-pointer">
+        <a href="{{ route('admin.pemeriksaan') }}" class="inline-flex items-center gap-2.5 px-4 py-2 bg-white hover:bg-emerald-50 text-emerald-700 hover:text-emerald-800 rounded-xl border border-slate-200 hover:border-emerald-300 transition-all text-sm font-bold shadow-sm group">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
             Kembali ke Daftar Laporan Utama
         </a>
-        <span class="text-xs font-bold text-slate-400 tracking-wider uppercase font-mono bg-slate-100 px-3 py-1.5 rounded-md">ID Pasien Ref: #{{ $pasien->id }}</span>
+        <span class="text-xs font-bold text-slate-500 tracking-wider uppercase font-mono bg-slate-200 px-3 py-1.5 rounded-md">ID Pasien: #{{ $pasien->id }}</span>
     </div>
 
     {{-- PROFIL KARTU IDENTITAS PASIEN --}}
@@ -40,7 +40,7 @@
             <input type="hidden" name="tanggal" value="{{ request('tanggal') }}">
             <button type="submit" name="download" value="1" 
                 class="w-full lg:w-auto flex items-center justify-center gap-2.5 bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-4 rounded-2xl shadow-lg hover:shadow-emerald-500/10 transition-all font-extrabold text-base border border-emerald-400/20 cursor-pointer active:scale-98">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 group-hover:-translate-y-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 Export Riwayat Pasien (Excel)
@@ -57,11 +57,11 @@
                     class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none cursor-pointer">
             </div>
             <div class="flex gap-2 w-full sm:w-auto">
-                <button type="submit" class="flex-1 sm:flex-none bg-slate-800 hover:bg-slate-900 text-white px-6 py-3 rounded-xl font-bold transition-colors cursor-pointer text-sm uppercase tracking-wider active:scale-98">
+                <button type="submit" class="flex-1 sm:flex-none bg-slate-800 hover:bg-slate-900 text-white px-6 py-3 rounded-xl font-bold transition-colors cursor-pointer text-sm uppercase tracking-wider">
                     Filter
                 </button>
                 @if(request('tanggal'))
-                    <a href="{{ route('admin.pemeriksaan.show', $pasien->id) }}" class="px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl border border-slate-300 flex items-center justify-center transition-colors shadow-sm" title="Bersihkan Filter">
+                    <a href="{{ route('admin.pemeriksaan.show', $pasien->id) }}" class="px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl border border-slate-300 flex items-center justify-center transition-colors" title="Bersihkan Filter">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
                         </svg>
@@ -74,102 +74,108 @@
     {{-- TABEL RIWAYAT MEDIS BERKALA --}}
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse min-w-[1250px]">
+            <table class="w-full text-left border-collapse min-w-[1200px]">
                 <thead>
-                    <tr class="bg-slate-900 text-white text-base uppercase tracking-wider font-black">
-                        <th class="py-5 px-6 w-20 text-center rounded-tl-2xl border-b border-slate-800">No</th>
-                        <th class="py-5 px-6 w-48 text-center border-b border-slate-800">Waktu Kunjungan</th>
-                        <th class="py-5 px-6 min-w-[200px] border-b border-slate-800">Keluhan Utama</th>
-                        <th class="py-5 px-6 min-w-[250px] text-center border-b border-slate-800">Tanda-Tanda Vital</th>
-                        <th class="py-5 px-6 min-w-[300px] border-b border-slate-800">Diagnosis & Tindakan</th>
-                        <th class="py-5 px-6 min-w-[220px] border-b border-slate-800">Resep Obat</th>
-                        <th class="py-5 px-6 min-w-[160px] rounded-tr-2xl border-b border-slate-800">Dokter</th>
+                    <tr class="bg-slate-900 text-white text-xs uppercase tracking-widest font-black">
+                        <th class="py-5 px-6 w-16 text-center rounded-tl-2xl">No</th>
+                        <th class="py-5 px-6 w-44 text-center">Waktu Kunjungan</th>
+                        <th class="py-5 px-6 min-w-[220px]">Keluhan Utama</th>
+                        <th class="py-5 px-6 min-w-[200px] text-center">Tanda-Tanda Vital</th>
+                        <th class="py-5 px-6 min-w-[300px]">Diagnosis & Tindakan Klinis</th>
+                        <th class="py-5 px-6 min-w-[240px]">Resep Obat</th>
+                        <th class="py-5 px-6 min-w-[160px] rounded-tr-2xl">Dokter</th>
                     </tr>
                 </thead>
                 <tbody class="text-base divide-y divide-slate-200">
                     @forelse($riwayat as $item)
-                    <tr class="hover:bg-slate-50/80 transition-colors group">
+                    <tr class="hover:bg-slate-50 transition-colors group">
                         
                         {{-- NO URUT KRONOLOGIS --}}
-                        <td class="py-6 px-6 align-middle text-center font-extrabold text-slate-400">
+                        <td class="py-6 px-6 align-top text-center font-bold text-slate-500">
                             {{ ($riwayat->currentPage() - 1) * $riwayat->perPage() + $loop->iteration }}
                         </td>
 
                         {{-- WAKTU PERIKSA --}}
-                        <td class="py-6 px-6 align-middle text-center group-hover:bg-emerald-50/20 transition-colors">
-                            <p class="font-extrabold text-slate-800 text-sm">{{ $item->created_at->translatedFormat('d M Y') }}</p>
-                            <span class="text-xs font-bold font-mono text-emerald-600 block mt-1 bg-emerald-50 rounded-md py-0.5 px-2 border border-emerald-100 inline-block">{{ $item->created_at->format('H:i') }} WIB</span>
+                        <td class="py-6 px-6 align-top text-center">
+                            <p class="font-bold text-slate-900 text-sm">{{ $item->created_at->translatedFormat('d M Y') }}</p>
+                            <span class="text-xs font-bold font-mono text-emerald-700 block mt-1.5 bg-emerald-100/50 rounded-md py-1 px-2 border border-emerald-200 inline-block">
+                                {{ $item->created_at->format('H:i') }} WIB
+                            </span>
                         </td>
                         
                         {{-- KELUHAN --}}
-                        <td class="py-6 px-6 align-middle italic text-slate-600 font-medium text-sm leading-relaxed">
-                            "{{ $item->keluhan ?? 'Tidak ada keluhan tertulis' }}"
+                        <td class="py-6 px-6 align-top">
+                            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 font-medium text-sm leading-relaxed shadow-sm">
+                                {{ $item->keluhan ?? 'Tidak ada keluhan tertulis' }}
+                            </div>
                         </td>
                         
-                        {{-- TANDA VITAL (DI-BOOST MENJADI ULTRA BESAR, COCOK UNTUK PASIEN LANJUT USIA / KASIR) --}}
-                        <td class="py-6 px-6 align-middle">
-                            <div class="space-y-3 w-full max-w-[240px] mx-auto">
-                                
-                                {{-- Tensi Box (Satuan di-upgrade ke text-lg & font-black) --}}
-                                <div class="flex items-center justify-between border-2 border-slate-300 p-2.5 rounded-xl bg-white shadow-md">
-                                    <span class="text-base font-extrabold text-slate-950 uppercase tracking-tight">Tensi</span>
-                                    <span class="font-mono text-slate-950 font-black text-lg">
-                                        {{ $item->tensi ?? '-' }} <span class="text-lg font-black text-slate-950 ml-0.5">mmHg</span>
+                        {{-- TANDA VITAL --}}
+                        <td class="py-6 px-6 align-top">
+                            <div class="space-y-2.5 w-full max-w-[200px] mx-auto">
+                                {{-- Tensi Box --}}
+                                <div class="flex items-center justify-between border border-slate-300 p-2.5 rounded-lg bg-white shadow-sm">
+                                    <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Tensi:</span>
+                                    <span class="text-slate-900 font-mono font-bold text-sm">
+                                        {{ $item->tensi ?? '-' }} <span class="text-[11px] font-semibold text-slate-600 ml-0.5">mmHg</span>
                                     </span>
                                 </div>
-                                
-                                {{-- Berat Badan Box (Satuan di-upgrade ke text-lg & font-black) --}}
-                                <div class="flex items-center justify-between border-2 border-slate-300 p-2.5 rounded-xl bg-white shadow-md">
-                                    <span class="text-base font-extrabold text-slate-950 uppercase tracking-tight">BB</span>
-                                    <span class="font-mono text-slate-950 font-black text-lg">
-                                        {{ $item->berat_badan ?? '-' }} <span class="text-lg font-black text-slate-950 ml-0.5">kg</span>
+                                {{-- Berat Badan Box --}}
+                                <div class="flex items-center justify-between border border-slate-300 p-2.5 rounded-lg bg-white shadow-sm">
+                                    <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Berat:</span>
+                                    <span class="text-slate-900 font-mono font-bold text-sm">
+                                        {{ $item->berat_badan ?? '-' }} <span class="text-[11px] font-semibold text-slate-600 ml-0.5">kg</span>
                                     </span>
                                 </div>
-                                
-                                {{-- Tinggi Badan Box (Satuan di-upgrade ke text-lg & font-black) --}}
-                                <div class="flex items-center justify-between border-2 border-slate-300 p-2.5 rounded-xl bg-white shadow-md">
-                                    <span class="text-base font-extrabold text-slate-950 uppercase tracking-tight">TB</span>
-                                    <span class="font-mono text-slate-950 font-black text-lg">
-                                        {{ $item->tinggi_badan ?? '-' }} <span class="text-lg font-black text-slate-950 ml-0.5">cm</span>
+                                {{-- Tinggi Badan Box --}}
+                                <div class="flex items-center justify-between border border-slate-300 p-2.5 rounded-lg bg-white shadow-sm">
+                                    <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Tinggi:</span>
+                                    <span class="text-slate-900 font-mono font-bold text-sm">
+                                        {{ $item->tinggi_badan ?? '-' }} <span class="text-[11px] font-semibold text-slate-600 ml-0.5">cm</span>
                                     </span>
                                 </div>
-
                             </div>
                         </td>
                         
                         {{-- DIAGNOSIS & TINDAKAN --}}
-                        <td class="py-6 px-6 align-middle group-hover:bg-rose-50/20 transition-colors">
-                            <div class="space-y-2">
-                                <div class="p-2.5 rounded-xl bg-rose-50 border border-rose-100 text-sm">
-                                    <span class="text-[9px] font-black text-rose-600 block uppercase tracking-widest mb-0.5">Diagnosis</span>
-                                    <p class="font-extrabold text-slate-800 leading-tight">{{ $item->rekamMedis->diagnosis ?? '-' }}</p>
+                        <td class="py-6 px-6 align-top">
+                            <div class="space-y-3">
+                                <div class="p-3.5 rounded-xl bg-rose-50/80 border border-rose-200 text-sm shadow-sm">
+                                    <span class="text-[10px] font-black text-rose-700 block uppercase tracking-widest mb-1.5">Diagnosis Utama</span>
+                                    <p class="font-semibold text-slate-900 leading-relaxed">{{ $item->rekamMedis->diagnosis ?? '-' }}</p>
                                 </div>
-                                <div class="p-2.5 rounded-xl bg-blue-50 border border-blue-100 text-sm overflow-auto max-h-24">
-                                    <span class="text-[9px] font-black text-blue-600 block uppercase tracking-widest mb-0.5">Tindakan Klinis</span>
-                                    <p class="font-bold text-slate-700 leading-tight whitespace-pre-line">{{ $item->rekamMedis->tindakan ?? '-' }}</p>
+                                <div class="p-3.5 rounded-xl bg-blue-50/80 border border-blue-200 text-sm shadow-sm">
+                                    <span class="text-[10px] font-black text-blue-700 block uppercase tracking-widest mb-1.5">Tindakan Klinis</span>
+                                    <p class="font-semibold text-slate-900 leading-relaxed">{{ $item->rekamMedis->tindakan ?? '-' }}</p>
                                 </div>
                             </div>
                         </td>
                         
                         {{-- RESEP OBAT --}}
-                        <td class="py-6 px-6 align-middle">
+                        <td class="py-6 px-6 align-top">
                             @if($item->rekamMedis && $item->rekamMedis->resep)
-                                <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 whitespace-pre-line leading-relaxed shadow-sm overflow-auto max-h-32">
+                                <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl text-xs font-semibold text-slate-900 whitespace-pre-line leading-relaxed shadow-sm">
                                     {{ $item->rekamMedis->resep }}
                                 </div>
                             @else
-                                <span class="text-xs text-slate-400 font-bold italic bg-slate-100 px-2.5 py-1.5 rounded-lg border border-slate-200">Tanpa Resep Obat</span>
+                                <span class="text-xs text-slate-500 font-semibold italic bg-slate-100 px-3 py-2 rounded-lg border border-slate-200 block text-center">
+                                    Tidak ada resep obat
+                                </span>
                             @endif
                         </td>
                         
                         {{-- DOKTER --}}
-                        <td class="py-6 px-6 align-middle font-extrabold text-slate-800 text-sm leading-tight">
-                            {{ $item->dokter->name ?? '-' }}
+                        <td class="py-6 px-6 align-top">
+                            <div class="inline-flex items-center gap-2 bg-slate-100 px-3 py-2 rounded-lg border border-slate-200">
+                                <span class="font-bold text-slate-800 text-sm leading-tight">
+                                    {{ $item->dokter->name ?? '-' }}
+                                </span>
+                            </div>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="py-20 text-center text-slate-400 font-semibold italic bg-white rounded-b-2xl">
+                        <td colspan="7" class="py-20 text-center text-slate-500 font-medium bg-slate-50/50">
                             Belum ada riwayat kunjungan rekam medis tercatat untuk pasien ini.
                         </td>
                     </tr>
@@ -180,7 +186,7 @@
 
         {{-- KONTROL TOMBOL PREVIOUS & NEXT PAGINATION --}}
         @if($riwayat->hasPages())
-        <div class="p-5 border-t border-slate-200 bg-slate-100/50 rounded-b-2xl">
+        <div class="p-5 border-t border-slate-200 bg-slate-50">
             {{ $riwayat->withQueryString()->links() }}
         </div>
         @endif
