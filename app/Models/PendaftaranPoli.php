@@ -18,7 +18,7 @@ class PendaftaranPoli extends Model
         'no_identitas',
         'tanggal_lahir',
         'poli',
-        'dokter_id', // WAJIB ADA agar dokter bisa memfilter pasiennya
+        'dokter_id', 
         'nomor_antrian',
         'status',
         'token_akses'
@@ -30,7 +30,9 @@ class PendaftaranPoli extends Model
     ];
 
     /**
+     * ==========================================
      * RELATIONSHIPS
+     * ==========================================
      */
 
     // Langsung ke User karena dokter_id ada di tabel ini
@@ -49,7 +51,43 @@ class PendaftaranPoli extends Model
         return $this->hasOne(Pembayaran::class, 'pendaftaran_id');
     }
 
-    // Helper Status
-    public function isMenunggu() { return $this->status === 'menunggu_petugas'; }
-    public function isSelesai() { return $this->status === 'selesai'; }
+    /**
+     * ==========================================
+     * HELPER METHODS
+     * ==========================================
+     */
+    
+    public function isMenunggu() 
+    { 
+        return $this->status === 'menunggu_petugas'; 
+    }
+    
+    public function isSelesai() 
+    { 
+        return $this->status === 'selesai'; 
+    }
+
+    /**
+     * ==========================================
+     * LOCAL SCOPES (Untuk Kebutuhan Statistik/Chart)
+     * ==========================================
+     */
+
+    public function scopePoliUmum($query)
+    {
+        return $query->where('poli', 'like', '%Umum%');
+    }
+
+    public function scopePoliGigi($query)
+    {
+        return $query->where('poli', 'like', '%Gigi%');
+    }
+
+    public function scopePoliKiaKb($query)
+    {
+        return $query->where(function($q) {
+            $q->where('poli', 'like', '%KIA%')
+              ->orWhere('poli', 'like', '%KB%');
+        });
+    }
 }
