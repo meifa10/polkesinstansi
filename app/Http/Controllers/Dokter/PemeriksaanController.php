@@ -1,248 +1,229 @@
-<?php
+@extends('layout.app')
 
-namespace App\Http\Controllers\Dokter;
+@section('content')
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
 
-use App\Models\PendaftaranPoli;
-use App\Models\RekamMedis;
-use App\Models\Obat;
-use App\Models\ResepObat;
-use App\Models\Pembayaran;
-
-class PemeriksaanController extends Controller
-{
-    /*
-    |--------------------------------------------------------------------------
-    | DAFTAR PASIEN DOKTER
-    |--------------------------------------------------------------------------
-    */
-    public function index()
-    {
-        // PERBAIKAN DI SINI
-        if (Auth::user()->kategori_poli == 'semua_poli') {
-
-            $pasien = PendaftaranPoli::with('dokter')
-                ->where('status', 'diproses_dokter')
-                ->orderBy('nomor_antrian', 'asc')
-                ->get();
-
-        } else {
-
-            $pasien = PendaftaranPoli::with('dokter')
-                ->where('dokter_id', Auth::id())
-                ->where('status', 'diproses_dokter')
-                ->orderBy('nomor_antrian', 'asc')
-                ->get();
-        }
-
-        return view('dokter.pasien', compact('pasien'));
+<style>
+    html, body {
+        background-color: #0d121c !important; 
+        margin: 0;
+        padding: 0;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | FORM PEMERIKSAAN PASIEN
-    |--------------------------------------------------------------------------
-    */
-    public function show($id)
-    {
-        // PERBAIKAN DI SINI
-        if (Auth::user()->kategori_poli == 'semua_poli') {
-
-            $pasien = PendaftaranPoli::with('dokter')
-                ->where('id', $id)
-                ->firstOrFail();
-
-        } else {
-
-            $pasien = PendaftaranPoli::with('dokter')
-                ->where('id', $id)
-                ->where('dokter_id', Auth::id())
-                ->firstOrFail();
-        }
-
-        $obat = Obat::where('stok', '>', 0)
-            ->orderBy('nama_obat', 'asc')
-            ->get();
-
-        $tindakan = [];
-
-        if ($pasien->poli == 'Poli Umum') {
-            $tindakan = [
-                'Pemeriksaan Umum', 'Pemberian Obat', 'Infus', 
-                'Suntik Vitamin', 'Nebulizer', 'Rujukan'
-            ];
-        } elseif ($pasien->poli == 'Poli Gigi') {
-            $tindakan = [
-                'Tambal Gigi', 'Cabut Gigi', 'Pembersihan Karang Gigi', 
-                'Scalling', 'Pemberian Obat', 'Rujukan'
-            ];
-        } elseif ($pasien->poli == 'Poli KIA & KB') {
-            $tindakan = [
-                'Pemeriksaan Kehamilan', 'USG', 'Konsultasi KB', 
-                'Pemberian Vitamin', 'Imunisasi', 'Rujukan'
-            ];
-        }
-
-        return view('dokter.pemeriksaan', compact(
-            'pasien',
-            'tindakan',
-            'obat'
-        ));
+    .antrian-wrapper {
+        width: 100%;
+        min-height: 100vh; 
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: radial-gradient(circle at top left, #064e3b 0%, #0d121c 100%);
+        padding: 40px 20px;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | SIMPAN PEMERIKSAAN
-    |--------------------------------------------------------------------------
-    */
-    public function store($id, Request $request)
-    {
-        // PERBAIKAN DI SINI
-        if (Auth::user()->kategori_poli == 'semua_poli') {
-
-            $pasien = PendaftaranPoli::where('id', $id)
-                ->firstOrFail();
-
-        } else {
-
-            $pasien = PendaftaranPoli::where('id', $id)
-                ->where('dokter_id', Auth::id())
-                ->firstOrFail();
-        }
-
-        $request->validate([
-            'keluhan'        => 'required',
-            'diagnosis'      => 'required',
-            'tindakan'       => 'required',
-            'obat_id.*'      => 'nullable|exists:obat,id',
-            'qty.*'          => 'nullable|numeric|min:1',
-            'aturan_minum.*' => 'nullable|string'
-        ]);
-
-        DB::beginTransaction();
-
-        try {
-
-            $resepText = '';
-            $totalObat = 0;
-
-            $rekam = RekamMedis::create([
-                'pendaftaran_id' => $pasien->id,
-                'dokter_id'      => Auth::id(),
-                'keluhan'        => $request->keluhan,
-                'diagnosis'      => $request->diagnosis,
-                'tindakan'       => $request->tindakan,
-                'resep'          => '-'
-            ]);
-
-            if ($request->has('obat_id')) {
-
-                foreach ($request->obat_id as $key => $obatId) {
-
-                    if (empty($obatId)) {
-                        continue;
-                    }
-
-                    $obat = Obat::lockForUpdate()->find($obatId);
-
-                    if (!$obat) {
-                        continue;
-                    }
-
-                    $qty = (int) ($request->qty[$key] ?? 0);
-
-                    if ($qty > $obat->stok) {
-                        throw new \Exception(
-                            'Stok obat ' . $obat->nama_obat . ' tidak mencukupi.'
-                        );
-                    }
-
-                    $subtotal = $obat->harga * $qty;
-                    $totalObat += $subtotal;
-
-                    ResepObat::create([
-                        'rekam_medis_id' => $rekam->id,
-                        'obat_id'        => $obatId,
-                        'qty'            => $qty,
-                        'aturan_minum'   => $request->aturan_minum[$key] ?? '-',
-                        'subtotal'       => $subtotal
-                    ]);
-
-                    $resepText .= $obat->nama_obat . ' (' . $qty . ' pcs) - ' . 
-                                  ($request->aturan_minum[$key] ?? '-') . "\n";
-
-                    $obat->decrement('stok', $qty);
-                }
-            }
-
-            $rekam->update([
-                'resep' => $resepText ?: '-'
-            ]);
-
-            $biayaDokter = 50000;
-            $biayaAdmin  = 10000;
-
-            $totalFinal = ($totalObat + $biayaDokter + $biayaAdmin);
-
-            Pembayaran::updateOrCreate(
-                ['pendaftaran_id' => $pasien->id],
-                [
-                    'total_obat'   => $totalObat,
-                    'biaya_dokter' => $biayaDokter,
-                    'biaya_admin'  => $biayaAdmin,
-                    'total_biaya'  => $totalFinal,
-                    'metode'       => 'midtrans',
-                    'status'       => 'pending',
-                    'payment_ref'  => 'INV-' . time() . '-' . $pasien->id
-                ]
-            );
-
-            $pasien->update([
-                'status' => 'menunggu_pembayaran'
-            ]);
-
-            DB::commit();
-
-            return redirect()
-                ->route('dokter.pasien')
-                ->with('success', 'Pemeriksaan pasien berhasil disimpan.');
-
-        } catch (\Exception $e) {
-
-            DB::rollBack();
-
-            return back()
-                ->withInput()
-                ->with('error', $e->getMessage());
-        }
+    .integrated-ticket {
+        background: #ffffff !important;
+        width: 100%;
+        max-width: 420px;
+        border-radius: 30px;
+        overflow: hidden;
+        box-shadow: 0 30px 60px rgba(0,0,0,0.5);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | RIWAYAT REKAM MEDIS
-    |--------------------------------------------------------------------------
-    */
-    public function rekamMedis()
-    {
-        // PERBAIKAN DI SINI
-        if (Auth::user()->kategori_poli == 'semua_poli') {
-
-            $data = RekamMedis::with(['pendaftaran', 'dokter'])
-                ->latest()
-                ->get();
-
-        } else {
-
-            $data = RekamMedis::with(['pendaftaran', 'dokter'])
-                ->where('dokter_id', Auth::id())
-                ->latest()
-                ->get();
-        }
-
-        return view('dokter.rekammedis', compact('data'));
+    .ticket-header {
+        background: #ffffff !important;
+        padding: 35px 20px;
+        text-align: center;
+        border-bottom: 2px dashed #cbd5e1;
+        position: relative;
     }
-}
+
+    .ticket-header::before, .ticket-header::after {
+        content: "";
+        position: absolute;
+        width: 30px;
+        height: 30px;
+        background: #081d18; 
+        border-radius: 50%;
+        bottom: -15px;
+    }
+    .ticket-header::before { left: -15px; }
+    .ticket-header::after { right: -15px; }
+
+    .hospital-identity {
+        font-weight: 800;
+        font-size: 18px;
+        color: #10b981 !important;
+        text-transform: uppercase;
+    }
+
+    .ticket-display-number {
+        font-size: 100px;
+        font-weight: 900;
+        color: #1e293b !important;
+        line-height: 1;
+        margin: 10px 0;
+    }
+
+    .ticket-body {
+        background: #ffffff !important;
+        padding: 25px 30px;
+    }
+
+    .details-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .detail-item label {
+        display: block;
+        font-size: 10px;
+        font-weight: 800;
+        color: #64748b !important;
+        text-transform: uppercase;
+    }
+
+    .detail-item span.text-value {
+        font-size: 14px;
+        font-weight: 700;
+        color: #0f172a !important;
+    }
+
+    /* CSS BASE UNTUK BADGE STATUS */
+    .status-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-weight: 800;
+        font-size: 11px;
+        text-transform: uppercase;
+    }
+
+    /* WARNA DINAMIS UNTUK MASING-MASING STATUS */
+    .status-petugas {
+        background: #fef3c7 !important; /* Kuning Amber soft */
+        color: #d97706 !important; /* Teks Kuning gelap */
+    }
+    .status-dokter {
+        background: #dbeafe !important; /* Biru soft */
+        color: #1d4ed8 !important; /* Teks Biru gelap */
+    }
+    .status-selesai {
+        background: #d1fae5 !important; /* Hijau soft */
+        color: #065f46 !important; /* Teks Hijau gelap */
+    }
+
+    .btn-action {
+        display: block;
+        width: 100%;
+        padding: 14px;
+        border-radius: 12px;
+        font-weight: 800;
+        font-size: 14px;
+        text-align: center;
+        text-decoration: none;
+        margin-bottom: 10px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-save { background: #10b981; color: white; }
+    .btn-dashboard { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+
+    .ticket-footer {
+        text-align: center;
+        font-size: 11px;
+        color: #64748b !important;
+        margin-top: 15px;
+        line-height: 1.5;
+    }
+</style>
+
+<div class="antrian-wrapper">
+    <div class="integrated-ticket" id="capture-zone">
+        <div class="ticket-header">
+            <div class="hospital-identity">POLKES JOMBANG</div>
+            <div style="color: #64748b; font-weight: 700; font-size: 12px; letter-spacing: 1px;">NOMOR ANTRIAN DIGITAL</div>
+            <div class="ticket-display-number">
+                {{ str_pad($data->nomor_antrian, 2, '0', STR_PAD_LEFT) }}
+            </div>
+            <div style="color: #334155; font-weight: 600; font-size: 14px;">
+                {{ \Carbon\Carbon::parse($data->created_at)->translatedFormat('l, d F Y') }}
+            </div>
+        </div>
+
+        <div class="ticket-body">
+            <div class="details-grid">
+                <div class="detail-item">
+                    <label>Nama Pasien</label>
+                    <span class="text-value">{{ $data->nama_pasien }}</span>
+                </div>
+                <div class="detail-item">
+                    <label>Layanan Poli</label>
+                    <span class="text-value">{{ $data->poli }}</span>
+                </div>
+                <div class="detail-item">
+                    <label>Estimasi Dilayani</label>
+                    <span class="text-value" style="color: #10b981 !important;">± {{ $prediksi }} WIB</span>
+                </div>
+                
+                {{-- LOGIKA STATUS YANG DIPERBAIKI --}}
+                <div class="detail-item">
+                    <label>Status</label>
+                    <div>
+                        @if($data->status == 'menunggu_petugas')
+                            <span class="status-badge status-petugas">ANTRIAN PETUGAS</span>
+                        @elseif($data->status == 'diproses_dokter' || $data->status == 'proses')
+                            <span class="status-badge status-dokter">ANTRIAN DOKTER</span>
+                        @elseif($data->status == 'selesai')
+                            <span class="status-badge status-selesai">SELESAI</span>
+                        @else
+                            {{-- Fallback jika ada status lain --}}
+                            <span class="status-badge status-petugas">{{ str_replace('_', ' ', $data->status) }}</span>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            <div class="no-screenshot">
+                <button onclick="saveTicket()" class="btn-action btn-save">
+                    SIMPAN ANTRIAN KE GALERI
+                </button>
+                <a href="{{ route('dashboard') }}" class="btn-action btn-dashboard">
+                    KEMBALI KE DASHBOARD
+                </a>
+            </div>
+
+            <div class="ticket-footer">
+                Harap datang 15 menit sebelum estimasi.<br>
+                Tunjukkan tiket digital ini kepada petugas poli.
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+    function saveTicket() {
+        const zone = document.getElementById('capture-zone');
+        const noShow = zone.querySelector('.no-screenshot');
+        
+        noShow.style.visibility = 'hidden'; // Gunakan visibility agar layout tidak bergeser saat capture
+
+        html2canvas(zone, {
+            scale: 3, 
+            useCORS: true,
+            backgroundColor: "#ffffff",
+        }).then(canvas => {
+            noShow.style.visibility = 'visible';
+            const link = document.createElement('a');
+            link.download = 'Tiket_Antrian_{{ $data->nomor_antrian }}.png';
+            link.href = canvas.toDataURL('image/png', 1.0);
+            link.click();
+        });
+    }
+</script>
+
+@endsection
