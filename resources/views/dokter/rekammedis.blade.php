@@ -30,16 +30,16 @@
         </div>
 
         <button id="exportExcelBtn" class="inline-flex items-center justify-center gap-2.5 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-4 rounded-2xl text-base font-extrabold uppercase tracking-wider transition-all active:scale-95 shadow-lg shadow-emerald-600/10 cursor-pointer">
-            <svg xmlns="http://www.w3.org/2000/xl" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
             Export Excel
         </button>
     </div>
 
-    {{-- FILTER BOX (Kombinasi Request Server & Live Client-side) --}}
+    {{-- FILTER BOX --}}
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8">
-        <form method="GET" action="{{ url()->current() }}" class="grid grid-cols-1 md:grid-cols-12 gap-5 items-end">
+        <form method="GET" action="{{ route('dokter.rekammedis') }}" class="grid grid-cols-1 md:grid-cols-12 gap-5 items-end">
             
             {{-- Search Pasien Live --}}
             <div class="md:col-span-5 relative">
@@ -79,7 +79,7 @@
             {{-- Reset Filter Tombol --}}
             <div class="md:col-span-1">
                 @if(request('tanggal'))
-                    <a href="{{ url()->current() }}" class="w-full h-[54px] bg-slate-100 text-slate-600 rounded-xl border border-slate-300 flex items-center justify-center transition-colors hover:bg-slate-200" title="Clear Date Filter">
+                    <a href="{{ route('dokter.rekammedis') }}" class="w-full h-[54px] bg-slate-100 text-slate-600 rounded-xl border border-slate-300 flex items-center justify-center transition-colors hover:bg-slate-200" title="Bersihkan Filter Tanggal">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
                         </svg>
@@ -108,7 +108,7 @@
                     @forelse($data as $item)
                     <tr class="hover:bg-slate-50 transition-colors group" data-poli="{{ $item->pendaftaran->poli ?? '-' }}">
                         
-                        {{-- NO URUT KRONOLOGIS PAGINATION --}}
+                        {{-- NO URUT PAGINATION (Line 113 yang tadinya error) --}}
                         <td class="py-6 px-6 align-top text-center font-bold text-slate-500">
                             <span class="row-number">{{ ($data->currentPage() - 1) * $data->perPage() + $loop->iteration }}</span>
                         </td>
@@ -186,7 +186,7 @@
                             @endif
                         </td>
 
-                        {{-- TIMELINE (DAFTAR & PERIKSA) --}}
+                        {{-- TIMELINE --}}
                         <td class="py-6 px-6 align-top text-right">
                             <div class="space-y-3 font-mono text-xs">
                                 <div>
@@ -221,7 +221,7 @@
                                     </svg>
                                 </div>
                                 <h3 class="text-lg font-bold text-slate-800 mb-1 uppercase tracking-wide">Belum Ada Rekam Medis</h3>
-                                <p class="text-slate-500 text-sm max-w-sm">Data rekam medis pemeriksaan pasien belum tersedia dalam database.</p>
+                                <p class="text-slate-500 text-sm max-w-sm">Data rekam medis pemeriksaan pasien belum tersedia.</p>
                             </div>
                         </td>
                     </tr>
@@ -230,7 +230,7 @@
             </table>
         </div>
 
-        {{-- PAGINATION LINK (KONTROL NEXT & PREVIOUS) --}}
+        {{-- LINKS NEXT & PREVIOUS PAGINATION --}}
         @if($data->hasPages())
         <div class="p-6 border-t border-slate-200 bg-slate-50">
             {{ $data->withQueryString()->links() }}
@@ -239,16 +239,15 @@
     </div>
 </div>
 
-{{-- ================= JAVASCRIPT: FILTER & EXPORT ================= --}}
 <script>
-    // LIVE CLIENT FILTER UNTUK TEXT & POLIKLINIK
+    // Live Filter Pasien & Poliklinik via JavaScript
     function filterTable() {
         const search = document.getElementById('searchInput').value.toLowerCase();
         const filter = document.getElementById('poliFilter').value;
         const rows = document.querySelectorAll('#medisTable tbody tr');
 
         rows.forEach(row => {
-            if (row.cells.length === 1) return; // Abaikan baris data kosong
+            if (row.cells.length === 1) return;
 
             const poli = row.getAttribute('data-poli');
             const textContent = row.innerText.toLowerCase();
@@ -264,7 +263,7 @@
     document.getElementById('searchInput').addEventListener('keyup', filterTable);
     document.getElementById('poliFilter').addEventListener('change', filterTable);
 
-    // EXPORT TO EXCEL LOGIC
+    // Export Excel Logic
     document.getElementById('exportExcelBtn').addEventListener('click', function () {
         const wb = XLSX.utils.book_new();
         let excelData = [
@@ -297,18 +296,8 @@
         });
 
         const ws = XLSX.utils.aoa_to_sheet(excelData);
-        
         ws['!cols'] = [
-            {wch: 5},   // No
-            {wch: 30},  // Nama
-            {wch: 15},  // Poli
-            {wch: 35},  // Keluhan
-            {wch: 25},  // Vitals
-            {wch: 40},  // Diagnosis
-            {wch: 30},  // Tindakan
-            {wch: 40},  // Resep
-            {wch: 20},  // Waktu Daftar
-            {wch: 20}   // Waktu Periksa
+            {wch: 5}, {wch: 30}, {wch: 15}, {wch: 35}, {wch: 25}, {wch: 40}, {wch: 30}, {wch: 40}, {wch: 20}, {wch: 20}
         ];
 
         XLSX.utils.book_append_sheet(wb, ws, "Rekam Medis");

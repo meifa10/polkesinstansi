@@ -19,10 +19,9 @@ class PemeriksaanController extends Controller
     |--------------------------------------------------------------------------
     | DAFTAR PASIEN DOKTER
     |--------------------------------------------------------------------------
-    */
+    | */
     public function index()
     {
-        // PERBAIKAN DI SINI
         if (Auth::user()->kategori_poli == 'semua_poli') {
 
             $pasien = PendaftaranPoli::with('dokter')
@@ -46,10 +45,9 @@ class PemeriksaanController extends Controller
     |--------------------------------------------------------------------------
     | FORM PEMERIKSAAN PASIEN
     |--------------------------------------------------------------------------
-    */
+    | */
     public function show($id)
     {
-        // PERBAIKAN DI SINI
         if (Auth::user()->kategori_poli == 'semua_poli') {
 
             $pasien = PendaftaranPoli::with('dokter')
@@ -98,10 +96,9 @@ class PemeriksaanController extends Controller
     |--------------------------------------------------------------------------
     | SIMPAN PEMERIKSAAN
     |--------------------------------------------------------------------------
-    */
+    | */
     public function store($id, Request $request)
     {
-        // PERBAIKAN DI SINI
         if (Auth::user()->kategori_poli == 'semua_poli') {
 
             $pasien = PendaftaranPoli::where('id', $id)
@@ -223,26 +220,28 @@ class PemeriksaanController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | RIWAYAT REKAM MEDIS
+    | RIWAYAT REKAM MEDIS (PERBAIKAN PAGINATION & FILTER TANGGAL)
     |--------------------------------------------------------------------------
-    */
-    public function rekamMedis()
+    | */
+    public function rekamMedis(Request $request)
     {
-        // PERBAIKAN DI SINI
-        if (Auth::user()->kategori_poli == 'semua_poli') {
+        // 1. Inisialisasi query dengan memanggil eager load relasi terkait
+        $query = RekamMedis::with(['pendaftaran', 'dokter']);
 
-            $data = RekamMedis::with(['pendaftaran', 'dokter'])
-                ->latest()
-                ->get();
-
-        } else {
-
-            $data = RekamMedis::with(['pendaftaran', 'dokter'])
-                ->where('dokter_id', Auth::id())
-                ->latest()
-                ->get();
+        // 2. Batasi hak akses data jika bukan kategori 'semua_poli'
+        if (Auth::user()->kategori_poli != 'semua_poli') {
+            $query->where('dokter_id', Auth::id());
         }
 
+        // 3. Tambahkan logic Filter Tanggal Tunggal dari Form Request
+        if ($request->filled('tanggal')) {
+            $query->whereDate('created_at', $request->tanggal);
+        }
+
+        // 4. Urutkan dari yang terbaru dan pecah menjadi 5 data per halaman
+        $data = $query->latest()->paginate(5);
+
+        // 5. Kembalikan data aman ke view blade
         return view('dokter.rekammedis', compact('data'));
     }
 }
