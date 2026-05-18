@@ -30,42 +30,63 @@
         </div>
 
         <button id="exportExcelBtn" class="inline-flex items-center justify-center gap-2.5 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-4 rounded-2xl text-base font-extrabold uppercase tracking-wider transition-all active:scale-95 shadow-lg shadow-emerald-600/10 cursor-pointer">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <svg xmlns="http://www.w3.org/2000/xl" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
             Export Excel
         </button>
     </div>
 
-    {{-- FILTER BOX (Live Filter JavaScript) --}}
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8 flex flex-col md:flex-row gap-5">
-        {{-- Search Input --}}
-        <div class="flex-grow relative">
-            <label class="block text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">Cari Pasien / Diagnosis</label>
-            <div class="absolute inset-y-0 bottom-0 left-0 pl-4 flex items-center pointer-events-none" style="top: 28px;">
-                <svg class="h-5 w-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
-                </svg>
+    {{-- FILTER BOX (Kombinasi Request Server & Live Client-side) --}}
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8">
+        <form method="GET" action="{{ url()->current() }}" class="grid grid-cols-1 md:grid-cols-12 gap-5 items-end">
+            
+            {{-- Search Pasien Live --}}
+            <div class="md:col-span-5 relative">
+                <label class="block text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">Cari Pasien / Diagnosis</label>
+                <div class="absolute inset-y-0 bottom-0 left-0 pl-4 flex items-center pointer-events-none" style="top: 28px;">
+                    <svg class="h-5 w-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <input type="text" id="searchInput" placeholder="Ketik nama pasien atau diagnosis..."
+                    class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-300 rounded-xl text-base font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all outline-none">
             </div>
-            <input type="text" id="searchInput" placeholder="Masukkan nama pasien, keluhan, atau diagnosis utama..."
-                class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-300 rounded-xl text-base font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all outline-none">
-        </div>
 
-        {{-- Filter Poli --}}
-        <div class="md:w-72 relative">
-            <label class="block text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">Poliklinik</label>
-            <select id="poliFilter" class="w-full px-5 py-3.5 bg-slate-50 border border-slate-300 rounded-xl text-base font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all outline-none appearance-none cursor-pointer">
-                <option value="ALL">Semua Poliklinik</option>
-                <option value="Poli Umum">Poli Umum</option>
-                <option value="Poli Gigi">Poli Gigi</option>
-                <option value="Poli KIA & KB">Poli KIA & KB</option>
-            </select>
-            <div class="absolute inset-y-0 bottom-0 right-0 flex items-center pr-4 pointer-events-none" style="top: 28px;">
-                <svg class="h-5 w-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-                </svg>
+            {{-- Filter Tanggal Pemeriksaan --}}
+            <div class="md:col-span-3 relative">
+                <label class="block text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">Tanggal Periksa</label>
+                <input type="date" name="tanggal" value="{{ request('tanggal') }}" onchange="this.form.submit()"
+                    class="w-full px-4 py-3.5 bg-slate-50 border border-slate-300 rounded-xl text-base font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all outline-none cursor-pointer">
             </div>
-        </div>
+
+            {{-- Filter Poli Live --}}
+            <div class="md:col-span-3 relative">
+                <label class="block text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">Poliklinik</label>
+                <select id="poliFilter" class="w-full px-5 py-3.5 bg-slate-50 border border-slate-300 rounded-xl text-base font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all outline-none appearance-none cursor-pointer">
+                    <option value="ALL">Semua Poliklinik</option>
+                    <option value="Poli Umum">Poli Umum</option>
+                    <option value="Poli Gigi">Poli Gigi</option>
+                    <option value="Poli KIA & KB">Poli KIA & KB</option>
+                </select>
+                <div class="absolute inset-y-0 bottom-0 right-0 flex items-center pr-4 pointer-events-none" style="top: 28px;">
+                    <svg class="h-5 w-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+            </div>
+
+            {{-- Reset Filter Tombol --}}
+            <div class="md:col-span-1">
+                @if(request('tanggal'))
+                    <a href="{{ url()->current() }}" class="w-full h-[54px] bg-slate-100 text-slate-600 rounded-xl border border-slate-300 flex items-center justify-center transition-colors hover:bg-slate-200" title="Clear Date Filter">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                @endif
+            </div>
+        </form>
     </div>
 
     {{-- DATA TABLE --}}
@@ -87,9 +108,9 @@
                     @forelse($data as $item)
                     <tr class="hover:bg-slate-50 transition-colors group" data-poli="{{ $item->pendaftaran->poli ?? '-' }}">
                         
-                        {{-- NO URUT --}}
+                        {{-- NO URUT KRONOLOGIS PAGINATION --}}
                         <td class="py-6 px-6 align-top text-center font-bold text-slate-500">
-                            <span class="row-number"></span>
+                            <span class="row-number">{{ ($data->currentPage() - 1) * $data->perPage() + $loop->iteration }}</span>
                         </td>
 
                         {{-- DATA PASIEN --}}
@@ -208,28 +229,32 @@
                 </tbody>
             </table>
         </div>
+
+        {{-- PAGINATION LINK (KONTROL NEXT & PREVIOUS) --}}
+        @if($data->hasPages())
+        <div class="p-6 border-t border-slate-200 bg-slate-50">
+            {{ $data->withQueryString()->links() }}
+        </div>
+        @endif
     </div>
 </div>
 
 {{-- ================= JAVASCRIPT: FILTER & EXPORT ================= --}}
 <script>
-    // FUNGSI LIVE PENCARIAN & FILTER KATA KUNCI
+    // LIVE CLIENT FILTER UNTUK TEXT & POLIKLINIK
     function filterTable() {
-        let count = 1;
         const search = document.getElementById('searchInput').value.toLowerCase();
         const filter = document.getElementById('poliFilter').value;
         const rows = document.querySelectorAll('#medisTable tbody tr');
 
         rows.forEach(row => {
-            if (row.cells.length === 1) return; // Lewati baris data kosong (empty state)
+            if (row.cells.length === 1) return; // Abaikan baris data kosong
 
             const poli = row.getAttribute('data-poli');
             const textContent = row.innerText.toLowerCase();
 
             if (textContent.includes(search) && (filter === 'ALL' || poli === filter)) {
                 row.style.display = '';
-                const numberCell = row.querySelector('.row-number');
-                if (numberCell) numberCell.innerText = count++;
             } else {
                 row.style.display = 'none';
             }
@@ -238,9 +263,8 @@
 
     document.getElementById('searchInput').addEventListener('keyup', filterTable);
     document.getElementById('poliFilter').addEventListener('change', filterTable);
-    window.addEventListener('DOMContentLoaded', filterTable);
 
-    // FUNGSI EXPORT DATA KE EXCEL
+    // EXPORT TO EXCEL LOGIC
     document.getElementById('exportExcelBtn').addEventListener('click', function () {
         const wb = XLSX.utils.book_new();
         let excelData = [

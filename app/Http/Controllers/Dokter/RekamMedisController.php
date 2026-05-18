@@ -9,6 +9,22 @@ use Illuminate\Http\Request;
 
 class RekamMedisController extends Controller
 {
+    public function index(Request $request)
+    {
+        // Jalankan query dasar dengan memanggil relasi pendaftaran pasien
+        $query = RekamMedis::with('pendaftaran');
+
+        // Filter Pencarian Tanggal (Gunakan tanggal dari created_at rekam medis)
+        if ($request->filled('tanggal')) {
+            $query->whereDate('created_at', $request->tanggal);
+        }
+
+        // Ambil data dengan batasan maksimal 5 data per halaman (Pagination)
+        $data = $query->latest()->paginate(5);
+
+        return view('dokter.rekam_medis.index', compact('data'));
+    }
+
     public function store(Request $request)
     {
         $request->validate([
