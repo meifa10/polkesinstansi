@@ -107,6 +107,7 @@
                 <div class="bg-white rounded-2xl p-8 lg:p-10 shadow-sm border border-slate-200">
                     <form method="POST" action="{{ route('petugas.pemeriksaan_awal.update', $pasien->id) }}" class="space-y-8">
                         @csrf
+                        @method('PUT')
 
                         {{-- VITAL SIGN GRID (3 Kolom) --}}
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
