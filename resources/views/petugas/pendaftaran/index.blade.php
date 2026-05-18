@@ -81,7 +81,7 @@
 
             {{-- Buttons Action --}}
             <div class="md:col-span-2 flex gap-2">
-                <button type="submit" class="flex-1 bg-slate-800 text-white py-3 rounded-xl text-sm font-bold hover:bg-slate-900 transition-colors shadow-sm cursor-pointer uppercase tracking-wider">
+                <button type="submit" class="flex-1 bg-slate-800 text-white py-3 rounded-xl text-sm font-bold hover:bg-slate-900 transition-colors shadow-sm cursor-pointer uppercase tracking-wider active:scale-98">
                     Filter
                 </button>
                 @if(request('q') || request('status') || request('date'))
@@ -96,9 +96,9 @@
     {{-- DATA TABLE UTAMA --}}
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse min-w-[1200px]">
+            <table class="w-full text-left border-collapse min-w-[1250px]">
                 <thead>
-                    {{-- DI-SET KEMBALI KE EMERALD KONTRAST --}}
+                    {{-- HEADER TABEL: Tetap Hijau Emerald Kontras --}}
                     <tr class="bg-emerald-900 text-white text-xs uppercase tracking-widest font-black border-b border-emerald-950">
                         <th class="py-5 px-6 w-16 text-center rounded-tl-2xl">No</th>
                         <th class="py-5 px-6 w-48 text-center">Waktu Masuk</th>
@@ -183,19 +183,20 @@
                             @php
                                 $statusStyles = [
                                     'menunggu_petugas' => [
-                                        'bg' => 'bg-emerald-100', 'text' => 'text-emerald-800', 'border' => 'border-emerald-300', 'dot' => 'bg-emerald-500', 'pulse' => true
+                                        'bg' => 'bg-amber-100', 'text' => 'text-amber-800', 'border' => 'border-amber-300', 'dot' => 'bg-amber-500', 'pulse' => true
                                     ],
                                     'diproses_dokter' => [
                                         'bg' => 'bg-indigo-100', 'text' => 'text-indigo-800', 'border' => 'border-indigo-300', 'dot' => 'bg-indigo-500', 'pulse' => true
                                     ],
+                                    // NEW UPDATE: Warna Selesai Hijau Emerald Menyala
                                     'selesai' => [
-                                        'bg' => 'bg-slate-200', 'text' => 'text-slate-700', 'border' => 'border-slate-300', 'dot' => 'bg-slate-500', 'pulse' => false
+                                        'bg' => 'bg-emerald-600', 'text' => 'text-white', 'border' => 'border-emerald-700', 'dot' => 'bg-emerald-100', 'pulse' => false
                                     ]
                                 ];
                                 $style = $statusStyles[$item->status] ?? ['bg' => 'bg-slate-100', 'text' => 'text-slate-800', 'border' => 'border-slate-300', 'dot' => 'bg-slate-500', 'pulse' => false];
                             @endphp
 
-                            <div class="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-full {{ $style['bg'] }} {{ $style['border'] }} {{ $style['text'] }} text-xs font-black uppercase tracking-wide border shadow-sm">
+                            <div class="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-full {{ $style['bg'] }} {{ $style['border'] }} {{ $style['text'] }} text-xs font-black uppercase tracking-wide border shadow-sm transition-all">
                                 <span class="flex h-2.5 w-2.5 relative">
                                     @if($style['pulse'])
                                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full {{ $style['dot'] }} opacity-75"></span>
