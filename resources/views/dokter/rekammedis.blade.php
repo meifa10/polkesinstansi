@@ -90,13 +90,12 @@
             <div class="overflow-x-auto custom-scrollbar">
                 <table class="w-full text-left border-collapse min-w-[1300px]" id="medisTable">
                     <thead>
-                        {{-- MENGGUNAKAN WARNA EMERALD GELAP SESUAI PERMINTAAN --}}
                         <tr class="bg-emerald-900 text-white text-[11px] uppercase tracking-widest font-bold">
                             <th class="py-4 px-5 text-center w-16">No</th>
                             <th class="py-4 px-5 min-w-[200px]">Data Pasien</th>
                             <th class="py-4 px-5 min-w-[140px]">Poliklinik</th>
                             <th class="py-4 px-5 min-w-[200px]">Keluhan Awal</th>
-                            <th class="py-4 px-5 min-w-[120px]">Vitals</th>
+                            <th class="py-4 px-5 min-w-[140px]">Vitals</th>
                             <th class="py-4 px-5 min-w-[220px]">Hasil Diagnosis</th>
                             <th class="py-4 px-5 min-w-[180px]">Tindakan</th>
                             <th class="py-4 px-5 min-w-[200px]">Resep Obat</th>
@@ -140,7 +139,7 @@
                                 </p>
                             </td>
 
-                            {{-- VITALS (BB/TB) --}}
+                            {{-- VITALS (BB/TB/TENSI) --}}
                             <td class="py-4 px-5 align-middle">
                                 <div class="flex flex-col gap-1 text-[11px] font-bold">
                                     <span class="text-slate-800 flex items-center gap-1.5">
@@ -148,6 +147,9 @@
                                     </span>
                                     <span class="text-slate-800 flex items-center gap-1.5">
                                         <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> TB: {{ $item->pendaftaran->tinggi_badan ?? '-' }} CM
+                                    </span>
+                                    <span class="text-slate-800 flex items-center gap-1.5">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Tensi: {{ $item->pendaftaran->tensi ?? '-' }} mmHg
                                     </span>
                                 </div>
                             </td>
@@ -243,14 +245,14 @@
     document.getElementById('poliFilter').addEventListener('change', filterTable);
     window.addEventListener('DOMContentLoaded', filterTable);
 
-    // FUNGSI EXPORT EXCEL (Bug Mapped Column Diperbaiki)
+    // FUNGSI EXPORT EXCEL
     document.getElementById('exportExcelBtn').addEventListener('click', function () {
         const wb = XLSX.utils.book_new();
         let excelData = [
             ["DATA REKAM MEDIS PASIEN POLKES JOMBANG"],
             [""], // Spasi Kosong
             // Header Excel
-            ["NO", "NAMA PASIEN", "POLIKLINIK", "KELUHAN", "VITALS (BB/TB)", "DIAGNOSIS", "TINDAKAN", "RESEP OBAT", "STATUS", "WAKTU"]
+            ["NO", "NAMA PASIEN", "POLIKLINIK", "KELUHAN", "VITALS (BB/TB/TENSI)", "DIAGNOSIS", "TINDAKAN", "RESEP OBAT", "STATUS", "WAKTU"]
         ];
 
         document.querySelectorAll('#medisTable tbody tr').forEach(row => {
@@ -261,7 +263,7 @@
                     row.cells[1].innerText.trim().replace(/\n/g, ' - '),      // 1: NAMA
                     row.cells[2].innerText.trim(),                            // 2: POLI
                     row.cells[3].innerText.trim(),                            // 3: KELUHAN
-                    row.cells[4].innerText.trim().replace(/\n/g, ', '),       // 4: BB/TB
+                    row.cells[4].innerText.trim().replace(/\n/g, ', '),       // 4: BB/TB/TENSI
                     row.cells[5].innerText.trim(),                            // 5: DIAGNOSIS
                     row.cells[6].innerText.trim(),                            // 6: TINDAKAN
                     row.cells[7].innerText.trim(),                            // 7: RESEP
@@ -279,7 +281,7 @@
             {wch: 30},  // Nama
             {wch: 15},  // Poli
             {wch: 35},  // Keluhan
-            {wch: 20},  // BB/TB
+            {wch: 25},  // BB/TB/Tensi
             {wch: 40},  // Diagnosis
             {wch: 30},  // Tindakan
             {wch: 40},  // Resep

@@ -64,25 +64,31 @@
                         <span class="w-2 h-2 rounded-full bg-blue-500"></span> Informasi Awal & Vitals
                     </h2>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-12 gap-5">
-                        {{-- BB & TB --}}
-                        <div class="md:col-span-4 grid grid-cols-2 gap-4">
-                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-center">
-                                <span class="text-xs font-semibold text-slate-600 mb-1">Berat Badan</span>
-                                <div class="text-xl font-bold text-slate-900 flex items-baseline gap-1">
-                                    {{ $pasien->berat_badan }} <span class="text-xs text-slate-500 font-medium">KG</span>
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+                        {{-- BB, TB, TENSI (Grid 3 Kolom) --}}
+                        <div class="lg:col-span-6 grid grid-cols-3 gap-3 md:gap-4">
+                            <div class="bg-slate-50 p-3 md:p-4 rounded-xl border border-slate-200 flex flex-col justify-center">
+                                <span class="text-[10px] md:text-xs font-semibold text-slate-600 mb-1">Berat Badan</span>
+                                <div class="text-lg md:text-xl font-bold text-slate-900 flex items-baseline gap-1">
+                                    {{ $pasien->berat_badan }} <span class="text-[10px] md:text-xs text-slate-500 font-medium">KG</span>
                                 </div>
                             </div>
-                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-center">
-                                <span class="text-xs font-semibold text-slate-600 mb-1">Tinggi Badan</span>
-                                <div class="text-xl font-bold text-slate-900 flex items-baseline gap-1">
-                                    {{ $pasien->tinggi_badan }} <span class="text-xs text-slate-500 font-medium">CM</span>
+                            <div class="bg-slate-50 p-3 md:p-4 rounded-xl border border-slate-200 flex flex-col justify-center">
+                                <span class="text-[10px] md:text-xs font-semibold text-slate-600 mb-1">Tinggi Badan</span>
+                                <div class="text-lg md:text-xl font-bold text-slate-900 flex items-baseline gap-1">
+                                    {{ $pasien->tinggi_badan }} <span class="text-[10px] md:text-xs text-slate-500 font-medium">CM</span>
+                                </div>
+                            </div>
+                            <div class="bg-slate-50 p-3 md:p-4 rounded-xl border border-slate-200 flex flex-col justify-center">
+                                <span class="text-[10px] md:text-xs font-semibold text-slate-600 mb-1">Tensi Darah</span>
+                                <div class="text-lg md:text-xl font-bold text-slate-900 flex items-baseline gap-1">
+                                    {{ $pasien->tensi ?? '-' }} <span class="text-[10px] md:text-xs text-slate-500 font-medium">mmHg</span>
                                 </div>
                             </div>
                         </div>
 
                         {{-- Keluhan --}}
-                        <div class="md:col-span-8 bg-amber-50 p-4 rounded-xl border border-amber-200 flex flex-col justify-center">
+                        <div class="lg:col-span-6 bg-amber-50 p-4 rounded-xl border border-amber-200 flex flex-col justify-center">
                             <span class="text-xs font-bold text-amber-800 mb-2 flex items-center gap-1.5">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
