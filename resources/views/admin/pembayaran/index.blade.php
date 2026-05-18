@@ -63,7 +63,7 @@
             </div>
         </div>
 
-        {{-- Card 3: Piutang Pending --}}
+        <!-- {{-- Card 3: Piutang Pending --}}
         <div class="bg-white px-8 py-6 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between group hover:border-rose-300 transition-colors">
             <div>
                 <p class="text-xs uppercase font-black text-slate-400 tracking-[0.2em] mb-2">Piutang Pending</p>
@@ -78,7 +78,7 @@
                 </svg>
             </div>
         </div>
-    </div>
+    </div> -->
 
     {{-- FILTER BOX --}}
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 lg:p-8 mb-8">
