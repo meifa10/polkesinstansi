@@ -26,16 +26,19 @@ class PemeriksaanAwalController extends Controller
 
     public function update(Request $request, $id)
     {
+        // Tambahkan validasi untuk tensi
         $request->validate([
-            'berat_badan' => 'required',
-            'tinggi_badan' => 'required',
-            'keluhan' => 'required',
+            'berat_badan' => 'required|numeric',
+            'tinggi_badan' => 'required|numeric',
+            'tensi' => 'required|string|max:20',
+            'keluhan' => 'required|string',
         ]);
 
         $pasien = PendaftaranPoli::findOrFail($id);
 
         $pasien->berat_badan = $request->berat_badan;
         $pasien->tinggi_badan = $request->tinggi_badan;
+        $pasien->tensi = $request->tensi; // Simpan data tensi
         $pasien->keluhan = $request->keluhan;
 
         // setelah petugas input -> masuk admin

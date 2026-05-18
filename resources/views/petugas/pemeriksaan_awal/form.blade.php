@@ -63,7 +63,9 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            {{-- VITAL SIGN GRID (Berubah menjadi 3 kolom) --}}
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                
                 {{-- BERAT BADAN --}}
                 <div>
                     <label class="flex items-center gap-2 text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">
@@ -73,7 +75,7 @@
                         Berat Badan (BB)
                     </label>
                     <div class="relative">
-                        <input type="number" step="0.1" name="bb" placeholder="0.0" required
+                        <input type="number" step="0.1" name="berat_badan" placeholder="0.0" required
                             class="w-full pl-5 pr-14 py-4 bg-white border border-slate-300 rounded-xl text-lg font-bold text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all shadow-sm placeholder:text-slate-300">
                         <div class="absolute inset-y-0 right-0 flex items-center pr-5 pointer-events-none">
                             <span class="text-slate-400 font-black">kg</span>
@@ -90,13 +92,31 @@
                         Tinggi Badan (TB)
                     </label>
                     <div class="relative">
-                        <input type="number" step="0.1" name="tb" placeholder="0.0" required
+                        <input type="number" step="0.1" name="tinggi_badan" placeholder="0.0" required
                             class="w-full pl-5 pr-14 py-4 bg-white border border-slate-300 rounded-xl text-lg font-bold text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all shadow-sm placeholder:text-slate-300">
                         <div class="absolute inset-y-0 right-0 flex items-center pr-5 pointer-events-none">
                             <span class="text-slate-400 font-black">cm</span>
                         </div>
                     </div>
                 </div>
+
+                {{-- TENSI DARAH --}}
+                <div>
+                    <label class="flex items-center gap-2 text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                        Tensi Darah
+                    </label>
+                    <div class="relative">
+                        <input type="text" name="tensi" placeholder="120/80" required
+                            class="w-full pl-5 pr-16 py-4 bg-white border border-slate-300 rounded-xl text-lg font-bold text-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all shadow-sm placeholder:text-slate-300">
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                            <span class="text-slate-400 font-black text-sm">mmHg</span>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             {{-- KELUHAN --}}

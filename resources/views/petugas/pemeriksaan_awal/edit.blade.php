@@ -1,4 +1,4 @@
-@extends('layouts.petugas')
+@extends('layouts.petugas') {{-- Pastikan nama layout sesuai dengan yang Anda gunakan --}}
 
 @section('content')
 
@@ -48,7 +48,6 @@
                 
                 {{-- KARTU IDENTITAS PASIEN (Dark Theme) --}}
                 <div class="bg-slate-900 rounded-2xl p-8 text-white shadow-lg border border-slate-800 relative overflow-hidden">
-                    {{-- Dekorasi background --}}
                     <div class="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
                     
                     <h3 class="text-xs font-black uppercase tracking-[0.2em] text-emerald-400 mb-6 relative z-10">Data Identitas</h3>
@@ -73,7 +72,7 @@
 
                     <div class="mt-8 p-4 bg-slate-800/50 rounded-xl border border-slate-700 backdrop-blur-sm relative z-10">
                         <p class="text-[10px] font-bold text-slate-300 uppercase tracking-wider text-center">
-                            Petugas Pemeriksa: <span class="text-white">{{ auth()->user()->name }}</span>
+                            Petugas Pemeriksa: <span class="text-white">{{ auth()->user()->name ?? 'Petugas' }}</span>
                         </p>
                     </div>
                 </div>
@@ -97,6 +96,10 @@
                         </li>
                         <li class="flex items-start gap-2">
                             <span class="font-black text-emerald-600">3.</span> 
+                            Gunakan tensimeter untuk mengukur Tensi (cth: 120/80).
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="font-black text-emerald-600">4.</span> 
                             Tulis keluhan utama secara spesifik, padat, dan jelas.
                         </li>
                     </ul>
@@ -108,22 +111,23 @@
                 <div class="bg-white rounded-2xl p-8 lg:p-10 shadow-sm border border-slate-200">
                     <form method="POST" action="{{ route('petugas.pemeriksaan_awal.update', $pasien->id) }}" class="space-y-8">
                         @csrf
-                        {{-- Sesuaikan method spoofing jika controller Anda membutuhkan method PUT/PATCH --}}
                         {{-- @method('PUT') --}}
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {{-- Ubah grid menjadi 3 kolom untuk BB, TB, dan Tensi --}}
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            
                             {{-- BERAT BADAN --}}
                             <div>
                                 <label class="flex items-center gap-2 text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
                                     </svg>
-                                    Berat Badan (BB)
+                                    Berat Badan
                                 </label>
                                 <div class="relative">
                                     <input type="number" step="0.1" name="berat_badan" placeholder="0.0" required
-                                        class="w-full pl-5 pr-14 py-4 bg-slate-50 border border-slate-300 rounded-xl text-lg font-bold text-slate-800 focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all shadow-sm focus:bg-white placeholder:text-slate-400">
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-5 pointer-events-none">
+                                        class="w-full pl-5 pr-12 py-4 bg-slate-50 border border-slate-300 rounded-xl text-lg font-bold text-slate-800 focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all shadow-sm focus:bg-white placeholder:text-slate-400">
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
                                         <span class="text-slate-500 font-black">kg</span>
                                     </div>
                                 </div>
@@ -135,16 +139,34 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
                                     </svg>
-                                    Tinggi Badan (TB)
+                                    Tinggi Badan
                                 </label>
                                 <div class="relative">
                                     <input type="number" step="0.1" name="tinggi_badan" placeholder="0.0" required
-                                        class="w-full pl-5 pr-14 py-4 bg-slate-50 border border-slate-300 rounded-xl text-lg font-bold text-slate-800 focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all shadow-sm focus:bg-white placeholder:text-slate-400">
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-5 pointer-events-none">
+                                        class="w-full pl-5 pr-12 py-4 bg-slate-50 border border-slate-300 rounded-xl text-lg font-bold text-slate-800 focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all shadow-sm focus:bg-white placeholder:text-slate-400">
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
                                         <span class="text-slate-500 font-black">cm</span>
                                     </div>
                                 </div>
                             </div>
+
+                            {{-- TENSI (TEKANAN DARAH) --}}
+                            <div>
+                                <label class="flex items-center gap-2 text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                    </svg>
+                                    Tensi Darah
+                                </label>
+                                <div class="relative">
+                                    <input type="text" name="tensi" placeholder="120/80" required
+                                        class="w-full pl-5 pr-16 py-4 bg-slate-50 border border-slate-300 rounded-xl text-lg font-bold text-slate-800 focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all shadow-sm focus:bg-white placeholder:text-slate-400">
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                                        <span class="text-slate-500 font-black text-xs">mmHg</span>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
 
                         {{-- KELUHAN --}}
