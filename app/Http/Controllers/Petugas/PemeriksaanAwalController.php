@@ -9,24 +9,29 @@ use App\Models\RekamMedis;
 
 class PemeriksaanAwalController extends Controller
 {
-    
+    /**
+     * Menampilkan daftar pasien yang menunggu pemeriksaan awal oleh petugas
+     */
     public function index()
     {
+        // PERUBAHAN DISINI: Mengubah 'desc' menjadi 'asc' agar pasien yang 
+        // mendaftar pertama kali muncul di urutan paling atas (Urutan Antrean Benar)
         $pasien = PendaftaranPoli::where('status', 'menunggu_petugas')
-                    ->orderBy('created_at', 'desc')
+                    ->orderBy('created_at', 'asc')
                     ->get();
 
         return view('petugas.pemeriksaan_awal.index', compact('pasien'));
     }
 
-    
+    /**
+     * Menampilkan form input pemeriksaan awal (Triage / Vital Sign)
+     */
     public function edit($id)
     {
         $pasien = PendaftaranPoli::findOrFail($id);
 
         $pasienId = $pasien->pasien_id ?? $pasien->id_pasien ?? null;
 
-        
         $kunjungan = collect();
         if ($pasienId) {
             $kunjungan = PendaftaranPoli::where('pasien_id', $pasienId)
@@ -45,7 +50,9 @@ class PemeriksaanAwalController extends Controller
         return view('petugas.pemeriksaan_awal.edit', compact('pasien', 'kunjungan', 'rekamMedis'));
     }
 
-    
+    /**
+     * Menyimpan data pemeriksaan awal dan meneruskan pasien ke dokter
+     */
     public function update(Request $request, $id)
     {
         $request->validate([
