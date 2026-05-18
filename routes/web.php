@@ -264,7 +264,7 @@ Route::middleware(['auth', 'role:petugas'])
             [PemeriksaanAwalController::class, 'edit'])
             ->name('pemeriksaan_awal.edit');
 
-        Route::post('/pemeriksaan-awal/{id}',
+        Route::put('/pemeriksaan-awal/{id}',
             [PemeriksaanAwalController::class, 'update'])
             ->name('pemeriksaan_awal.update');
 
