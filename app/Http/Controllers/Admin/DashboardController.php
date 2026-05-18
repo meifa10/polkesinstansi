@@ -16,6 +16,7 @@ class DashboardController extends Controller
     {
         $tahunIni = date('Y');
 
+        // Statistik Card
         $pendaftaranHariIni = PendaftaranPoli::whereDate('created_at', today())->count();
         $totalPasien = Patient::count();
         $totalDokter = User::where('role', 'dokter')->count();
@@ -26,6 +27,7 @@ class DashboardController extends Controller
             
         $totalPemeriksaan = RekamMedis::count();
 
+        // Variabel untuk Chart
         $bulan = [];
         $dataPoliUmum = [];
         $dataPoliGigi = [];
@@ -34,33 +36,26 @@ class DashboardController extends Controller
         for ($i = 1; $i <= 12; $i++) {
             $bulan[] = Carbon::create()->month($i)->translatedFormat('F');
 
-            /* 
-             * CATATAN: Sesuaikan query ini dengan struktur database Anda.
-             * Jika menggunakan relasi (misal nama tabel 'polis' terhubung ke pendaftaran), 
-             * gunakan whereHas. Jika menggunakan ID langsung (misal poli_id = 1 untuk Umum), 
-             * ganti menjadi ->where('poli_id', 1)->count();
-             */
-             
+            // PERBAIKAN: Menggunakan where() karena 'poli' adalah nama kolom, bukan relasi.
+
             // Hitung Kunjungan Poli Umum
             $dataPoliUmum[] = PendaftaranPoli::whereMonth('created_at', $i)
                 ->whereYear('created_at', $tahunIni)
-                ->whereHas('poli', function($query) {
-                    $query->where('nama', 'like', '%Umum%');
-                })->count();
+                ->where('poli', 'like', '%Umum%')
+                ->count();
 
             // Hitung Kunjungan Poli Gigi
             $dataPoliGigi[] = PendaftaranPoli::whereMonth('created_at', $i)
                 ->whereYear('created_at', $tahunIni)
-                ->whereHas('poli', function($query) {
-                    $query->where('nama', 'like', '%Gigi%');
-                })->count();
+                ->where('poli', 'like', '%Gigi%')
+                ->count();
 
             // Hitung Kunjungan Poli KIA & KB
             $dataPoliKiaKb[] = PendaftaranPoli::whereMonth('created_at', $i)
                 ->whereYear('created_at', $tahunIni)
-                ->whereHas('poli', function($query) {
-                    $query->where('nama', 'like', '%KIA%')
-                          ->orWhere('nama', 'like', '%KB%');
+                ->where(function($query) {
+                    $query->where('poli', 'like', '%KIA%')
+                          ->orWhere('poli', 'like', '%KB%');
                 })->count();
         }
 
