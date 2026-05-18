@@ -6,16 +6,21 @@ use App\Http\Controllers\Controller;
 use App\Models\RekamMedis;
 use App\Models\PendaftaranPoli;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB; 
+use Illuminate\Support\Facades\DB;
+
 class PemeriksaanController extends Controller
 {
-    
+    /**
+     * Halaman Utama: Menampilkan daftar nama pasien unik (Tanpa duplikat nama)
+     */
     public function index(Request $request)
     {
+        // Mengelompokkan data pendaftaran poli berdasarkan nama pasien dan NIK agar tidak double di tabel utama
         $query = PendaftaranPoli::whereHas('rekamMedis')
-            ->select('nama_pasien', 'no_identitas', 'poli', DB::raw('MAX(id) as id')) // Backslash (\) dihapus karena sudah di-import di atas
+            ->select('nama_pasien', 'no_identitas', 'poli', DB::raw('MAX(id) as id'))
             ->groupBy('nama_pasien', 'no_identitas', 'poli');
 
+        // Filter Pencarian Pasien Berdasarkan Nama atau NIK
         if ($request->filled('q')) {
             $search = trim($request->q);
             $query->where(function ($q) use ($search) {
@@ -24,28 +29,37 @@ class PemeriksaanController extends Controller
             });
         }
 
+        // Filter Poliklinik Asal Pasien
         if ($request->filled('poli')) {
             $query->where('poli', $request->poli);
         }
 
+        // Menampilkan maksimal 10 data pasien per halaman laporan utama
         $pasien = $query->latest('id')->paginate(10);
 
         return view('admin.pemeriksaan.index', compact('pasien'));
     }
 
+    /**
+     * Halaman Detail: Menampilkan riwayat kronologis rekam medis & tanda vital pasien pilihan (Maksimal 10 per halaman)
+     */
     public function show(Request $request, $id)
     {
-        $pendaftaranAcuan = PendaftaranPoli::findOrFail($id);
-        $namaPasien = $pendaftaranAcuan->nama_pasien;
+        // Ambil pendaftaran acuan berdasarkan parameter rute ID untuk menemukan nama pasien
+        $pasienAcuan = PendaftaranPoli::findOrFail($id);
+        $namaPasien = $pasienAcuan->nama_pasien;
 
-        $query = RekamMedis::whereHas('pendaftaran', function($q) use ($namaPasien) {
-            $q->where('nama_pasien', $namaPasien);
-        })->with('dokter');
+        // Cari seluruh riwayat kunjungan yang memiliki kecocokan nama pasien yang sama langsung dari pendaftaran_poli
+        // Menghubungkan data berat_badan, tinggi_badan, tensi, keluhan, dan relasi rekamMedis
+        $query = PendaftaranPoli::where('nama_pasien', $namaPasien)
+            ->with(['rekamMedis', 'dokter']);
 
+        // Filter tanggal spesifik di dalam riwayat pasien jika diinputkan
         if ($request->filled('tanggal')) {
             $query->whereDate('created_at', $request->tanggal);
         }
 
+        // --- FITUR EXPORT EXCEL DATA RIWAYAT MEDIS JIKA TOMBOL EXPORT DIKLIK ---
         if ($request->has('download')) {
             $filename = 'Riwayat-Pemeriksaan-' . str_replace(' ', '-', $namaPasien) . '-' . now()->format('d-m-Y') . '.xls';
             $headers = [
@@ -73,7 +87,7 @@ class PemeriksaanController extends Controller
                 <div class="header">
                     <div class="title">RIWAYAT REKAM MEDIS PASIEN</div>
                     <div class="subtitle">
-                        <b>Nama Pasien:</b> ' . $namaPasien . ' | <b>NIK:</b> ' . $pendaftaranAcuan->no_identitas . '<br>
+                        <b>Nama Pasien:</b> ' . $namaPasien . ' | <b>NIK:</b> ' . $pasienAcuan->no_identitas . '<br>
                         POLKES 05.09.15 JOMBANG<br>
                         Dicetak pada: ' . now()->format('d-m-Y H:i') . ' WIB
                     </div>
@@ -102,11 +116,11 @@ class PemeriksaanController extends Controller
                             <td class="text-center">' . ($item->created_at ? $item->created_at->format('d-m-Y H:i') : '-') . ' WIB</td>
                             <td>' . ($item->keluhan ?? '-') . '</td>
                             <td class="text-center">' . ($item->tensi ?? '-') . ' mmHg</td>
-                            <td class="text-center">' . ($item->bb ?? '-') . ' kg</td>
-                            <td class="text-center">' . ($item->tb ?? '-') . ' cm</td>
-                            <td>' . ($item->diagnosis ?? '-') . '</td>
-                            <td>' . ($item->tindakan ?? '-') . '</td>
-                            <td>' . str_replace("\n", ", ", $item->resep ?? '-') . '</td>
+                            <td class="text-center">' . ($item->berat_badan ?? '-') . ' kg</td>
+                            <td class="text-center">' . ($item->tinggi_badan ?? '-') . ' cm</td>
+                            <td>' . ($item->rekamMedis->diagnosis ?? '-') . '</td>
+                            <td>' . ($item->rekamMedis->tindakan ?? '-') . '</td>
+                            <td>' . (isset($item->rekamMedis->resep) ? str_replace("\n", ", ", $item->rekamMedis->resep) : '-') . '</td>
                         </tr>';
             }
 
@@ -119,8 +133,9 @@ class PemeriksaanController extends Controller
             return response($html, 200, $headers);
         }
 
-        $riwayat = $query->latest()->get();
-        $pasien = $pendaftaranAcuan;
+        // Membatasi riwayat kunjungan maksimal 10 data per halaman detail pasien
+        $riwayat = $query->latest()->paginate(10);
+        $pasien = $pasienAcuan;
 
         return view('admin.pemeriksaan.show', compact('pasien', 'riwayat'));
     }
