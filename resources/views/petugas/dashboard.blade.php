@@ -196,10 +196,8 @@
                         <td class="py-4 px-4">
                             <p class="text-sm font-extrabold text-slate-800 uppercase">{{ $item->poli }}</p>
                             <p class="text-[10px] font-bold text-emerald-600 uppercase mt-0.5">
-                                {{-- PERBAIKAN: Jika nama dokter diinputkan sejak awal, ini akan langsung menampilkannya.
-                                     Jika di database kolom Anda bernama lain, silakan ganti '$item->nama_dokter' dengan nama kolom yang sesuai.
-                                     Contoh: $item->dokter (jika string langsung) atau $item->dokter->nama (jika relasi table) --}}
-                                Dr. {{ $item->nama_dokter ?? $item->dokter ?? 'Belum Ditentukan' }}
+                                {{-- Memanggil spesifik kolom 'name' dari relasi dokter --}}
+                                {{ $item->dokter->name ?? 'Belum Ditentukan' }}
                             </p>
                         </td>
 
