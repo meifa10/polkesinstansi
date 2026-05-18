@@ -6,6 +6,8 @@
 
 <style>
     body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    /* Custom styling untuk memastikan pagination bawaan laravel (tailwind) rapi */
+    nav[role="navigation"] { margin-top: 1rem; }
 </style>
 
 <div class="p-6 lg:p-8 bg-slate-50 min-h-screen">
@@ -131,47 +133,91 @@
         </div>
     </div>
 
-    {{-- BOTTOM ROW: FULL WIDTH TABLE PASIEN ANTREAN (MENTOK KANAN-KIRI) --}}
-    <div class="w-full bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="p-6 lg:p-8 border-b border-slate-200 flex justify-between items-center bg-slate-50/50">
-            <h3 class="text-xl font-bold text-slate-800">Antrean Pasien <span class="text-emerald-600">Terbaru</span></h3>
-            <a href="{{ route('petugas.pemeriksaan_awal.index') }}" class="inline-flex items-center text-sm font-bold text-emerald-600 hover:text-emerald-700 transition-colors">
-                Lihat Semua Antrean
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-            </a>
+    {{-- BOTTOM ROW: DETAILED TABLE PASIEN ANTREAN --}}
+    <div class="w-full bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-8">
+        <div class="p-6 border-b border-slate-200 flex justify-between items-center bg-slate-50/50">
+            <div>
+                <h3 class="text-xl font-bold text-slate-800">Antrean Pasien <span class="text-emerald-600">Terbaru</span></h3>
+                <p class="text-xs text-slate-500 mt-1 font-medium">Detail informasi klinis dan status alur pasien saat ini.</p>
+            </div>
         </div>
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
+            <table class="w-full text-left border-collapse whitespace-nowrap">
                 <thead>
-                    <tr class="bg-emerald-900 text-white text-xs uppercase tracking-widest font-bold">
-                        <th class="py-4 px-6">Identitas Pasien</th>
-                        <th class="py-4 px-6">Unit Layanan</th>
-                        <th class="py-4 px-6 text-center">Status Alur</th>
+                    <tr class="bg-slate-800 text-white text-[11px] uppercase tracking-widest font-bold">
+                        <th class="py-4 px-4 text-center">No</th>
+                        <th class="py-4 px-4">Waktu Masuk</th>
+                        <th class="py-4 px-4">Biodata / NIK</th>
+                        <th class="py-4 px-4">Keluhan Utama</th>
+                        <th class="py-4 px-4">Unit Layanan & Dokter</th>
+                        <th class="py-4 px-4">Tanda-Tanda Vital</th>
+                        <th class="py-4 px-4 text-center">Status Alur</th>
                     </tr>
                 </thead>
-                <tbody class="text-base divide-y divide-slate-200">
-                    @forelse($pasienTerbaru as $item)
-                    <tr class="hover:bg-emerald-50/40 transition-colors">
-                        <td class="py-4 px-6">
-                            <div class="flex items-center gap-4">
-                                <div class="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-black text-lg border border-emerald-200 shadow-sm flex-shrink-0">
-                                    {{ strtoupper(substr($item->nama_pasien,0,1)) }}
+                <tbody class="text-sm divide-y divide-slate-200">
+                    @forelse($pasienTerbaru as $index => $item)
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        {{-- 1. No --}}
+                        <td class="py-4 px-4 text-center font-bold text-slate-500">
+                            {{ $pasienTerbaru->firstItem() + $index }}
+                        </td>
+
+                        {{-- 2. Waktu Masuk --}}
+                        <td class="py-4 px-4">
+                            <div class="font-extrabold text-slate-800">{{ $item->created_at->format('H:i') }} WIB</div>
+                            <div class="text-[10px] text-slate-400 font-bold uppercase">{{ $item->created_at->format('d M Y') }}</div>
+                        </td>
+
+                        {{-- 3. Biodata Pasien / NIK --}}
+                        <td class="py-4 px-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-black text-sm border border-emerald-200 flex-shrink-0">
+                                    {{ strtoupper(substr($item->nama_pasien, 0, 1)) }}
                                 </div>
                                 <div>
-                                    <p class="font-extrabold text-slate-800 text-base uppercase tracking-tight">{{ $item->nama_pasien }}</p>
-                                    <p class="text-xs text-slate-400 font-bold mt-0.5 tracking-wider">ID: #PX-{{ $item->id + 1000 }}</p>
+                                    <p class="font-extrabold text-slate-800 text-sm uppercase tracking-tight">{{ $item->nama_pasien }}</p>
+                                    <p class="text-[10px] text-slate-500 font-bold mt-0.5 tracking-wider">NIK: {{ $item->nik ?? 'Tidak Tersedia' }}</p>
                                 </div>
                             </div>
                         </td>
-                        <td class="py-4 px-6 align-middle">
-                            <div class="flex flex-col">
-                                <span class="text-sm font-extrabold text-slate-700 uppercase">{{ $item->poli }}</span>
-                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wide mt-0.5">{{ $item->jenis_pasien ?? 'Umum' }}</span>
+
+                        {{-- 4. Keluhan Utama --}}
+                        <td class="py-4 px-4">
+                            <div class="max-w-[200px] whitespace-normal">
+                                <p class="text-xs font-semibold text-slate-600 leading-tight">
+                                    {{ $item->keluhan ?? 'Belum ada keluhan yang diinputkan' }}
+                                </p>
                             </div>
                         </td>
-                        <td class="py-4 px-6 align-middle text-center">
+
+                        {{-- 5. Unit Layanan & Dokter --}}
+                        <td class="py-4 px-4">
+                            <p class="text-sm font-extrabold text-slate-800 uppercase">{{ $item->poli }}</p>
+                            <p class="text-[10px] font-bold text-emerald-600 uppercase mt-0.5">
+                                Dr. {{ $item->nama_dokter ?? 'Belum Ditentukan' }}
+                            </p>
+                        </td>
+
+                        {{-- 6. Tanda-Tanda Vital (Ultra-Jelas) --}}
+                        <td class="py-4 px-4">
+                            <div class="grid grid-cols-2 gap-1.5 min-w-[160px]">
+                                <div class="bg-red-50/80 text-red-700 px-2 py-1 rounded border border-red-100 text-[10px] font-black flex justify-between">
+                                    <span>TD</span> <span>{{ $item->td ?? '-' }} <span class="font-medium text-[9px]">mmHg</span></span>
+                                </div>
+                                <div class="bg-orange-50/80 text-orange-700 px-2 py-1 rounded border border-orange-100 text-[10px] font-black flex justify-between">
+                                    <span>T</span> <span>{{ $item->suhu ?? '-' }} <span class="font-medium text-[9px]">°C</span></span>
+                                </div>
+                                <div class="bg-blue-50/80 text-blue-700 px-2 py-1 rounded border border-blue-100 text-[10px] font-black flex justify-between">
+                                    <span>HR</span> <span>{{ $item->nadi ?? '-' }} <span class="font-medium text-[9px]">bpm</span></span>
+                                </div>
+                                <div class="bg-emerald-50/80 text-emerald-700 px-2 py-1 rounded border border-emerald-100 text-[10px] font-black flex justify-between">
+                                    <span>BB</span> <span>{{ $item->bb ?? '-' }} <span class="font-medium text-[9px]">kg</span></span>
+                                </div>
+                            </div>
+                        </td>
+
+                        {{-- 7. Status Alur --}}
+                        <td class="py-4 px-4 text-center">
                             @php
                                 $statusStyles = [
                                     'menunggu_petugas' => ['bg' => 'bg-amber-100', 'text' => 'text-amber-800', 'border' => 'border-amber-300', 'dot' => 'bg-amber-500', 'label' => 'Menunggu'],
@@ -180,20 +226,29 @@
                                 ];
                                 $style = $statusStyles[$item->status] ?? ['bg' => 'bg-emerald-100', 'text' => 'text-emerald-800', 'border' => 'border-emerald-300', 'dot' => 'bg-emerald-500', 'label' => 'Selesai'];
                             @endphp
-                            <div class="inline-flex items-center justify-center gap-1.5 px-3 py-1 rounded-full {{ $style['bg'] }} {{ $style['border'] }} {{ $style['text'] }} text-xs font-black uppercase border shadow-sm">
-                                <span class="w-1.5 h-1.5 rounded-full {{ $style['dot'] }}"></span>
+                            <div class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md {{ $style['bg'] }} {{ $style['border'] }} {{ $style['text'] }} text-[10px] font-black uppercase border shadow-sm w-full max-w-[110px]">
+                                <span class="w-1.5 h-1.5 rounded-full {{ $style['dot'] }} animate-pulse"></span>
                                 {{ $style['label'] }}
                             </div>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="3" class="py-16 text-center text-slate-400 font-bold italic">Data antrean kosong hari ini.</td>
+                        <td colspan="7" class="py-16 text-center text-slate-400 font-bold italic">
+                            Belum ada data antrean terdaftar hari ini.
+                        </td>
                     </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
+        
+        {{-- PAGINATION LINKS --}}
+        @if($pasienTerbaru->hasPages())
+        <div class="px-6 py-4 border-t border-slate-200 bg-white">
+            {{ $pasienTerbaru->links() }}
+        </div>
+        @endif
     </div>
 </div>
 
