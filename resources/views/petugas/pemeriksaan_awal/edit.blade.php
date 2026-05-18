@@ -68,6 +68,13 @@
                             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">ID Pemeriksaan</p>
                             <p class="text-sm font-bold font-mono text-emerald-100">#PX-{{ ($pasien->id ?? 0) + 1000 }}</p>
                         </div>
+                        {{-- DOKTER PEMERIKSA / TUJUAN --}}
+                        <div>
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Dokter Dituju / Pemeriksa</p>
+                            <p class="text-sm font-bold text-slate-200 uppercase tracking-wide">
+                                {{ $pasien->dokter->name ?? 'Belum Ditentukan' }}
+                            </p>
+                        </div>
                     </div>
 
                     <div class="mt-8 p-4 bg-slate-800/50 rounded-xl border border-slate-700 backdrop-blur-sm relative z-10">
