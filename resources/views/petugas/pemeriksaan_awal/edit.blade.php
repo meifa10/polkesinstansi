@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('petugas.petugas')
 
 @section('content')
 
