@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Pembayaran;
-// Pastikan library DomPDF sudah terinstall (composer require barryvdh/laravel-dompdf)
 use Barryvdh\DomPDF\Facade\Pdf; 
 
 class PembayaranController extends Controller
@@ -31,13 +30,14 @@ class PembayaranController extends Controller
             });
         }
 
-        $data = $query->latest()->get();
+       
+        $data = $query->latest()->paginate(10);
+        
         return view('admin.pembayaran.index', compact('data'));
     }
 
     public function show($id)
     {
-        // Load pendaftaran dan rekam medis sekaligus
         $pembayaran = Pembayaran::with(['pendaftaran.rekamMedis'])->findOrFail($id);
         return view('admin.pembayaran.show', compact('pembayaran'));
     }
@@ -58,20 +58,14 @@ class PembayaranController extends Controller
         return back()->with('success', 'Pembayaran pasien berhasil diverifikasi.');
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | DOWNLOAD PDF STRUK LENGKAP (AUTO-DOWNLOAD)
-    |--------------------------------------------------------------------------
-    */
+
     public function printStruk($id)
     {
-        // Pastikan memuat rekam medis untuk mengambil data resep
         $pembayaran = Pembayaran::with(['pendaftaran.rekamMedis'])->findOrFail($id);
         
         $pdf = Pdf::loadView('admin.pembayaran.print', compact('pembayaran'));
         
-        // Mengatur ukuran kertas: 80mm x 180mm (tinggi ditambah untuk ruang resep)
-        // 1mm = 2.83pt -> 80mm = 226.7pt, 180mm = 510pt
+       
         $pdf->setPaper([0, 0, 226.77, 510.23], 'portrait');
 
         return $pdf->download('Struk_Pembayaran_' . $pembayaran->payment_ref . '.pdf');
