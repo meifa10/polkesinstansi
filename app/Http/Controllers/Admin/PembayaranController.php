@@ -55,9 +55,9 @@ class PembayaranController extends Controller
     {
         $pembayaran = Pembayaran::with(['pendaftaran.rekamMedis'])->findOrFail($id);
         
-        // Memecah teks resep menjadi rincian item obat yang detail
+        // Memecah teks resep dari rekam medis menjadi struktur item obat berrincian harga
         $resepString = $pembayaran->pendaftaran->rekamMedis->resep ?? '';
-        $rincianObat = $this->parseResepDetail($resepString);
+        $rincianObat = $this->parseResepPecahDetail($resepString);
 
         return view('admin.pembayaran.show', compact('pembayaran', 'rincianObat'));
     }
@@ -83,64 +83,62 @@ class PembayaranController extends Controller
         $pembayaran = Pembayaran::with(['pendaftaran.rekamMedis'])->findOrFail($id);
         
         $resepString = $pembayaran->pendaftaran->rekamMedis->resep ?? '';
-        $rincianObat = $this->parseResepDetail($resepString);
+        $rincianObat = $this->parseResepPecahDetail($resepString);
 
         $pdf = Pdf::loadView('admin.pembayaran.print', compact('pembayaran', 'rincianObat'));
-        
-        // Ukuran kertas thermal diperpanjang otomatis ke bawah (tinggi 650pt) agar muat rincian obat banyak
         $pdf->setPaper([0, 0, 226.77, 650.00], 'portrait');
 
         return $pdf->download('Struk_Pembayaran_' . $pembayaran->payment_ref . '.pdf');
     }
 
     /**
-     * Fungsi Parser: Memecah string teks resep menjadi list item obat detail
-     * Mendukung format penulisan umum: "Nama Obat (Jumlah x Harga)" atau "Nama Obat xJumlah"
+     * Fungsi Super Parser: Memecah string resep menjadi item, qty, dan harga secara detail.
+     * Format input wajib di rekam medis: Nama Obat x Jumlah @ Harga
+     * Contoh: Paracetamol x 10 @ 1200
      */
-    private function parseResepDetail($resepString)
+    private function parseResepPecahDetail($resepString)
     {
-        $result = [];
-        if (empty(trim($resepString))) return $result;
+        $listObat = [];
+        if (empty(trim($resepString))) return $listObat;
 
-        // Pisahkan teks resep per baris atau berdasarkan koma
-        $lines = preg_split('/[\n,]+/', $resepString);
+        // Pecah berdasarkan baris baru atau koma jika ditulis berjejer
+        $rows = preg_split('/[\n,]+/', $resepString);
 
-        foreach ($lines as $line) {
-            $line = trim($line);
-            if (empty($line)) continue;
+        foreach ($rows as $row) {
+            $row = trim($row);
+            if (empty($row)) continue;
 
-            $namaObat = $line;
+            // Inisialisasi data dasar jika tidak memakai format pemisah @
+            $namaObat = $row;
             $qty = 1;
-            $harga = 0;
+            $hargaSatuan = 0;
 
-            // Pola 1: Mencari format modern "Paracetamol (10 x 1200)" atau "Amoxicilin (5x2000)"
-            if (preg_match('/^(.*?)\s*\((.*?)\)$/', $line, $matches)) {
-                $namaObat = trim($matches[1]);
-                $ekspresi = $matches[2]; // Berisi "10 x 1200"
+            // Validasi format: "Nama Obat x Jumlah @ Harga"
+            if (str_contains($row, 'x') && str_contains($row, '@')) {
+                // Pecah teks berdasarkan karakter '@' untuk memisahkan harga
+                $partHarga = explode('@', $row);
+                $hargaSatuan = isset($partHarga[1]) ? (int)preg_replace('/[^0-9]/', '', $partHarga[1]) : 0;
 
-                if (preg_match('/(\d+)\s*[xX*]\s*(\d+)/', $ekspresi, $expMatches)) {
-                    $qty = (int)$expMatches[1];
-                    $harga = (int)$expMatches[2];
-                } else {
-                    $qty = (int)preg_replace('/[^0-9]/', '', $ekspresi) ?: 1;
-                }
-            } 
-            // Pola 2: Mencari format standar "Paracetamol x10" atau "Cataflam *5"
-            elseif (preg_match('/^(.*?)\s*[xX*]\s*(\d+)$/', $line, $matches)) {
-                $namaObat = trim($matches[1]);
-                $qty = (int)$matches[2];
+                // Pecah bagian depan berdasarkan karakter 'x' untuk memisahkan nama obat dan jumlah
+                $partNamaQty = explode('x', $partHarga[0]);
+                $namaObat = isset($partNamaQty[0]) ? trim($partNamaQty[0]) : trim($partHarga[0]);
+                $qty = isset($partNamaQty[1]) ? (int)preg_replace('/[^0-9]/', '', $partNamaQty[1]) : 1;
+            }
+            // Validasi format standar tanpa harga: "Nama Obat x Jumlah"
+            elseif (str_contains($row, 'x')) {
+                $partNamaQty = explode('x', $row);
+                $namaObat = trim($partNamaQty[0]);
+                $qty = isset($partNamaQty[1]) ? (int)preg_replace('/[^0-9]/', '', $partNamaQty[1]) : 1;
             }
 
-            $totalItem = $qty * $harga;
-
-            $result[] = [
-                'nama' => $namaObat,
-                'qty' => $qty,
-                'harga' => $harga,
-                'total' => $totalItem
+            $listObat[] = [
+                'nama'  => $namaObat,
+                'qty'   => $qty,
+                'harga' => $hargaSatuan,
+                'total' => $qty * $hargaSatuan
             ];
         }
 
-        return $result;
+        return $listObat;
     }
 }
