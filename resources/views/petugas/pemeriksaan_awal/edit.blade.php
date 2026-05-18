@@ -27,17 +27,17 @@
     <div class="flex flex-col md:flex-row md:justify-between md:items-end mb-8 gap-4">
         <div>
             <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100 text-emerald-800 text-sm font-bold tracking-wide uppercase mb-3 border border-emerald-300">
-                <span class="font-bold">Pemeriksaan Awal</span>
+                <a href="{{ route('petugas.pemeriksaan_awal.index') }}" class="hover:text-emerald-600 transition-colors">Antrean Petugas</a>
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-500" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
                 </svg>
-                Input Tanda Vital
+                Pemeriksaan Tanda Vital
             </div>
             <h1 class="text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
-                Detail Pemeriksaan <span class="text-emerald-600">Pasien</span>
+                Pemeriksaan <span class="text-emerald-600">Awal Pasien</span>
             </h1>
             <p class="text-slate-600 font-medium mt-3 text-base lg:text-lg">
-                Silakan isi data klinis awal. Riwayat pendaftaran terdahulu pasien dapat dilihat di panel sebelah kanan.
+                Silakan isi data klinis awal. Riwayat kunjungan terdahulu pasien dapat dipantau pada panel sebelah kanan.
             </p>
         </div>
 
@@ -159,7 +159,7 @@
                         <label for="keluhan" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Keluhan Utama <span class="text-rose-500">*</span></label>
                         <textarea name="keluhan" id="keluhan" rows="4" required
                                   class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium text-slate-800 placeholder-slate-400" 
-                                  placeholder="Tuliskan alasan utama pasien datang atau keluhan yang dirasakan...">{{ old('keluhan', $pasien->keluhan) }}</textarea>
+                                  placeholder="Tuliskan keluhan yang dirasakan pasien saat ini...">{{ old('keluhan', $pasien->keluhan) }}</textarea>
                         @error('keluhan') <p class="text-rose-500 text-xs mt-1 font-semibold">{{ $message }}</p> @enderror
                     </div>
 
@@ -178,7 +178,7 @@
         {{-- ================= KANAN: RIWAYAT KUNJUNGAN & MEDIS (ACCORDION) ================= --}}
         <div class="xl:col-span-7 space-y-8">
             
-            {{-- SEKSI KUNJUNGAN & TRANSAKSI --}}
+            {{-- SEKSI KUNJUNGAN --}}
             <section class="bg-white rounded-2xl shadow-md border-2 border-slate-200 p-6 md:p-8">
                 <div class="flex items-center gap-3 mb-6 pb-5 border-b-2 border-slate-100">
                     <div class="bg-emerald-100 p-2 rounded-lg text-emerald-600 border border-emerald-200">
@@ -188,7 +188,7 @@
                     </div>
                     <div>
                         <h2 class="text-xl font-bold text-slate-800">Riwayat Kunjungan Poliklinik</h2>
-                        <p class="text-xs text-slate-500 font-medium mt-0.5">Daftar riwayat pendaftaran poli yang pernah dilakukan pasien</p>
+                        <p class="text-xs text-slate-500 font-medium mt-0.5">Daftar rekam pendaftaran poli terdahulu pasien ini</p>
                     </div>
                 </div>
 
@@ -223,7 +223,7 @@
                             <div class="flex items-center gap-4">
                                 <div class="hidden md:block">
                                     @if(isset($k->status) && ($k->status === 'selesai' || $k->status_pembayaran === 'lunas'))
-                                        <span class="text-xs font-bold text-emerald-600 uppercase tracking-widest">Selesai / Lunas</span>
+                                        <span class="text-xs font-bold text-emerald-600 uppercase tracking-widest">Selesai</span>
                                     @else
                                         <span class="text-xs font-bold text-amber-600 uppercase tracking-widest animate-pulse">Diproses</span>
                                     @endif
@@ -242,7 +242,7 @@
                                 Waktu Registrasi: <span class="font-bold text-slate-800">{{ isset($k->created_at) ? $k->created_at->format('H:i') : '-' }} WIB</span>
                             </div>
                             <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl">
-                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Keluhan Tercatat:</p>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Keluhan Pasien:</p>
                                 <p class="text-sm font-medium text-slate-700 italic">"{{ $k->keluhan ?? 'Tidak ada catatan keluhan.' }}"</p>
                             </div>
                             <div class="grid grid-cols-3 gap-2 pt-1 text-center">
