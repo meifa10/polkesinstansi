@@ -234,8 +234,9 @@
                                     Di Ruang Dokter
                                 </div>
                             @elseif($item->status == 'selesai')
+                                {{-- DIKEMBALIKAN KE SELESAI WARNA HIJAU --}}
                                 <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs font-extrabold shadow-sm uppercase">
-                                    Menunggu
+                                    Selesai
                                 </div>
                             @else
                                 <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-100 border border-amber-300 text-amber-800 text-xs font-extrabold shadow-sm uppercase">
@@ -262,11 +263,12 @@
                                         <span class="text-sm font-bold italic">Diperiksa</span>
                                     </div>
                                 @elseif($item->status == 'selesai')
+                                    {{-- DIKEMBALIKAN KE SELESAI WARNA EMERALD/HIJAU --}}
                                     <div class="inline-flex items-center justify-center gap-2 text-emerald-500 bg-emerald-50 px-4 py-2 rounded-xl border border-emerald-200">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <svg xmlns="http://www.w3.org/2000/xl" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                                         </svg>
-                                        <span class="text-sm font-bold italic">Menunggu</span>
+                                        <span class="text-sm font-bold italic">Selesai</span>
                                     </div>
                                 @endif
                             </div>
