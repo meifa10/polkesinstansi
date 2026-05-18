@@ -13,7 +13,18 @@ class PembayaranController extends Controller
     {
         $query = Pembayaran::with('pendaftaran');
 
-        if ($request->q) {
+        // 1. FILTER BERDASARKAN RENTANG TANGGAL (JIKA DIISI)
+        // Menyaring data berdasarkan field 'created_at' di tabel pembayaran
+        if ($request->filled('date_start')) {
+            $query->whereDate('created_at', '>=', $request->date_start);
+        }
+
+        if ($request->filled('date_end')) {
+            $query->whereDate('created_at', '<=', $request->date_end);
+        }
+
+        // 2. FILTER PENCARIAN TEKS (NAMA / METODE / INVOICE)
+        if ($request->filled('q')) {
             $query->where(function ($q) use ($request) {
                 $q->where('metode', 'like', '%' . $request->q . '%')
                   ->orWhere('payment_ref', 'like', '%' . $request->q . '%')
@@ -24,21 +35,24 @@ class PembayaranController extends Controller
             });
         }
 
-        if ($request->poli) {
+        // 3. FILTER LAYANAN POLI (JIKA DIPILIH)
+        if ($request->filled('poli')) {
             $query->whereHas('pendaftaran', function ($q) use ($request) {
                 $q->where('poli', $request->poli);
             });
         }
 
-       
+        // 4. HITUNG METRIK METRIC SECARA DINAMIS SESUAI FILTER YANG AKTIF
+        // Menghitung jumlah pasien yang statusnya lunas berdasarkan filter saat ini
         $totalPasienLunas = (clone $query)->where('status', 'lunas')->count();
 
+        // Mengambil semua list total_biaya dan membersihkan format string rupiah jika ada, lalu dijumlahkan
         $listBiaya = (clone $query)->pluck('total_biaya');
         $totalTagihan = $listBiaya->sum(function($biaya) {
             return (int) str_replace(['.', ','], '', $biaya);
         });
 
-       
+        // 5. AMBIL DATA DENGAN PAGINASI
         $data = $query->latest()->paginate(10);
         
         return view('admin.pembayaran.index', compact('data', 'totalTagihan', 'totalPasienLunas'));
