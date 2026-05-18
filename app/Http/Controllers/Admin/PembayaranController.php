@@ -13,17 +13,12 @@ class PembayaranController extends Controller
     {
         $query = Pembayaran::with('pendaftaran');
 
-        // 1. FILTER BERDASARKAN RENTANG TANGGAL (JIKA DIISI)
-        // Menyaring data berdasarkan field 'created_at' di tabel pembayaran
-        if ($request->filled('date_start')) {
-            $query->whereDate('created_at', '>=', $request->date_start);
+        // 1. FILTER TANGGAL TUNGGAL (JIKA DIISI)
+        if ($request->filled('date')) {
+            $query->whereDate('created_at', $request->date);
         }
 
-        if ($request->filled('date_end')) {
-            $query->whereDate('created_at', '<=', $request->date_end);
-        }
-
-        // 2. FILTER PENCARIAN TEKS (NAMA / METODE / INVOICE)
+        // 2. FILTER PENCARIAN TEKS
         if ($request->filled('q')) {
             $query->where(function ($q) use ($request) {
                 $q->where('metode', 'like', '%' . $request->q . '%')
@@ -35,18 +30,16 @@ class PembayaranController extends Controller
             });
         }
 
-        // 3. FILTER LAYANAN POLI (JIKA DIPILIH)
+        // 3. FILTER LAYANAN POLI
         if ($request->filled('poli')) {
             $query->whereHas('pendaftaran', function ($q) use ($request) {
                 $q->where('poli', $request->poli);
             });
         }
 
-        // 4. HITUNG METRIK METRIC SECARA DINAMIS SESUAI FILTER YANG AKTIF
-        // Menghitung jumlah pasien yang statusnya lunas berdasarkan filter saat ini
+        // 4. HITUNG METRIK SECARA DINAMIS
         $totalPasienLunas = (clone $query)->where('status', 'lunas')->count();
 
-        // Mengambil semua list total_biaya dan membersihkan format string rupiah jika ada, lalu dijumlahkan
         $listBiaya = (clone $query)->pluck('total_biaya');
         $totalTagihan = $listBiaya->sum(function($biaya) {
             return (int) str_replace(['.', ','], '', $biaya);
