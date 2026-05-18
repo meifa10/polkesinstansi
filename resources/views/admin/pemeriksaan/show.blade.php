@@ -76,14 +76,15 @@
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse min-w-[1250px]">
                 <thead>
-                    <tr class="bg-slate-900 text-white text-xs uppercase tracking-widest font-black">
-                        <th class="py-5 px-6 w-20 text-center rounded-tl-2xl">No</th>
-                        <th class="py-5 px-6 w-44 text-center">Waktu Kunjungan</th>
-                        <th class="py-5 px-6 min-w-[200px]">Keluhan Utama</th>
-                        <th class="py-5 px-6 min-w-[240px] text-center">Tanda-Tanda Vital (TB, BB, Tensi)</th>
-                        <th class="py-5 px-6 min-w-[300px]">Diagnosis & Tindakan Klinis</th>
-                        <th class="py-5 px-6 min-w-[220px]">Resep Obat</th>
-                        <th class="py-5 px-6 min-w-[160px] rounded-tr-2xl">Dokter</th>
+                    {{-- DI-UPGRADE TOTAL: text-base (besar), text-white pekat, dan font-black (tebal maksimal) --}}
+                    <tr class="bg-slate-900 text-white text-base uppercase tracking-wider font-black">
+                        <th class="py-5 px-6 w-20 text-center rounded-tl-2xl border-b border-slate-800">No</th>
+                        <th class="py-5 px-6 w-48 text-center border-b border-slate-800">Waktu Kunjungan</th>
+                        <th class="py-5 px-6 min-w-[200px] border-b border-slate-800">Keluhan Utama</th>
+                        <th class="py-5 px-6 min-w-[240px] text-center border-b border-slate-800">Tanda-Tanda Vital</th>
+                        <th class="py-5 px-6 min-w-[300px] border-b border-slate-800">Diagnosis & Tindakan</th>
+                        <th class="py-5 px-6 min-w-[220px] border-b border-slate-800">Resep Obat</th>
+                        <th class="py-5 px-6 min-w-[160px] rounded-tr-2xl border-b border-slate-800">Dokter</th>
                     </tr>
                 </thead>
                 <tbody class="text-base divide-y divide-slate-200">
@@ -91,7 +92,7 @@
                     <tr class="hover:bg-slate-50/80 transition-colors group">
                         
                         {{-- NO URUT KRONOLOGIS --}}
-                        <td class="py-6 px-6 align-middle text-center font-extrabold text-slate-400">
+                        <td class="py-6 px-6 align-middle text-center font-extrabold text-slate-500">
                             {{ ($riwayat->currentPage() - 1) * $riwayat->perPage() + $loop->iteration }}
                         </td>
 
@@ -106,11 +107,11 @@
                             "{{ $item->keluhan ?? 'Tidak ada keluhan tertulis' }}"
                         </td>
                         
-                        {{-- TANDA VITAL (DESAIN ULTRA-JELAS, BESAR, TEBAL, HITAM PEKAT) --}}
+                        {{-- TANDA VITAL --}}
                         <td class="py-6 px-6 align-middle">
                             <div class="space-y-3 w-full max-w-[220px] mx-auto">
                                 
-                                {{-- Tensi Box (Jauh Lebih Besar & Jelas) --}}
+                                {{-- Tensi Box --}}
                                 <div class="flex items-center justify-between border-2 border-slate-300 p-2.5 rounded-xl bg-white shadow-md">
                                     <span class="text-base font-extrabold text-slate-950 uppercase tracking-tight">Tensi</span>
                                     <span class="font-mono text-slate-950 font-black text-lg">
@@ -118,7 +119,7 @@
                                     </span>
                                 </div>
                                 
-                                {{-- Berat Badan Box (Jauh Lebih Besar & Jelas) --}}
+                                {{-- Berat Badan Box --}}
                                 <div class="flex items-center justify-between border-2 border-slate-300 p-2.5 rounded-xl bg-white shadow-md">
                                     <span class="text-base font-extrabold text-slate-950 uppercase tracking-tight">BB</span>
                                     <span class="font-mono text-slate-950 font-black text-lg">
@@ -126,7 +127,7 @@
                                     </span>
                                 </div>
                                 
-                                {{-- Tinggi Badan Box (Jauh Lebih Besar & Jelas) --}}
+                                {{-- Tinggi Badan Box --}}
                                 <div class="flex items-center justify-between border-2 border-slate-300 p-2.5 rounded-xl bg-white shadow-md">
                                     <span class="text-base font-extrabold text-slate-950 uppercase tracking-tight">TB</span>
                                     <span class="font-mono text-slate-950 font-black text-lg">
