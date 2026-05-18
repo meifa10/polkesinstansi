@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\RekamMedis;
-use App\Models\PendaftaranPoli; 
+use App\Models\PendaftaranPoli;
 use Illuminate\Http\Request;
 
 class PemeriksaanController extends Controller
@@ -12,7 +12,10 @@ class PemeriksaanController extends Controller
    
     public function index(Request $request)
     {
-        $query = PendaftaranPoli::whereHas('rekamMedis')->with(['rekamMedis']);
+        
+        $query = PendaftaranPoli::whereHas('rekamMedis')
+            ->select('nama_pasien', 'no_identitas', 'poli', \DB::raw('MAX(id) as id'))
+            ->groupBy('nama_pasien', 'no_identitas', 'poli');
 
         if ($request->filled('q')) {
             $search = trim($request->q);
@@ -22,29 +25,31 @@ class PemeriksaanController extends Controller
             });
         }
 
-        // Filter Poli
         if ($request->filled('poli')) {
             $query->where('poli', $request->poli);
         }
 
-        $pasien = $query->latest()->paginate(10);
+        $pasien = $query->latest('id')->paginate(10);
 
         return view('admin.pemeriksaan.index', compact('pasien'));
     }
 
-
+   
     public function show(Request $request, $id)
     {
-        $pasien = PendaftaranPoli::findOrFail($id);
+        $pendaftaranAcuan = PendaftaranPoli::findOrFail($id);
+        $namaPasien = $pendaftaranAcuan->nama_pasien;
 
-        $query = RekamMedis::where('pendaftaran_id', $id)->with('dokter');
+        $query = RekamMedis::whereHas('pendaftaran', function($q) use ($namaPasien) {
+            $q->where('nama_pasien', $namaPasien);
+        })->with('dokter');
 
         if ($request->filled('tanggal')) {
             $query->whereDate('created_at', $request->tanggal);
         }
 
         if ($request->has('download')) {
-            $filename = 'Riwayat-Pemeriksaan-' . str_replace(' ', '-', $pasien->nama_pasien) . '-' . now()->format('d-m-Y') . '.xls';
+            $filename = 'Riwayat-Pemeriksaan-' . str_replace(' ', '-', $namaPasien) . '-' . now()->format('d-m-Y') . '.xls';
             $headers = [
                 "Content-Type" => "application/vnd.ms-excel",
                 "Content-Disposition" => "attachment; filename=\"$filename\"",
@@ -70,7 +75,7 @@ class PemeriksaanController extends Controller
                 <div class="header">
                     <div class="title">RIWAYAT REKAM MEDIS PASIEN</div>
                     <div class="subtitle">
-                        <b>Nama Pasien:</b> ' . $pasien->nama_pasien . ' | <b>NIK:</b> ' . $pasien->no_identitas . ' | <b>Poli:</b> ' . $pasien->poli . '<br>
+                        <b>Nama Pasien:</b> ' . $namaPasien . ' | <b>NIK:</b> ' . $pendaftaranAcuan->no_identitas . '<br>
                         POLKES 05.09.15 JOMBANG<br>
                         Dicetak pada: ' . now()->format('d-m-Y H:i') . ' WIB
                     </div>
@@ -117,6 +122,7 @@ class PemeriksaanController extends Controller
         }
 
         $riwayat = $query->latest()->get();
+        $pasien = $pendaftaranAcuan;
 
         return view('admin.pemeriksaan.show', compact('pasien', 'riwayat'));
     }
