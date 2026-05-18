@@ -7,6 +7,8 @@ use App\Models\PendaftaranPoli;
 use App\Models\RekamMedis;
 use App\Models\Pembayaran;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 
 class DataPasienController extends Controller
 {
@@ -45,14 +47,17 @@ class DataPasienController extends Controller
             $query->whereDate('pendaftaran_poli.created_at', $request->tanggal);
         }
 
-        $pasien = $query
+        $allData = $query
             ->groupByRaw('COALESCE(pendaftaran_poli.no_identitas, CONCAT("TEMP-", pendaftaran_poli.id))')
             ->orderByDesc('terakhir_kunjungan')
-            ->paginate(10)
-            ->withQueryString();
+            ->get();
 
-        $pasien->getCollection()->transform(function ($p) {
+        $perPage = 10;
+        $page = Paginator::resolveCurrentPage() ?: 1;
 
+        $currentPageItems = $allData->slice(($page - 1) * $perPage, $perPage)->values();
+
+        $currentPageItems->transform(function ($p) {
             if (str_starts_with($p->no_identitas, 'TEMP-')) {
                 $p->status_admin = 'belum_tagihan';
                 return $p;
@@ -75,6 +80,17 @@ class DataPasienController extends Controller
 
             return $p;
         });
+
+        $pasien = new LengthAwarePaginator(
+            $currentPageItems,
+            $allData->count(),
+            $perPage,
+            $page,
+            [
+                'path' => Paginator::resolveCurrentPath(),
+                'query' => $request->query() 
+            ]
+        );
 
         return view('admin.data_pasien.index', compact('pasien'));
     }
