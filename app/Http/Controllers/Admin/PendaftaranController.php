@@ -17,11 +17,14 @@ class PendaftaranController extends Controller
         // Eager loading 'dokter' untuk menghindari N+1 query problem
         $query = PendaftaranPoli::with('dokter')->latest();
 
-        // Fitur Filter Tanggal (Default: Hari Ini jika tidak ada input)
+        // ==============================================================
+        // PERBAIKAN LOGIKA:
+        // Filter tanggal HANYA berjalan jika input tanggal diisi.
+        // Jika dikosongkan (di-clear), maka query whereDate tidak akan dieksekusi
+        // sehingga semua data dari awal akan muncul.
+        // ==============================================================
         if ($request->filled('tanggal')) {
             $query->whereDate('created_at', $request->tanggal);
-        } else {
-            $query->whereDate('created_at', Carbon::today());
         }
 
         // Fitur Pencarian (Nama Pasien atau NIK)
@@ -55,15 +58,12 @@ class PendaftaranController extends Controller
 
         $pasien = PendaftaranPoli::findOrFail($id);
 
-        // Jika admin mencoba mem-bypass antrean secara manual ke dokter
         if ($request->status === 'diproses_dokter') {
-            // Cukup pastikan data vital sign tidak kosong
             if (empty($pasien->berat_badan) || empty($pasien->keluhan)) {
                 return back()->with('error', 'Gagal! Petugas belum mengisi data pemeriksaan awal.');
             }
         }
 
-        // Eksekusi perubahan status
         $pasien->status = $request->status;
         $pasien->save();
 
