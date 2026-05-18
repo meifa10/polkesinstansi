@@ -42,10 +42,10 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         @php
             $stats = [
-                ['label' => 'Total Pasien', 'value' => $totalPasien, 'bg' => 'bg-emerald-50', 'text' => 'text-emerald-600', 'border' => 'border-emerald-100', 'icon' => 'M17 20h5V4H2v16h5m10 0v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6m10 0H7'],
-                ['label' => 'Menunggu', 'value' => $menungguPetugas, 'bg' => 'bg-amber-50', 'text' => 'text-amber-600', 'border' => 'border-amber-100', 'icon' => 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'],
-                ['label' => 'Tervalidasi', 'value' => $sudahDiperiksa, 'bg' => 'bg-blue-50', 'text' => 'text-blue-600', 'border' => 'border-blue-100', 'icon' => 'M9 12l2 2 4-4m5-2a9 9 0 11-18 0 9 9 0 0118 0z'],
-                ['label' => 'Poli Aktif', 'value' => '3', 'bg' => 'bg-violet-50', 'text' => 'text-violet-600', 'border' => 'border-violet-100', 'icon' => 'M19 11H5m14-4H5m14 8H5m14 4H5'],
+                ['label' => 'Total Pasien', 'value' => $totalPasien, 'subtext' => null, 'bg' => 'bg-emerald-50', 'text' => 'text-emerald-600', 'border' => 'border-emerald-100', 'icon' => 'M17 20h5V4H2v16h5m10 0v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6m10 0H7'],
+                ['label' => 'Menunggu', 'value' => $menungguPetugas, 'subtext' => 'dari ' . $totalPasien . ' Pasien', 'bg' => 'bg-amber-50', 'text' => 'text-amber-600', 'border' => 'border-amber-100', 'icon' => 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'],
+                ['label' => 'Tervalidasi', 'value' => $sudahDiperiksa, 'subtext' => null, 'bg' => 'bg-blue-50', 'text' => 'text-blue-600', 'border' => 'border-blue-100', 'icon' => 'M9 12l2 2 4-4m5-2a9 9 0 11-18 0 9 9 0 0118 0z'],
+                ['label' => 'Poli Aktif', 'value' => '3', 'subtext' => null, 'bg' => 'bg-violet-50', 'text' => 'text-violet-600', 'border' => 'border-violet-100', 'icon' => 'M19 11H5m14-4H5m14 8H5m14 4H5'],
             ];
         @endphp
 
@@ -62,7 +62,12 @@
                 </span>
             </div>
             <p class="text-slate-400 text-xs font-bold uppercase tracking-widest">{{ $stat['label'] }}</p>
-            <h3 class="text-3xl font-black text-slate-800 mt-1 leading-none">{{ $stat['value'] }}</h3>
+            <div class="flex items-end gap-2 mt-1">
+                <h3 class="text-3xl font-black text-slate-800 leading-none">{{ $stat['value'] }}</h3>
+                @if($stat['subtext'])
+                    <span class="text-sm font-semibold text-slate-500 pb-0.5">{{ $stat['subtext'] }}</span>
+                @endif
+            </div>
         </div>
         @endforeach
     </div>
@@ -90,7 +95,6 @@
                 <h3 class="text-lg font-bold mb-6 relative z-10 text-emerald-400 uppercase tracking-widest text-xs">Ringkasan Aktivitas</h3>
                 
                 <div class="space-y-6 relative z-10">
-                    {{-- Bagian Pasien Terdaftar telah dihapus --}}
                     <div class="flex gap-4 items-center">
                         <div class="w-1.5 bg-sky-400 rounded-full h-10"></div>
                         <div>
