@@ -6,15 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\RekamMedis;
 use App\Models\PendaftaranPoli;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\DB; 
 class PemeriksaanController extends Controller
 {
-   
+    
     public function index(Request $request)
     {
-        
         $query = PendaftaranPoli::whereHas('rekamMedis')
-            ->select('nama_pasien', 'no_identitas', 'poli', \DB::raw('MAX(id) as id'))
+            ->select('nama_pasien', 'no_identitas', 'poli', DB::raw('MAX(id) as id')) // Backslash (\) dihapus karena sudah di-import di atas
             ->groupBy('nama_pasien', 'no_identitas', 'poli');
 
         if ($request->filled('q')) {
@@ -34,7 +33,6 @@ class PemeriksaanController extends Controller
         return view('admin.pemeriksaan.index', compact('pasien'));
     }
 
-   
     public function show(Request $request, $id)
     {
         $pendaftaranAcuan = PendaftaranPoli::findOrFail($id);
