@@ -5,6 +5,7 @@
 
 <div class="dashboard-wrapper font-['Plus_Jakarta_Sans'] space-y-8 p-6 md:p-10 bg-[#f8fafc]">
 
+    {{-- HEADER --}}
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
             <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">
@@ -24,7 +25,10 @@
         </div>
     </div>
 
+    {{-- STATS GRID --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        
+        {{-- CARD 1: ANTRIAN HARI INI --}}
         <div class="modern-card group">
             <div class="icon bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -33,10 +37,13 @@
             </div>
             <div>
                 <p class="text-slate-400 font-bold text-[10px] uppercase tracking-widest">Antrian Hari Ini</p>
-                <h2 class="text-3xl font-black text-slate-800 tracking-tight">{{ $pendaftaranHariIni }}</h2>
+                <div class="flex items-end gap-2 mt-1">
+                    <h2 class="text-3xl font-black text-slate-800 tracking-tight leading-none">{{ $pendaftaranHariIni }}</h2>
+                </div>
             </div>
         </div>
 
+        {{-- CARD 2: TOTAL PASIEN (Dengan informasi perbandingan pendaftaran hari ini) --}}
         <div class="modern-card group">
             <div class="icon bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -45,10 +52,14 @@
             </div>
             <div>
                 <p class="text-slate-400 font-bold text-[10px] uppercase tracking-widest">Total Pasien</p>
-                <h2 class="text-3xl font-black text-slate-800 tracking-tight">{{ $totalPasien }}</h2>
+                <div class="flex items-end gap-1.5 mt-1">
+                    <h2 class="text-3xl font-black text-slate-800 tracking-tight leading-none">{{ $totalPasien }}</h2>
+                    <span class="text-xs font-semibold text-slate-500 pb-0.5">dari {{ $pendaftaranHariIni }} antrian</span>
+                </div>
             </div>
         </div>
 
+        {{-- CARD 3: DOKTER AKTIF --}}
         <div class="modern-card group">
             <div class="icon bg-purple-50 text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-all duration-300">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -57,10 +68,13 @@
             </div>
             <div>
                 <p class="text-slate-400 font-bold text-[10px] uppercase tracking-widest">Dokter Aktif</p>
-                <h2 class="text-3xl font-black text-slate-800 tracking-tight">{{ $dokterAktif }}</h2>
+                <div class="flex items-end gap-2 mt-1">
+                    <h2 class="text-3xl font-black text-slate-800 tracking-tight leading-none">{{ $dokterAktif }}</h2>
+                </div>
             </div>
         </div>
 
+        {{-- CARD 4: PEMERIKSAAN --}}
         <div class="modern-card group">
             <div class="icon bg-orange-50 text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition-all duration-300">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -69,11 +83,14 @@
             </div>
             <div>
                 <p class="text-slate-400 font-bold text-[10px] uppercase tracking-widest">Pemeriksaan</p>
-                <h2 class="text-3xl font-black text-slate-800 tracking-tight">{{ $totalPemeriksaan }}</h2>
+                <div class="flex items-end gap-2 mt-1">
+                    <h2 class="text-3xl font-black text-slate-800 tracking-tight leading-none">{{ $totalPemeriksaan }}</h2>
+                </div>
             </div>
         </div>
     </div>
 
+    {{-- CHART & DETAIL ROW --}}
     <div class="grid lg:grid-cols-3 gap-8">
         
         <div class="lg:col-span-2 bg-white p-8 rounded-[35px] border border-slate-100 shadow-sm">
@@ -149,7 +166,6 @@ let myChart;
 function initChart(labels, poliUmum, poliGigi, poliKiaKb) {
     const ctx = document.getElementById('dashboardChart').getContext('2d');
     
-    // Gradient Warna Mewah
     const gradEmerald = ctx.createLinearGradient(0, 0, 0, 400);
     gradEmerald.addColorStop(0, '#10b981');
     gradEmerald.addColorStop(1, 'rgba(16, 185, 129, 0.1)');
@@ -162,7 +178,6 @@ function initChart(labels, poliUmum, poliGigi, poliKiaKb) {
     gradBlue.addColorStop(0, '#3b82f6');
     gradBlue.addColorStop(1, 'rgba(59, 130, 246, 0.1)');
 
-    // Hancurkan chart lama jika ada sebelum buat baru
     if (myChart) {
         myChart.destroy();
     }
@@ -213,15 +228,13 @@ function updateChart(bulan) {
     console.log("Mengambil data untuk " + bulan + " bulan terakhir...");
     
     if(bulan == '12') {
-        // Data Mockup ketika filter 12 bulan dipilih
         initChart(
             ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'], 
-            [50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160], // Poli Umum
-            [30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140],   // Poli Gigi
-            [20, 30, 35, 45, 50, 60, 65, 75, 80, 90, 95, 110]        // Poli KIA & KB
+            [50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160], 
+            [30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140],   
+            [20, 30, 35, 45, 50, 60, 65, 75, 80, 90, 95, 110]        
         );
     } else {
-        // Data asli dari Controller
         initChart(
             @json($bulan), 
             @json($dataPoliUmum), 
