@@ -19,7 +19,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
                 </svg>
-                Admin / Antrian Pasien Hari Ini
+                Admin / Antrian Pasien
             </div>
             <h1 class="text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
                 Pendaftaran <span class="text-emerald-600">Pasien</span>
@@ -38,7 +38,7 @@
             </div>
             <div>
                 <p class="text-sm uppercase font-bold text-slate-400 tracking-wider">Total Pasien</p>
-                <h2 class="text-4xl font-black text-slate-800 leading-none mt-1">{{ $pendaftaran->count() }}</h2>
+                <h2 class="text-4xl font-black text-slate-800 leading-none mt-1">{{ $pendaftaran->total() }}</h2>
             </div>
         </div>
     </div>
@@ -51,25 +51,32 @@
                     <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
                 </svg>
             </div>
-            <h2 class="text-xl font-bold text-slate-800">Pencarian & Filter Unit</h2>
+            <h2 class="text-xl font-bold text-slate-800">Pencarian & Filter Antrean</h2>
         </div>
 
         <form method="GET" action="{{ route('admin.pendaftaran.index') }}" class="grid grid-cols-1 md:grid-cols-12 gap-5 items-end">
             
             {{-- Search Input --}}
-            <div class="md:col-span-6 relative">
+            <div class="md:col-span-4 relative">
                 <label class="block text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">Cari Pasien</label>
                 <div class="absolute inset-y-0 bottom-0 left-0 pl-4 flex items-center pointer-events-none" style="top: 28px;">
                     <svg class="h-6 w-6 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
                     </svg>
                 </div>
-                <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama pasien atau NIK..." 
+                <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama atau NIK..." 
                     class="w-full pl-12 pr-5 py-3.5 bg-slate-50 border border-slate-300 rounded-xl text-base font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all outline-none">
             </div>
 
+            {{-- Filter Tanggal --}}
+            <div class="md:col-span-3 relative">
+                <label class="block text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">Tanggal</label>
+                <input type="date" name="tanggal" value="{{ request('tanggal', \Carbon\Carbon::today()->format('Y-m-d')) }}" onchange="this.form.submit()" 
+                    class="w-full px-5 py-3.5 bg-slate-50 border border-slate-300 rounded-xl text-base font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all outline-none cursor-pointer">
+            </div>
+
             {{-- Poli Select --}}
-            <div class="md:col-span-4 relative">
+            <div class="md:col-span-3 relative">
                 <label class="block text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">Pilih Poli</label>
                 <select name="poli" onchange="this.form.submit()" class="w-full px-5 py-3.5 bg-slate-50 border border-slate-300 rounded-xl text-base font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all outline-none appearance-none cursor-pointer">
                     <option value="">Semua Poli</option>
@@ -89,7 +96,7 @@
                 <button type="submit" class="flex-1 bg-slate-800 text-white py-3.5 rounded-xl text-base font-bold hover:bg-slate-900 transition-colors shadow-md">
                     Filter
                 </button>
-                @if(request('q') || request('poli'))
+                @if(request('q') || request('poli') || request('tanggal'))
                     <a href="{{ route('admin.pendaftaran.index') }}" class="px-5 py-3.5 bg-slate-100 text-slate-600 rounded-xl text-base font-bold hover:bg-slate-200 transition-colors border border-slate-300 flex items-center justify-center" title="Reset">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
@@ -132,7 +139,8 @@
                 <thead>
                     <tr class="bg-emerald-900 text-white text-sm uppercase tracking-widest font-bold">
                         <th class="py-5 px-6 w-24 text-center rounded-tl-xl">No</th>
-                        <th class="py-5 px-6 min-w-[280px]">Pasien & Dokter</th>
+                        <th class="py-5 px-6 min-w-[260px]">Pasien & Dokter</th>
+                        <th class="py-5 px-6 min-w-[160px] text-center">Tanggal Daftar</th>
                         <th class="py-5 px-6 min-w-[150px] text-center">Unit / Poli</th>
                         <th class="py-5 px-6 min-w-[320px]">Pemeriksaan Awal (Vital Sign)</th>
                         <th class="py-5 px-6 min-w-[180px] text-center">Status</th>
@@ -146,7 +154,9 @@
                         
                         {{-- NO & ANTREAN --}}
                         <td class="py-5 px-6 text-center align-middle">
-                            <div class="font-extrabold text-slate-500 text-lg">{{ $loop->iteration }}</div>
+                            <div class="font-extrabold text-slate-500 text-lg">
+                                {{ ($pendaftaran->currentPage() - 1) * $pendaftaran->perPage() + $loop->iteration }}
+                            </div>
                             <div class="inline-flex items-center justify-center text-xs font-black bg-slate-100 text-slate-600 rounded-lg px-2.5 py-1 mt-1 border border-slate-300 shadow-sm">
                                 Q-{{ str_pad($item->nomor_antrian, 2, '0', STR_PAD_LEFT) }}
                             </div>
@@ -171,6 +181,12 @@
                             </div>
                         </td>
 
+                        {{-- TANGGAL DAFTAR --}}
+                        <td class="py-5 px-6 align-middle text-center">
+                            <p class="font-extrabold text-slate-800">{{ $item->created_at->translatedFormat('d M Y') }}</p>
+                            <p class="text-xs font-bold text-slate-500 mt-0.5">{{ $item->created_at->format('H:i') }} WIB</p>
+                        </td>
+
                         {{-- POLI --}}
                         <td class="py-5 px-6 align-middle text-center">
                             <span class="inline-flex px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-sm font-extrabold uppercase border border-slate-300">
@@ -189,7 +205,6 @@
                                         <span class="bg-purple-50 text-purple-700 px-3 py-1 rounded-lg text-xs font-black border border-purple-200 shadow-sm">
                                             TB: {{ $item->tinggi_badan }} CM
                                         </span>
-                                        {{-- TAMBAHAN: DATA TENSI --}}
                                         @if($item->tensi)
                                         <span class="bg-rose-50 text-rose-700 px-3 py-1 rounded-lg text-xs font-black border border-rose-200 shadow-sm">
                                             Tensi: {{ $item->tensi }} mmHg
@@ -220,7 +235,7 @@
                                 </div>
                             @elseif($item->status == 'selesai')
                                 <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs font-extrabold shadow-sm uppercase">
-                                    Selesai
+                                    Menunggu
                                 </div>
                             @else
                                 <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-100 border border-amber-300 text-amber-800 text-xs font-extrabold shadow-sm uppercase">
@@ -251,7 +266,7 @@
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                                         </svg>
-                                        <span class="text-sm font-bold italic">Selesai</span>
+                                        <span class="text-sm font-bold italic">Menunggu</span>
                                     </div>
                                 @endif
                             </div>
@@ -259,7 +274,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="py-20 text-center">
+                        <td colspan="7" class="py-20 text-center">
                             <div class="flex flex-col items-center justify-center">
                                 <div class="bg-emerald-50 p-6 rounded-full mb-5 border border-emerald-100">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -268,7 +283,7 @@
                                 </div>
                                 <h3 class="text-xl font-bold text-slate-800 mb-2">Tidak Ada Antrian Pasien</h3>
                                 <p class="text-slate-500 text-base max-w-md">
-                                    Silakan periksa kembali filter pencarian Anda atau belum ada pasien yang mendaftar hari ini.
+                                    Silakan periksa kembali filter pencarian Anda atau belum ada pasien yang mendaftar pada tanggal ini.
                                 </p>
                             </div>
                         </td>
@@ -277,6 +292,13 @@
                 </tbody>
             </table>
         </div>
+        
+        {{-- PAGINATION LINKS --}}
+        @if($pendaftaran->hasPages())
+        <div class="p-6 border-t border-slate-200">
+            {{ $pendaftaran->withQueryString()->links() }}
+        </div>
+        @endif
     </div>
 </div>
 

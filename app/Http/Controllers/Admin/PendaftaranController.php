@@ -10,14 +10,19 @@ use Carbon\Carbon;
 class PendaftaranController extends Controller
 {
     /**
-     * Menampilkan daftar antrean pasien hari ini.
+     * Menampilkan daftar antrean pasien.
      */
     public function index(Request $request)
     {
         // Eager loading 'dokter' untuk menghindari N+1 query problem
-        $query = PendaftaranPoli::with('dokter')
-                    ->whereDate('created_at', Carbon::today()) 
-                    ->latest();
+        $query = PendaftaranPoli::with('dokter')->latest();
+
+        // Fitur Filter Tanggal (Default: Hari Ini jika tidak ada input)
+        if ($request->filled('tanggal')) {
+            $query->whereDate('created_at', $request->tanggal);
+        } else {
+            $query->whereDate('created_at', Carbon::today());
+        }
 
         // Fitur Pencarian (Nama Pasien atau NIK)
         if ($request->filled('q')) {
@@ -33,7 +38,8 @@ class PendaftaranController extends Controller
             $query->where('poli', $request->poli);
         }
 
-        $pendaftaran = $query->get();
+        // Menggunakan paginate(10) untuk membatasi maksimal 10 baris per halaman
+        $pendaftaran = $query->paginate(10);
 
         return view('admin.pendaftaran.index', compact('pendaftaran'));
     }
