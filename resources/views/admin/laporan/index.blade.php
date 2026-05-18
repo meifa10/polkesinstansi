@@ -22,13 +22,29 @@
                     @else
                         {{ \Carbon\Carbon::create(null, (int) $bulan, 1)->translatedFormat('F') }}
                     @endif
-                    {{ $tahun }}
+                    {{ $tahun }} 
+                    @if(!empty($poli) && $poli != 'semua')
+                        | {{ $poli }}
+                    @endif
                 </span>
             </div>
         </div>
 
         {{-- FILTER FORM --}}
         <form method="GET" class="flex flex-wrap items-center gap-3 bg-white p-3 rounded-2xl shadow-sm border border-slate-300">
+            
+            {{-- Filter Poli --}}
+            <div class="relative group">
+                <i class="ph ph-stethoscope absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                <select name="poli" class="pl-10 pr-8 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-900 focus:border-slate-900 outline-none appearance-none cursor-pointer min-w-[150px]" onchange="this.form.submit()">
+                    <option value="semua" {{ $poli == 'semua' || empty($poli) ? 'selected' : '' }}>Semua Poli</option>
+                    <option value="Poli Umum" {{ $poli == 'Poli Umum' ? 'selected' : '' }}>Poli Umum</option>
+                    <option value="Poli Gigi" {{ $poli == 'Poli Gigi' ? 'selected' : '' }}>Poli Gigi</option>
+                    <option value="Poli KIA & KB" {{ $poli == 'Poli KIA & KB' ? 'selected' : '' }}>Poli KIA & KB</option>
+                </select>
+            </div>
+
+            {{-- Filter Bulan --}}
             <div class="relative group">
                 <i class="ph ph-calendar-check absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
                 <select name="bulan" class="pl-10 pr-8 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-900 focus:border-slate-900 outline-none appearance-none cursor-pointer min-w-[160px]" onchange="this.form.submit()">
@@ -41,14 +57,16 @@
                 </select>
             </div>
 
+            {{-- Filter Tahun --}}
             <div class="relative group">
                 <i class="ph ph-hash absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
                 <input type="number" name="tahun" value="{{ $tahun }}" class="pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-900 w-[110px] focus:border-slate-900 outline-none" placeholder="Tahun" onchange="this.form.submit()">
             </div>
 
-            <a href="{{ route('admin.laporan.pdf', ['bulan' => $bulan, 'tahun' => $tahun]) }}" 
-            download
-            class="flex items-center gap-2 px-6 py-2.5 bg-red-600 text-white rounded-xl text-xs font-black uppercase tracking-[0.15em] hover:bg-red-700 transition-all shadow-md active:scale-95">
+            {{-- Cetak PDF Button --}}
+            <a href="{{ route('admin.laporan.pdf', ['bulan' => $bulan, 'tahun' => $tahun, 'poli' => $poli]) }}" 
+               download
+               class="flex items-center gap-2 px-6 py-2.5 bg-red-600 text-white rounded-xl text-xs font-black uppercase tracking-[0.15em] hover:bg-red-700 transition-all shadow-md active:scale-95">
                 <i class="ph ph-file-pdf text-lg"></i> 
                 Cetak PDF
             </a>
@@ -163,7 +181,7 @@
                             <span class="text-xs font-black text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">{{ $m->total }} Transaksi</span>
                         </div>
                         <div class="w-full h-3 bg-slate-100 rounded-full border border-slate-200 shadow-inner overflow-hidden">
-                            <div class="h-full bg-emerald-500 rounded-full transition-all duration-1000 shadow-sm" style="width: {{ ($m->total / max(1, $totalKunjungan)) * 100 }}%"></div>
+                            <div class="h-full bg-emerald-500 rounded-full transition-all duration-1000 shadow-sm" style="width: {{ ($m->total / max(1, $lunas)) * 100 }}%"></div>
                         </div>
                     </div>
                 @empty

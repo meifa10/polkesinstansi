@@ -17,6 +17,7 @@ class LaporanController extends Controller
     {
         $bulan = $request->bulan ?? now()->month; 
         $tahun = (int) ($request->tahun ?? now()->year);
+        $poli  = $request->poli ?? 'semua';
 
         if ($bulan === 'semua') {
             $start = Carbon::create($tahun)->startOfYear();
@@ -27,40 +28,68 @@ class LaporanController extends Controller
             $end   = Carbon::create($tahun, $bulanInt, 1)->endOfMonth();
         }
 
-        $totalKunjungan = PendaftaranPoli::whereBetween('created_at', [$start, $end])->count();
+        // 1. BASE QUERY PENDAFTARAN
+        $qPendaftaran = PendaftaranPoli::whereBetween('created_at', [$start, $end]);
+        if ($poli !== 'semua') {
+            $qPendaftaran->where('poli', $poli);
+        }
+
+        $totalKunjungan = (clone $qPendaftaran)->count();
+        $bpjs = (clone $qPendaftaran)->whereRaw('LOWER(jenis_pasien) = ?', ['jkn'])->count();
+        $umum = (clone $qPendaftaran)->whereRaw('LOWER(jenis_pasien) = ?', ['umum'])->count();
         
-        // Gunakan whereRaw agar pencarian jenis_pasien tidak error karena huruf besar/kecil
-        $bpjs = PendaftaranPoli::whereRaw('LOWER(jenis_pasien) = ?', ['jkn'])
-                ->whereBetween('created_at', [$start, $end])->count();
-        
-        $umum = PendaftaranPoli::whereRaw('LOWER(jenis_pasien) = ?', ['umum'])
-                ->whereBetween('created_at', [$start, $end])->count();
-        
-        $kunjunganPerPoli = PendaftaranPoli::select('poli', DB::raw('COUNT(*) as total'))
-            ->whereBetween('created_at', [$start, $end])
+        $kunjunganPerPoli = (clone $qPendaftaran)
+            ->select('poli', DB::raw('COUNT(*) as total'))
             ->groupBy('poli')->orderByDesc('total')->get();
 
-        $totalPemasukan = Pembayaran::where('status', 'lunas')->whereBetween('tanggal_bayar', [$start, $end])->sum('total_biaya');
-        $lunas = Pembayaran::where('status', 'lunas')->whereBetween('tanggal_bayar', [$start, $end])->count();
-        $belumLunas = Pembayaran::where('status', 'belum_lunas')->whereBetween('created_at', [$start, $end])->count();
+        // 2. BASE QUERY PEMBAYARAN & FILTER POLI VIA RELASI
+        $qPembayaranLunas = Pembayaran::where('status', 'lunas')->whereBetween('tanggal_bayar', [$start, $end]);
+        $qPembayaranBelum = Pembayaran::where('status', 'belum_lunas')->whereBetween('created_at', [$start, $end]);
 
-        $metodePembayaran = Pembayaran::select('paid_by', DB::raw('COUNT(*) as total'))
-            ->where('status', 'lunas')->whereBetween('tanggal_bayar', [$start, $end])
+        if ($poli !== 'semua') {
+            $qPembayaranLunas->whereHas('pendaftaran', function($q) use ($poli) {
+                $q->where('poli', $poli);
+            });
+            $qPembayaranBelum->whereHas('pendaftaran', function($q) use ($poli) {
+                $q->where('poli', $poli);
+            });
+        }
+
+        // Kalkulasi Total Pemasukan agar aman dari format string (ex: 100.000)
+        $totalPemasukanList = (clone $qPembayaranLunas)->pluck('total_biaya');
+        $totalPemasukan = $totalPemasukanList->sum(function($biaya) {
+            return (int) str_replace(['.', ','], '', $biaya);
+        });
+
+        $lunas = (clone $qPembayaranLunas)->count();
+        $belumLunas = (clone $qPembayaranBelum)->count();
+
+        $metodePembayaran = (clone $qPembayaranLunas)
+            ->select('paid_by', DB::raw('COUNT(*) as total'))
             ->groupBy('paid_by')->get();
 
-        $totalPemeriksaan = RekamMedis::whereBetween('created_at', [$start, $end])->count();
+        // 3. BASE QUERY REKAM MEDIS
+        $qRekamMedis = RekamMedis::whereBetween('created_at', [$start, $end]);
+        if ($poli !== 'semua') {
+            $qRekamMedis->whereHas('pendaftaran', function($q) use ($poli) {
+                $q->where('poli', $poli);
+            });
+        }
+        $totalPemeriksaan = $qRekamMedis->count();
 
         return view('admin.laporan.index', compact(
-            'bulan', 'tahun', 'totalKunjungan', 'bpjs', 'umum', 
+            'bulan', 'tahun', 'poli', 'totalKunjungan', 'bpjs', 'umum', 
             'kunjunganPerPoli', 'totalPemasukan', 'lunas', 
             'belumLunas', 'totalPemeriksaan', 'metodePembayaran'
         ));
     }
 
-    public function exportPdf($bulan, $tahun) 
+    public function exportPdf(Request $request, $bulan, $tahun) 
     {
         ini_set('max_execution_time', 300);
         ini_set('memory_limit', '512M');
+
+        $poli = $request->query('poli', 'semua');
 
         if ($bulan === 'semua') {
             $start = Carbon::create($tahun)->startOfYear();
@@ -74,13 +103,20 @@ class LaporanController extends Controller
         }
 
         $namaFile = "Laporan_Polkes_Jombang_{$namaBulan}_{$tahun}.pdf";
+        if ($poli !== 'semua') {
+            $namaFile = "Laporan_{$poli}_{$namaBulan}_{$tahun}.pdf";
+        }
 
-        $dataLaporan = PendaftaranPoli::with(['pembayaran'])
+        $qLaporan = PendaftaranPoli::with(['pembayaran'])
             ->whereBetween('created_at', [$start, $end])
-            ->orderBy('created_at', 'asc')
-            ->get();
+            ->orderBy('created_at', 'asc');
 
-        // PERBAIKAN LOGIKA DISINI (Filter Collection menggunakan strtolower)
+        if ($poli !== 'semua') {
+            $qLaporan->where('poli', $poli);
+        }
+
+        $dataLaporan = $qLaporan->get();
+
         $totalBpjs = $dataLaporan->filter(function($item) {
             return strtolower($item->jenis_pasien) == 'jkn';
         })->count();
@@ -92,13 +128,17 @@ class LaporanController extends Controller
         $data = [
             'namaBulan'        => $namaBulan,
             'tahun'            => $tahun,
+            'poli'             => $poli,
             'dataLaporan'      => $dataLaporan,
             'totalKunjungan'   => $dataLaporan->count(),
             'totalBpjs'        => $totalBpjs,
             'totalUmum'        => $totalUmum,
             'totalPendapatan'  => $dataLaporan->sum(function($item) {
-                                    return ($item->pembayaran && $item->pembayaran->status == 'lunas') ? $item->pembayaran->total_biaya : 0;
-                                 }),
+                                      if ($item->pembayaran && $item->pembayaran->status == 'lunas') {
+                                          return (int) str_replace(['.', ','], '', $item->pembayaran->total_biaya);
+                                      }
+                                      return 0;
+                                  }),
         ];
 
         $pdf = Pdf::loadView('admin.laporan.pdf', $data)->setPaper('A4', 'portrait');
