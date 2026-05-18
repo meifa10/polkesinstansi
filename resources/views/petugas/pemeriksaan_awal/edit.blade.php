@@ -2,7 +2,7 @@
 
 @section('content')
 
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800;900&display=swap" rel="stylesheet">
 
 <style>
     body { 
@@ -60,21 +60,21 @@
                 <div class="h-32 bg-slate-900 w-full relative">
                     <div class="absolute -bottom-12 left-8">
                         <div class="w-24 h-24 bg-emerald-100 text-emerald-700 rounded-2xl border-4 border-white shadow-sm flex items-center justify-center text-4xl font-black">
-                            {{ strtoupper(substr($pasien->nama_pasien, 0, 1)) }}
+                            {{ strtoupper(substr($pasien->nama_pasien ?? 'P', 0, 1)) }}
                         </div>
                     </div>
                 </div>
                 
                 <div class="px-8 pt-16 pb-8">
-                    <h2 class="text-2xl font-extrabold text-slate-900 uppercase tracking-tight">{{ $pasien->nama_pasien }}</h2>
+                    <h2 class="text-2xl font-extrabold text-slate-900 uppercase tracking-tight">{{ $pasien->nama_pasien ?? '-' }}</h2>
                     <div class="mt-2">
-                        @if(strtolower($pasien->jenis_pasien) == 'jkn' || strtolower($pasien->jenis_pasien) == 'bpjs')
+                        @if(isset($pasien->jenis_pasien) && (strtolower($pasien->jenis_pasien) == 'jkn' || strtolower($pasien->jenis_pasien) == 'bpjs'))
                             <span class="inline-flex px-3 py-1 rounded-md bg-emerald-100 text-emerald-700 text-xs font-black uppercase tracking-wider border border-emerald-300 shadow-sm">
                                 Pasien {{ $pasien->jenis_pasien }}
                             </span>
                         @else
                             <span class="inline-flex px-3 py-1 rounded-md bg-blue-100 text-blue-700 text-xs font-black uppercase tracking-wider border border-blue-300 shadow-sm">
-                                Pasien {{ $pasien->jenis_pasien }}
+                                Pasien {{ $pasien->jenis_pasien ?? 'Umum' }}
                             </span>
                         @endif
                     </div>
@@ -88,7 +88,7 @@
                             </div>
                             <div>
                                 <p class="text-xs font-bold text-slate-500 uppercase tracking-widest leading-none mb-1">Nomor Identitas</p>
-                                <p class="text-base font-extrabold text-slate-800 font-mono tracking-tight">{{ $pasien->no_identitas }}</p>
+                                <p class="text-base font-extrabold text-slate-800 font-mono tracking-tight">{{ $pasien->no_identitas ?? '-' }}</p>
                             </div>
                         </div>
 
@@ -100,7 +100,9 @@
                             </div>
                             <div>
                                 <p class="text-xs font-bold text-slate-500 uppercase tracking-widest leading-none mb-1">Tanggal Lahir</p>
-                                <p class="text-base font-extrabold text-slate-800">{{ \Carbon\Carbon::parse($pasien->tanggal_lahir)->translatedFormat('d F Y') }}</p>
+                                <p class="text-base font-extrabold text-slate-800">
+                                    {{ isset($pasien->tanggal_lahir) ? \Carbon\Carbon::parse($pasien->tanggal_lahir)->translatedFormat('d F Y') : '-' }}
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -112,7 +114,7 @@
                 <div class="relative z-10">
                     <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Total Kunjungan</p>
                     <h3 class="text-5xl font-black text-white flex items-baseline gap-2">
-                        {{ $kunjungan->count() }}<span class="text-lg text-emerald-400 font-extrabold tracking-wider">KALI</span>
+                        {{ isset($kunjungan) ? $kunjungan->count() : 0 }}<span class="text-lg text-emerald-400 font-extrabold tracking-wider">KALI</span>
                     </h3>
                 </div>
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 text-white/5 absolute -right-4 -bottom-4 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -136,7 +138,7 @@
                 </div>
 
                 <div class="space-y-4">
-                    @forelse($kunjungan as $k)
+                    @forelse($kunjungan ?? [] as $k)
                     {{-- ACCORDION KUNJUNGAN --}}
                     <details class="group bg-white border-2 border-slate-200 rounded-xl overflow-hidden shadow-sm" {{ $loop->first ? 'open' : '' }}>
                         
@@ -253,7 +255,7 @@
                 </div>
 
                 <div class="space-y-4">
-                    @forelse($rekamMedis as $rm)
+                    @forelse($rekamMedis ?? [] as $rm)
                     {{-- ACCORDION REKAM MEDIS --}}
                     <details class="group bg-white border-2 border-slate-200 rounded-xl overflow-hidden shadow-sm" {{ $loop->first ? 'open' : '' }}>
                         
@@ -334,7 +336,7 @@
                                         </svg>
                                         <p class="text-xs font-black text-slate-500 uppercase tracking-widest">Diagnosis</p>
                                     </div>
-                                    <p class="text-sm font-bold text-slate-800 leading-relaxed italic">"{{ $rm->diagnosis }}"</p>
+                                    <p class="text-sm font-bold text-slate-800 leading-relaxed italic">"{{ $rm->diagnosis ?? '-' }}"</p>
                                 </div>
                                 
                                 <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 shadow-sm">
@@ -344,12 +346,12 @@
                                         </svg>
                                         <p class="text-xs font-black text-slate-500 uppercase tracking-widest">Tindakan Medis</p>
                                     </div>
-                                    <p class="text-sm font-medium text-slate-800 leading-relaxed">{{ $rm->tindakan }}</p>
+                                    <p class="text-sm font-medium text-slate-800 leading-relaxed">{{ $rm->tindakan ?? '-' }}</p>
                                 </div>
                             </div>
 
                             {{-- RESEP OBAT --}}
-                            @if($rm->resep)
+                            @if(!empty($rm->resep))
                             <div class="mt-2 pt-5 border-t-2 border-slate-100">
                                 <div class="flex items-center gap-2 mb-3">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
