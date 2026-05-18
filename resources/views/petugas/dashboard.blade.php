@@ -203,17 +203,17 @@
 
                         {{-- 6. Tanda-Tanda Vital --}}
                         <td class="py-4 px-4">
-                            <div class="grid grid-cols-2 gap-1.5 min-w-[160px]">
-                                <div class="bg-red-50/80 text-red-700 px-2 py-1 rounded border border-red-100 text-[10px] font-black flex justify-between">
-                                    <span>TD</span> <span>{{ $item->tensi ?? '-' }} <span class="font-medium text-[9px]">mmHg</span></span>
+                            <div class="flex flex-col gap-1.5 min-w-[130px]">
+                                {{-- Tensi --}}
+                                <div class="bg-red-50/80 text-red-700 px-2 py-1 rounded border border-red-100 text-[10px] font-black flex justify-between items-center">
+                                    <span>Tensi</span> <span>{{ $item->tensi ?? '-' }} <span class="font-medium text-[9px]">mmHg</span></span>
                                 </div>
-                                <div class="bg-orange-50/80 text-orange-700 px-2 py-1 rounded border border-orange-100 text-[10px] font-black flex justify-between">
-                                    <span>T</span> <span>{{ $item->suhu ?? '-' }} <span class="font-medium text-[9px]">°C</span></span>
+                                {{-- Tinggi Badan (TB) --}}
+                                <div class="bg-blue-50/80 text-blue-700 px-2 py-1 rounded border border-blue-100 text-[10px] font-black flex justify-between items-center">
+                                    <span>TB</span> <span>{{ $item->tinggi_badan ?? '-' }} <span class="font-medium text-[9px]">cm</span></span>
                                 </div>
-                                <div class="bg-blue-50/80 text-blue-700 px-2 py-1 rounded border border-blue-100 text-[10px] font-black flex justify-between">
-                                    <span>HR</span> <span>{{ $item->nadi ?? '-' }} <span class="font-medium text-[9px]">bpm</span></span>
-                                </div>
-                                <div class="bg-emerald-50/80 text-emerald-700 px-2 py-1 rounded border border-emerald-100 text-[10px] font-black flex justify-between">
+                                {{-- Berat Badan (BB) --}}
+                                <div class="bg-emerald-50/80 text-emerald-700 px-2 py-1 rounded border border-emerald-100 text-[10px] font-black flex justify-between items-center">
                                     <span>BB</span> <span>{{ $item->berat_badan ?? '-' }} <span class="font-medium text-[9px]">kg</span></span>
                                 </div>
                             </div>
