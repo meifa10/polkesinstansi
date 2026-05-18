@@ -31,9 +31,17 @@ class PembayaranController extends Controller
         }
 
        
+        $totalPasienLunas = (clone $query)->where('status', 'lunas')->count();
+
+        $listBiaya = (clone $query)->pluck('total_biaya');
+        $totalTagihan = $listBiaya->sum(function($biaya) {
+            return (int) str_replace(['.', ','], '', $biaya);
+        });
+
+       
         $data = $query->latest()->paginate(10);
         
-        return view('admin.pembayaran.index', compact('data'));
+        return view('admin.pembayaran.index', compact('data', 'totalTagihan', 'totalPasienLunas'));
     }
 
     public function show($id)
@@ -58,14 +66,10 @@ class PembayaranController extends Controller
         return back()->with('success', 'Pembayaran pasien berhasil diverifikasi.');
     }
 
-
     public function printStruk($id)
     {
         $pembayaran = Pembayaran::with(['pendaftaran.rekamMedis'])->findOrFail($id);
-        
         $pdf = Pdf::loadView('admin.pembayaran.print', compact('pembayaran'));
-        
-       
         $pdf->setPaper([0, 0, 226.77, 510.23], 'portrait');
 
         return $pdf->download('Struk_Pembayaran_' . $pembayaran->payment_ref . '.pdf');
