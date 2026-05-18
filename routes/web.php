@@ -53,18 +53,22 @@ Route::post('/register-dokter', [AuthController::class, 'register'])
 
 Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')
-    ->name('admin.')
+    ->name('admin.') 
     ->group(function () {
 
-        // ✅ DASHBOARD (PASTI KE CONTROLLER)
+   
         Route::get('/dashboard', [AdminDashboard::class, 'index'])
-            ->name('dashboard');
-
+            ->name('dashboard'); 
+      
         Route::get('/pemeriksaan', [PemeriksaanController::class, 'index'])
-            ->name('pemeriksaan');
+            ->name('pemeriksaan'); 
+     
+        Route::get('/pemeriksaan/{id}', [PemeriksaanController::class, 'show'])
+            ->name('pemeriksaan.show'); 
 
         Route::get('/laporan', [LaporanController::class, 'index'])
-            ->name('laporan');
+            ->name('laporan'); 
+            
     });
 
 
