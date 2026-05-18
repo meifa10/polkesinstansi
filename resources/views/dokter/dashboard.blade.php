@@ -64,27 +64,6 @@
                         </span>
                     </div>
                 </div>
-
-                {{-- Legend & Details --}}
-                <div class="flex flex-col gap-3 w-full md:w-auto">
-                    {{-- Legend Umum --}}
-                    <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-100 flex items-center justify-between gap-6 min-w-[200px]">
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-3 h-3 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50"></div>
-                            <span class="text-sm font-bold text-emerald-800">Pasien Umum</span>
-                        </div>
-                        <span class="text-xl font-black text-emerald-700">{{ $totalPasienUmum }}</span>
-                    </div>
-
-                    {{-- Legend JKN --}}
-                    <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 flex items-center justify-between gap-6 min-w-[200px]">
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-3 h-3 rounded-full bg-blue-500 shadow-sm shadow-blue-500/50"></div>
-                            <span class="text-sm font-bold text-blue-800">Pasien JKN</span>
-                        </div>
-                        <span class="text-xl font-black text-blue-700">{{ $totalPasienJKN }}</span>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -240,7 +219,7 @@ document.addEventListener('DOMContentLoaded', function() {
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    display: false // Legend dimatikan karena sudah dibuat custom di HTML
+                    display: false
                 },
                 tooltip: {
                     backgroundColor: '#1e293b',
