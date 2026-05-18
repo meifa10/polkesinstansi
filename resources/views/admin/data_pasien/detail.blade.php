@@ -285,22 +285,18 @@
                                 </div>
 
                                 {{-- Pemeriksaan Fisik (Grid) --}}
-                                <div class="md:col-span-12 grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div class="md:col-span-12 grid grid-cols-3 gap-4">
                                     <div class="bg-white p-4 rounded-xl border border-slate-200 flex flex-col justify-center items-center text-center shadow-sm">
                                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Berat Badan</span>
-                                        <p class="text-lg font-black text-slate-800">{{ $rm->berat_badan ?? '-' }} <span class="text-xs font-bold text-slate-500">kg</span></p>
+                                        <p class="text-lg font-black text-slate-800">{{ $rm->berat_badan ?? $rm->bb ?? $rm->pendaftaran->berat_badan ?? $rm->pendaftaran->bb ?? '-' }} <span class="text-xs font-bold text-slate-500">kg</span></p>
                                     </div>
                                     <div class="bg-white p-4 rounded-xl border border-slate-200 flex flex-col justify-center items-center text-center shadow-sm">
                                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Tinggi Badan</span>
-                                        <p class="text-lg font-black text-slate-800">{{ $rm->tinggi_badan ?? '-' }} <span class="text-xs font-bold text-slate-500">cm</span></p>
+                                        <p class="text-lg font-black text-slate-800">{{ $rm->tinggi_badan ?? $rm->tb ?? $rm->pendaftaran->tinggi_badan ?? $rm->pendaftaran->tb ?? '-' }} <span class="text-xs font-bold text-slate-500">cm</span></p>
                                     </div>
                                     <div class="bg-white p-4 rounded-xl border border-slate-200 flex flex-col justify-center items-center text-center shadow-sm">
                                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Tensi Darah</span>
-                                        <p class="text-lg font-black text-slate-800">{{ $rm->tekanan_darah ?? $rm->tensi ?? '-' }} <span class="text-xs font-bold text-slate-500">mmHg</span></p>
-                                    </div>
-                                    <div class="bg-white p-4 rounded-xl border border-slate-200 flex flex-col justify-center items-center text-center shadow-sm">
-                                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Suhu Tubuh</span>
-                                        <p class="text-lg font-black text-slate-800">{{ $rm->suhu_tubuh ?? $rm->suhu ?? '-' }} <span class="text-xs font-bold text-slate-500">°C</span></p>
+                                        <p class="text-lg font-black text-slate-800">{{ $rm->tekanan_darah ?? $rm->tensi ?? $rm->pendaftaran->tekanan_darah ?? $rm->pendaftaran->tensi ?? '-' }} <span class="text-xs font-bold text-slate-500">mmHg</span></p>
                                     </div>
                                 </div>
                             </div>
