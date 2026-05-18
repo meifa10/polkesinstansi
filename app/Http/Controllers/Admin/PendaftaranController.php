@@ -39,7 +39,7 @@ class PendaftaranController extends Controller
     }
 
     /**
-     * Memperbarui status pasien (Verifikasi Admin ke Dokter).
+     * Memperbarui status pasien (Jika Admin masih butuh kontrol manual).
      */
     public function updateStatus(Request $request, $id)
     {
@@ -49,19 +49,11 @@ class PendaftaranController extends Controller
 
         $pasien = PendaftaranPoli::findOrFail($id);
 
-        /**
-         * LOGIKA ALUR KERJA (Workflow Protection):
-         * Admin hanya boleh mengubah status ke 'diproses_dokter' 
-         * JIKA status saat ini sudah 'menunggu_admin' (berarti Petugas sudah input).
-         */
+        // Jika admin mencoba mem-bypass antrean secara manual ke dokter
         if ($request->status === 'diproses_dokter') {
-            if ($pasien->status === 'menunggu_petugas') {
-                return back()->with('error', 'Gagal! Petugas kesehatan belum mengisi pemeriksaan awal (Vital Sign).');
-            }
-            
-            // Opsional: Pastikan data vital sign tidak kosong secara fisik
+            // Cukup pastikan data vital sign tidak kosong
             if (empty($pasien->berat_badan) || empty($pasien->keluhan)) {
-                return back()->with('error', 'Gagal! Data pemeriksaan awal belum lengkap.');
+                return back()->with('error', 'Gagal! Petugas belum mengisi data pemeriksaan awal.');
             }
         }
 
@@ -69,6 +61,6 @@ class PendaftaranController extends Controller
         $pasien->status = $request->status;
         $pasien->save();
 
-        return back()->with('success', 'Pasien berhasil diverifikasi dan dikirim ke Dokter.');
+        return back()->with('success', 'Status pendaftaran pasien berhasil diubah.');
     }
 }

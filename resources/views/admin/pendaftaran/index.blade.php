@@ -25,7 +25,7 @@
                 Pendaftaran <span class="text-emerald-600">Pasien</span>
             </h1>
             <p class="text-slate-600 font-medium mt-3 text-base lg:text-lg">
-                Kelola data antrian pasien, pantau pemeriksaan awal, dan teruskan ke dokter.
+                Kelola data antrian pasien dan pantau status pemeriksaan secara real-time.
             </p>
         </div>
 
@@ -134,7 +134,7 @@
                         <th class="py-5 px-6 w-24 text-center rounded-tl-xl">No</th>
                         <th class="py-5 px-6 min-w-[280px]">Pasien & Dokter</th>
                         <th class="py-5 px-6 min-w-[150px] text-center">Unit / Poli</th>
-                        <th class="py-5 px-6 min-w-[280px]">Pemeriksaan Awal (Vital Sign)</th>
+                        <th class="py-5 px-6 min-w-[320px]">Pemeriksaan Awal (Vital Sign)</th>
                         <th class="py-5 px-6 min-w-[180px] text-center">Status</th>
                         <th class="py-5 px-6 min-w-[180px] text-center rounded-tr-xl">Aksi</th>
                     </tr>
@@ -189,6 +189,12 @@
                                         <span class="bg-purple-50 text-purple-700 px-3 py-1 rounded-lg text-xs font-black border border-purple-200 shadow-sm">
                                             TB: {{ $item->tinggi_badan }} CM
                                         </span>
+                                        {{-- TAMBAHAN: DATA TENSI --}}
+                                        @if($item->tensi)
+                                        <span class="bg-rose-50 text-rose-700 px-3 py-1 rounded-lg text-xs font-black border border-rose-200 shadow-sm">
+                                            Tensi: {{ $item->tensi }} mmHg
+                                        </span>
+                                        @endif
                                     </div>
                                     <p class="text-sm text-slate-600 font-bold italic line-clamp-2 leading-relaxed bg-slate-50 p-2.5 rounded-lg border border-slate-200">
                                         "{{ $item->keluhan }}"
@@ -208,21 +214,17 @@
                                 <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-100 border border-slate-300 text-slate-600 text-xs font-extrabold shadow-sm uppercase">
                                     Tahap Petugas
                                 </div>
-                            @elseif($item->status == 'menunggu_admin')
-                                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-100 border border-amber-300 text-amber-800 text-xs font-extrabold shadow-sm uppercase animate-pulse">
-                                    <span class="flex h-2 w-2 relative">
-                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                                        <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
-                                    </span>
-                                    Siap Verifikasi
-                                </div>
                             @elseif($item->status == 'diproses_dokter' || $item->status == 'proses')
                                 <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-100 border border-blue-300 text-blue-800 text-xs font-extrabold shadow-sm uppercase">
-                                    Siap Diperiksa
+                                    Di Ruang Dokter
                                 </div>
                             @elseif($item->status == 'selesai')
                                 <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs font-extrabold shadow-sm uppercase">
                                     Selesai
+                                </div>
+                            @else
+                                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-100 border border-amber-300 text-amber-800 text-xs font-extrabold shadow-sm uppercase">
+                                    {{ str_replace('_', ' ', $item->status) }}
                                 </div>
                             @endif
                         </td>
@@ -230,27 +232,23 @@
                         {{-- AKSI --}}
                         <td class="py-5 px-6 align-middle text-center">
                             <div class="flex items-center justify-center gap-3">
-                                @if($item->status == 'menunggu_admin')
-                                    <form method="POST" action="{{ route('admin.pendaftaran.status', $item->id) }}" class="inline">
-                                        @csrf
-                                        <input type="hidden" name="status" value="diproses_dokter">
-                                        <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white hover:bg-emerald-700 font-bold rounded-xl transition-all shadow-md text-sm border border-emerald-700 group">
-                                            Kirim ke Dokter
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
-                                                <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
-                                            </svg>
-                                        </button>
-                                    </form>
-                                @elseif($item->status == 'menunggu_petugas')
-                                    <span class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-slate-100 text-slate-400 text-sm font-bold border border-slate-300 cursor-not-allowed">
+                                @if($item->status == 'menunggu_petugas')
+                                    <span class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-slate-100 text-slate-400 text-sm font-bold border border-slate-300 cursor-not-allowed">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                             <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
                                         </svg>
                                         Terkunci
                                     </span>
-                                @else
-                                    <div class="inline-flex items-center justify-center gap-2 text-slate-500 bg-slate-50 px-5 py-2.5 rounded-xl border border-slate-200">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-500" viewBox="0 0 20 20" fill="currentColor">
+                                @elseif($item->status == 'diproses_dokter' || $item->status == 'proses')
+                                    <div class="inline-flex items-center justify-center gap-2 text-blue-500 bg-blue-50 px-4 py-2 rounded-xl border border-blue-200">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                                        </svg>
+                                        <span class="text-sm font-bold italic">Diperiksa</span>
+                                    </div>
+                                @elseif($item->status == 'selesai')
+                                    <div class="inline-flex items-center justify-center gap-2 text-emerald-500 bg-emerald-50 px-4 py-2 rounded-xl border border-emerald-200">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                                         </svg>
                                         <span class="text-sm font-bold italic">Selesai</span>
