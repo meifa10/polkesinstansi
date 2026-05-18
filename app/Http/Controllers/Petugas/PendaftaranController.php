@@ -11,21 +11,29 @@ class PendaftaranController extends Controller
 {
     public function index(Request $request)
     {
-        // Petugas harus bisa melihat dokter mana yang dituju pasien
-        $query = PendaftaranPoli::with('dokter')
-                    ->whereDate('created_at', Carbon::today())
-                    ->latest();
+        $query = PendaftaranPoli::with(['dokter']);
+
+        if ($request->filled('date')) {
+            $query->whereDate('created_at', $request->date);
+        } else {
+            $query->whereDate('created_at', Carbon::today());
+        }
 
         if ($request->filled('q')) {
-            $search = $request->q;
-            $query->where('nama_pasien', 'like', "%{$search}%");
+            $search = trim($request->q);
+            $query->where(function($q) use ($search) {
+                $q->where('nama_pasien', 'like', "%{$search}%")
+                  ->orWhere('no_identitas', 'like', "%{$search}%");
+            });
         }
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
+        } else {
+            $query->where('status', '!=', 'menunggu_admin');
         }
 
-        $pendaftaran = $query->get();
+        $pendaftaran = $query->latest()->paginate(10);
 
         return view('petugas.pendaftaran.index', compact('pendaftaran'));
     }
