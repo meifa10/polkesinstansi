@@ -26,6 +26,7 @@ class DashboardController extends Controller
         $dataPoli = $statistikPoli->pluck('poli')->toArray(); 
         $jumlahPasienPoli = $statistikPoli->pluck('total')->toArray();
 
+        
         $pasienTerbaru = PendaftaranPoli::latest()
             ->paginate(5); 
 

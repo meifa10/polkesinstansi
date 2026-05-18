@@ -144,7 +144,8 @@
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse whitespace-nowrap">
                 <thead>
-                    <tr class="bg-slate-800 text-white text-[11px] uppercase tracking-widest font-bold">
+                    {{-- DIUBAH: Background header menggunakan warna hijau Emerald (bg-emerald-600) --}}
+                    <tr class="bg-emerald-600 text-white text-[11px] uppercase tracking-widest font-bold shadow-sm">
                         <th class="py-4 px-4 text-center">No</th>
                         <th class="py-4 px-4">Waktu Masuk</th>
                         <th class="py-4 px-4">Biodata / NIK</th>
@@ -156,7 +157,8 @@
                 </thead>
                 <tbody class="text-sm divide-y divide-slate-200">
                     @forelse($pasienTerbaru as $index => $item)
-                    <tr class="hover:bg-slate-50 transition-colors">
+                    {{-- DIUBAH: Hover row diganti menjadi tint emerald tipis agar lebih senada --}}
+                    <tr class="hover:bg-emerald-50/40 transition-colors">
                         {{-- 1. No --}}
                         <td class="py-4 px-4 text-center font-bold text-slate-500">
                             {{ $pasienTerbaru->firstItem() + $index }}
@@ -194,7 +196,10 @@
                         <td class="py-4 px-4">
                             <p class="text-sm font-extrabold text-slate-800 uppercase">{{ $item->poli }}</p>
                             <p class="text-[10px] font-bold text-emerald-600 uppercase mt-0.5">
-                                Dr. {{ $item->nama_dokter ?? 'Belum Ditentukan' }}
+                                {{-- PERBAIKAN: Jika nama dokter diinputkan sejak awal, ini akan langsung menampilkannya.
+                                     Jika di database kolom Anda bernama lain, silakan ganti '$item->nama_dokter' dengan nama kolom yang sesuai.
+                                     Contoh: $item->dokter (jika string langsung) atau $item->dokter->nama (jika relasi table) --}}
+                                Dr. {{ $item->nama_dokter ?? $item->dokter ?? 'Belum Ditentukan' }}
                             </p>
                         </td>
 
