@@ -79,8 +79,8 @@
         <div class="lg:col-span-2 bg-white p-8 rounded-[35px] border border-slate-100 shadow-sm">
             <div class="flex justify-between items-center mb-10">
                 <div>
-                    <h3 class="text-xl font-black text-slate-800 tracking-tight">Statistik Layanan</h3>
-                    <p class="text-sm text-slate-400 font-medium">Perbandingan Kunjungan & Pemeriksaan</p>
+                    <h3 class="text-xl font-black text-slate-800 tracking-tight">Statistik Layanan Poli</h3>
+                    <p class="text-sm text-slate-400 font-medium">Distribusi Kunjungan Pasien Berdasarkan Poli</p>
                 </div>
                 
                 <select id="filterPeriode" onchange="updateChart(this.value)" 
@@ -144,9 +144,9 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-let myChart; // Variabel global untuk menyimpan instance chart
+let myChart; 
 
-function initChart(labels, kunjungan, pemeriksaan) {
+function initChart(labels, poliUmum, poliGigi, poliKiaKb) {
     const ctx = document.getElementById('dashboardChart').getContext('2d');
     
     // Gradient Warna Mewah
@@ -157,6 +157,10 @@ function initChart(labels, kunjungan, pemeriksaan) {
     const gradOrange = ctx.createLinearGradient(0, 0, 0, 400);
     gradOrange.addColorStop(0, '#f97316');
     gradOrange.addColorStop(1, 'rgba(249, 115, 22, 0.1)');
+
+    const gradBlue = ctx.createLinearGradient(0, 0, 0, 400);
+    gradBlue.addColorStop(0, '#3b82f6');
+    gradBlue.addColorStop(1, 'rgba(59, 130, 246, 0.1)');
 
     // Hancurkan chart lama jika ada sebelum buat baru
     if (myChart) {
@@ -169,18 +173,25 @@ function initChart(labels, kunjungan, pemeriksaan) {
             labels: labels,
             datasets: [
                 {
-                    label: 'Kunjungan',
-                    data: kunjungan,
+                    label: 'Poli Umum',
+                    data: poliUmum,
                     backgroundColor: gradEmerald,
                     borderRadius: 10,
                     hoverBackgroundColor: '#059669'
                 },
                 {
-                    label: 'Pemeriksaan',
-                    data: pemeriksaan,
+                    label: 'Poli Gigi',
+                    data: poliGigi,
                     backgroundColor: gradOrange,
                     borderRadius: 10,
                     hoverBackgroundColor: '#ea580c'
+                },
+                {
+                    label: 'Poli KIA & KB',
+                    data: poliKiaKb,
+                    backgroundColor: gradBlue,
+                    borderRadius: 10,
+                    hoverBackgroundColor: '#2563eb'
                 }
             ]
         },
@@ -202,16 +213,31 @@ function updateChart(bulan) {
     console.log("Mengambil data untuk " + bulan + " bulan terakhir...");
     
     if(bulan == '12') {
-        initChart(['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'], 
-                  [50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160], 
-                  [30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140]);
+        // Data Mockup ketika filter 12 bulan dipilih
+        initChart(
+            ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'], 
+            [50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160], // Poli Umum
+            [30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140],   // Poli Gigi
+            [20, 30, 35, 45, 50, 60, 65, 75, 80, 90, 95, 110]        // Poli KIA & KB
+        );
     } else {
-        initChart(@json($bulan), @json($dataKunjungan), @json($dataPemeriksaan));
+        // Data asli dari Controller
+        initChart(
+            @json($bulan), 
+            @json($dataPoliUmum), 
+            @json($dataPoliGigi), 
+            @json($dataPoliKiaKb)
+        );
     }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    initChart(@json($bulan), @json($dataKunjungan), @json($dataPemeriksaan));
+    initChart(
+        @json($bulan), 
+        @json($dataPoliUmum), 
+        @json($dataPoliGigi), 
+        @json($dataPoliKiaKb)
+    );
 });
 </script>
 
