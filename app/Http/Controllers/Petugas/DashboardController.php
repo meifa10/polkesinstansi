@@ -26,8 +26,9 @@ class DashboardController extends Controller
         $dataPoli = $statistikPoli->pluck('poli')->toArray(); 
         $jumlahPasienPoli = $statistikPoli->pluck('total')->toArray();
 
-        
-        $pasienTerbaru = PendaftaranPoli::latest()
+        // Menggunakan with('dokter') agar relasi data dokter langsung dimuat
+        $pasienTerbaru = PendaftaranPoli::with('dokter')
+            ->latest()
             ->paginate(5); 
 
         return view('petugas.dashboard', compact(

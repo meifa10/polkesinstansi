@@ -144,7 +144,7 @@
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse whitespace-nowrap">
                 <thead>
-                    {{-- DIUBAH: Background header menggunakan warna hijau Emerald (bg-emerald-600) --}}
+                    {{-- HEADER TABEL: Warna diganti ke Emerald --}}
                     <tr class="bg-emerald-600 text-white text-[11px] uppercase tracking-widest font-bold shadow-sm">
                         <th class="py-4 px-4 text-center">No</th>
                         <th class="py-4 px-4">Waktu Masuk</th>
@@ -157,7 +157,7 @@
                 </thead>
                 <tbody class="text-sm divide-y divide-slate-200">
                     @forelse($pasienTerbaru as $index => $item)
-                    {{-- DIUBAH: Hover row diganti menjadi tint emerald tipis agar lebih senada --}}
+                    {{-- HOVER ROW: Diganti jadi emerald tipis biar matching --}}
                     <tr class="hover:bg-emerald-50/40 transition-colors">
                         {{-- 1. No --}}
                         <td class="py-4 px-4 text-center font-bold text-slate-500">
@@ -178,7 +178,7 @@
                                 </div>
                                 <div>
                                     <p class="font-extrabold text-slate-800 text-sm uppercase tracking-tight">{{ $item->nama_pasien }}</p>
-                                    <p class="text-[10px] text-slate-500 font-bold mt-0.5 tracking-wider">NIK: {{ $item->nik ?? 'Tidak Tersedia' }}</p>
+                                    <p class="text-[10px] text-slate-500 font-bold mt-0.5 tracking-wider">NIK: {{ $item->nomor_identitas ?? 'Tidak Tersedia' }}</p>
                                 </div>
                             </div>
                         </td>
@@ -196,16 +196,16 @@
                         <td class="py-4 px-4">
                             <p class="text-sm font-extrabold text-slate-800 uppercase">{{ $item->poli }}</p>
                             <p class="text-[10px] font-bold text-emerald-600 uppercase mt-0.5">
-                                {{-- Memanggil spesifik kolom 'name' dari relasi dokter --}}
+                                {{-- Menampilkan HANYA kolom 'name' dari tabel dokter (otomatis pakai gelar DR. dari DB) --}}
                                 {{ $item->dokter->name ?? 'Belum Ditentukan' }}
                             </p>
                         </td>
 
-                        {{-- 6. Tanda-Tanda Vital (Ultra-Jelas) --}}
+                        {{-- 6. Tanda-Tanda Vital --}}
                         <td class="py-4 px-4">
                             <div class="grid grid-cols-2 gap-1.5 min-w-[160px]">
                                 <div class="bg-red-50/80 text-red-700 px-2 py-1 rounded border border-red-100 text-[10px] font-black flex justify-between">
-                                    <span>TD</span> <span>{{ $item->td ?? '-' }} <span class="font-medium text-[9px]">mmHg</span></span>
+                                    <span>TD</span> <span>{{ $item->tensi ?? '-' }} <span class="font-medium text-[9px]">mmHg</span></span>
                                 </div>
                                 <div class="bg-orange-50/80 text-orange-700 px-2 py-1 rounded border border-orange-100 text-[10px] font-black flex justify-between">
                                     <span>T</span> <span>{{ $item->suhu ?? '-' }} <span class="font-medium text-[9px]">°C</span></span>
@@ -214,7 +214,7 @@
                                     <span>HR</span> <span>{{ $item->nadi ?? '-' }} <span class="font-medium text-[9px]">bpm</span></span>
                                 </div>
                                 <div class="bg-emerald-50/80 text-emerald-700 px-2 py-1 rounded border border-emerald-100 text-[10px] font-black flex justify-between">
-                                    <span>BB</span> <span>{{ $item->bb ?? '-' }} <span class="font-medium text-[9px]">kg</span></span>
+                                    <span>BB</span> <span>{{ $item->berat_badan ?? '-' }} <span class="font-medium text-[9px]">kg</span></span>
                                 </div>
                             </div>
                         </td>
