@@ -80,7 +80,7 @@
                         <th class="py-5 px-6 w-20 text-center rounded-tl-2xl">No</th>
                         <th class="py-5 px-6 w-44 text-center">Waktu Kunjungan</th>
                         <th class="py-5 px-6 min-w-[200px]">Keluhan Utama</th>
-                        <th class="py-5 px-6 min-w-[180px] text-center">Tanda-Tanda Vital</th>
+                        <th class="py-5 px-6 min-w-[210px] text-center">Tanda-Tanda Vital</th>
                         <th class="py-5 px-6 min-w-[300px]">Diagnosis & Tindakan Klinis</th>
                         <th class="py-5 px-6 min-w-[220px]">Resep Obat</th>
                         <th class="py-5 px-6 min-w-[160px] rounded-tr-2xl">Dokter</th>
@@ -90,7 +90,7 @@
                     @forelse($riwayat as $item)
                     <tr class="hover:bg-slate-50/80 transition-colors">
                         
-                        {{-- NO URUT KRONOLOGIS PAGINATION --}}
+                        {{-- NO URUT KRONOLOGIS --}}
                         <td class="py-6 px-6 align-middle text-center font-extrabold text-slate-400">
                             {{ ($riwayat->currentPage() - 1) * $riwayat->perPage() + $loop->iteration }}
                         </td>
@@ -101,26 +101,39 @@
                             <span class="text-xs font-bold font-mono text-emerald-600 block mt-1 bg-emerald-50 rounded-md py-0.5 px-2 border border-emerald-100 inline-block">{{ $item->created_at->format('H:i') }} WIB</span>
                         </td>
                         
-                        {{-- KELUHAN (MENGAMBIL DARI TABEL PENDAFTARAN) --}}
+                        {{-- KELUHAN --}}
                         <td class="py-6 px-6 align-middle italic text-slate-600 font-medium text-sm leading-relaxed">
                             "{{ $item->keluhan ?? 'Tidak ada keluhan tertulis' }}"
                         </td>
                         
-                        {{-- TANDA VITAL (SINKRON DATA FIELD DATABASE YANG BARU) --}}
+                        {{-- TANDA VITAL (TEKS LEBIH TEBAL, GELAP, DAN JELAS) --}}
                         <td class="py-6 px-6 align-middle">
-                            <div class="space-y-1.5 w-full max-w-[160px] mx-auto">
-                                <div class="flex items-center justify-between text-xs font-bold border border-slate-200 p-1.5 rounded-lg bg-slate-50/50">
-                                    <span class="text-slate-400 uppercase">Tensi:</span>
-                                    <span class="text-slate-800 font-mono font-black">{{ $item->tensi ?? '-' }} <span class="text-[9px] font-normal text-slate-400">mmHg</span></span>
+                            <div class="space-y-2 w-full max-w-[190px] mx-auto">
+                                
+                                {{-- Tensi Box --}}
+                                <div class="flex items-center justify-between border border-slate-300 p-2 rounded-xl bg-white shadow-sm">
+                                    <span class="text-[11px] font-black text-slate-700 uppercase tracking-wide">TENSI:</span>
+                                    <span class="text-slate-900 font-mono font-black text-sm">
+                                        {{ $item->tensi ?? '-' }} <span class="text-[10px] font-bold text-slate-500">mmHg</span>
+                                    </span>
                                 </div>
-                                <div class="flex items-center justify-between text-xs font-bold border border-slate-200 p-1.5 rounded-lg bg-slate-50/50">
-                                    <span class="text-slate-400 uppercase">Berat:</span>
-                                    <span class="text-slate-800 font-mono font-black">{{ $item->berat_badan ?? '-' }} <span class="text-[9px] font-normal text-slate-400">kg</span></span>
+                                
+                                {{-- Berat Badan Box --}}
+                                <div class="flex items-center justify-between border border-slate-300 p-2 rounded-xl bg-white shadow-sm">
+                                    <span class="text-[11px] font-black text-slate-700 uppercase tracking-wide">BERAT:</span>
+                                    <span class="text-slate-900 font-mono font-black text-sm">
+                                        {{ $item->berat_badan ?? '-' }} <span class="text-[10px] font-bold text-slate-500">kg</span>
+                                    </span>
                                 </div>
-                                <div class="flex items-center justify-between text-xs font-bold border border-slate-200 p-1.5 rounded-lg bg-slate-50/50">
-                                    <span class="text-slate-400 uppercase">Tinggi:</span>
-                                    <span class="text-slate-800 font-mono font-black">{{ $item->tinggi_badan ?? '-' }} <span class="text-[9px] font-normal text-slate-400">cm</span></span>
+                                
+                                {{-- Tinggi Badan Box --}}
+                                <div class="flex items-center justify-between border border-slate-300 p-2 rounded-xl bg-white shadow-sm">
+                                    <span class="text-[11px] font-black text-slate-700 uppercase tracking-wide">TINGGI:</span>
+                                    <span class="text-slate-900 font-mono font-black text-sm">
+                                        {{ $item->tinggi_badan ?? '-' }} <span class="text-[10px] font-bold text-slate-500">cm</span>
+                                    </span>
                                 </div>
+
                             </div>
                         </td>
                         
@@ -129,11 +142,11 @@
                             <div class="space-y-2">
                                 <div class="p-2.5 rounded-xl bg-rose-50 border border-rose-100 text-sm">
                                     <span class="text-[9px] font-black text-rose-600 block uppercase tracking-widest mb-0.5">Diagnosis</span>
-                                    <p class="font-extrabold text-slate-800">{{ $item->rekamMedis->diagnosis ?? '-' }}</p>
+                                    <p class="font-extrabold text-slate-800 leading-tight">{{ $item->rekamMedis->diagnosis ?? '-' }}</p>
                                 </div>
                                 <div class="p-2.5 rounded-xl bg-blue-50 border border-blue-100 text-sm">
                                     <span class="text-[9px] font-black text-blue-600 block uppercase tracking-widest mb-0.5">Tindakan</span>
-                                    <p class="font-bold text-slate-700">{{ $item->rekamMedis->tindakan ?? '-' }}</p>
+                                    <p class="font-bold text-slate-700 leading-tight">{{ $item->rekamMedis->tindakan ?? '-' }}</p>
                                 </div>
                             </div>
                         </td>
@@ -141,24 +154,17 @@
                         {{-- RESEP OBAT --}}
                         <td class="py-6 px-6 align-middle">
                             @if($item->rekamMedis && $item->rekamMedis->resep)
-                                <div class="flex flex-wrap gap-1.5">
-                                    @php $obatArray = preg_split('/[\n,]+/', $item->rekamMedis->resep); @endphp
-                                    @foreach($obatArray as $obat)
-                                        @if(trim($obat) !== "")
-                                            <span class="inline-flex items-center px-2 py-1 bg-slate-100 border border-slate-300 text-xs font-extrabold text-slate-700 rounded-md uppercase tracking-wide">
-                                                {{ trim($obat) }}
-                                            </span>
-                                        @endif
-                                    @endforeach
+                                <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 whitespace-pre-line leading-relaxed shadow-sm">
+                                    {{ $item->rekamMedis->resep }}
                                 </div>
                             @else
-                                <span class="text-xs text-slate-400 font-bold italic">Tanpa Resep Obat</span>
+                                <span class="text-xs text-slate-400 font-bold italic bg-slate-100 px-2.5 py-1.5 rounded-lg border border-slate-200">Tanpa Resep Obat</span>
                             @endif
                         </td>
                         
                         {{-- DOKTER --}}
-                        <td class="py-6 px-6 align-middle font-bold text-slate-700 text-sm">
-                            Dr. {{ $item->dokter->name ?? '-' }}
+                        <td class="py-6 px-6 align-middle font-extrabold text-slate-800 text-sm leading-tight">
+                            {{ $item->dokter->name ?? '-' }}
                         </td>
                     </tr>
                     @empty
@@ -172,7 +178,7 @@
             </table>
         </div>
 
-        {{-- KONTROL TOMBOL PREVIOUS & NEXT PAGINATION (MAKSIMAL 10 DATA) --}}
+        {{-- KONTROL TOMBOL PREVIOUS & NEXT PAGINATION --}}
         @if($riwayat->hasPages())
         <div class="p-5 border-t border-slate-200 bg-slate-50">
             {{ $riwayat->withQueryString()->links() }}
