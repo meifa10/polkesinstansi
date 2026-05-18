@@ -6,7 +6,7 @@
     <title>Struk Pembayaran_{{ $pembayaran->payment_ref }}</title>
     <style>
         @page {
-            margin: 10px;
+            margin: 8px;
         }
         body {
             font-family: 'Helvetica', sans-serif;
@@ -23,7 +23,7 @@
         .text-right { text-align: right; }
         .divider {
             border-top: 1px dashed #000;
-            margin: 8px 0;
+            margin: 6px 0;
         }
         table {
             width: 100%;
@@ -31,20 +31,11 @@
         }
         td { padding: 2px 0; vertical-align: top; }
         
-        /* Gaya Khusus Detail Resep */
-        .resep-box {
-            margin-top: 2px;
-            padding-right: 5px;
-            font-style: italic;
-            color: #333;
-            font-size: 9px;
-            display: block;
-        }
-        
         .header h2 {
             margin: 0;
-            font-size: 13px;
+            font-size: 12px;
             text-transform: uppercase;
+            font-weight: bold;
         }
         .header p {
             margin: 1px 0;
@@ -52,16 +43,21 @@
         }
         .total-row td {
             font-weight: bold;
-            font-size: 12px;
-            padding-top: 10px;
+            font-size: 11px;
+            padding-top: 6px;
         }
         .status-badge {
-            margin-top: 10px;
+            margin-top: 8px;
             font-weight: bold;
-            font-size: 11px;
+            font-size: 10px;
             border: 1px solid #000;
             display: inline-block;
-            padding: 2px 8px;
+            padding: 1px 6px;
+        }
+        .item-child {
+            font-size: 9px;
+            padding-left: 6px;
+            font-style: italic;
         }
     </style>
 </head>
@@ -78,12 +74,12 @@
 
     <table>
         <tr>
-            <td style="width: 30%;">No Ref</td>
+            <td style="width: 28%;">No Ref</td>
             <td>: {{ $pembayaran->payment_ref }}</td>
         </tr>
         <tr>
             <td>Tanggal</td>
-            <td>: {{ $pembayaran->created_at->format('d-m-Y H:i') }}</td>
+            <td>: {{ $pembayaran->created_at->format('d-m-Y H:i') }} WIB</td>
         </tr>
         <tr>
             <td>Pasien</td>
@@ -101,24 +97,56 @@
 
     <div class="divider"></div>
 
+    {{-- DAFTAR ITEM TRANSAKSI --}}
     <table>
+        {{-- Jasa Tindakan --}}
         <tr>
             <td>Jasa Dokter & Konsultasi</td>
             <td class="text-right">Rp {{ number_format($pembayaran->biaya_dokter, 0, ',', '.') }}</td>
         </tr>
+        {{-- Admin --}}
         <tr>
             <td>Administrasi</td>
             <td class="text-right">Rp {{ number_format($pembayaran->biaya_admin, 0, ',', '.') }}</td>
         </tr>
+        
+        {{-- BREAKDOWN DAFTAR OBAT RINCI --}}
         <tr>
-            <td>
-                Obat & Farmasi
-                <div class="resep-box">
-                    Resep: {{ $pembayaran->pendaftaran->rekamMedis->resep ?? 'Tidak ada rincian obat' }}
-                </div>
-            </td>
-            <td class="text-right">Rp {{ number_format($pembayaran->total_obat, 0, ',', '.') }}</td>
+            <td colspan="2" style="font-weight: bold; padding-top: 4px;">Obat & Farmasi:</td>
         </tr>
+        
+        @forelse($rincianObat as $item)
+        <tr>
+            <td class="item-child">
+                • {{ $item['nama'] }}
+                @if($item['harga'] > 0)
+                    <br>&nbsp;&nbsp;({{ $item['qty'] }} x Rp {{ number_format($item['harga'], 0, ',', '.') }})
+                @else
+                    <br>&nbsp;&nbsp;(Qty: {{ $item['qty'] }})
+                @endif
+            </td>
+            <td class="text-right" style="vertical-align: bottom; font-size: 9px;">
+                @if($item['total'] > 0)
+                    Rp {{ number_format($item['total'], 0, ',', '.') }}
+                @else
+                    -
+                @endif
+            </td>
+        </tr>
+        @empty
+        <tr>
+            <td class="item-child" style="color: #444;">- Tanpa resep obat</td>
+            <td class="text-right">Rp 0</td>
+        </tr>
+        @endforelse
+
+        {{-- Cadangan Paket Nominal Obat (Jika total subitem bernilai 0) --}}
+        @if(count($rincianObat) > 0 && collect($rincianObat)->sum('total') == 0)
+        <tr>
+            <td class="item-child" style="font-weight: bold;">Subtotal Paket Obat</td>
+            <td class="text-right" style="vertical-align: bottom;">Rp {{ number_format($pembayaran->total_obat, 0, ',', '.') }}</td>
+        </tr>
+        @endif
         
         <tr>
             <td colspan="2"><div class="divider"></div></td>
@@ -136,7 +164,7 @@
         <div class="status-badge">
             STATUS: {{ strtoupper($pembayaran->status) }}
         </div>
-        <p style="margin-top: 15px; font-size: 9px;">
+        <p style="margin-top: 12px; font-size: 8px; line-height: 1.2;">
             Terima kasih atas kepercayaan Anda.<br>
             Semoga lekas sembuh.
         </p>
