@@ -141,7 +141,7 @@
                                     <p class="text-base font-extrabold text-slate-900">{{ $k->created_at->translatedFormat('d M Y') }}</p>
                                     <div class="flex items-center gap-2 mt-1">
                                         <span class="inline-flex px-2 py-0.5 rounded bg-slate-200 text-slate-700 text-[10px] font-black uppercase border border-slate-300">
-                                            {{ $k->poli }}
+                                            {{ $k->poli ?? '-' }}
                                         </span>
                                     </div>
                                 </div>
@@ -153,7 +153,7 @@
                                         @if($k->pembayaran->status === 'lunas')
                                             <span class="text-xs font-bold text-emerald-600 uppercase tracking-widest">Lunas</span>
                                         @else
-                                            <span class="text-xs font-bold text-amber-600 uppercase tracking-widest animate-pulse">Pending</span>
+                                            <span class="text-xs font-bold text-emerald-600 uppercase tracking-widest animate-pulse">Menunggu</span>
                                         @endif
                                     @else
                                         <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Tidak Ada</span>
@@ -189,10 +189,10 @@
                                         </div>
                                     @else
                                         <div class="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
-                                            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-100 border border-amber-300 text-amber-800 text-xs font-extrabold shadow-sm uppercase tracking-wider animate-pulse">
+                                            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs font-extrabold shadow-sm uppercase tracking-wider animate-pulse">
                                                 <span class="flex h-2 w-2 relative">
-                                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                                                    <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                                                 </span>
                                                 Menunggu Pembayaran
                                             </div>
@@ -254,14 +254,14 @@
                                     <p class="text-base font-extrabold text-slate-900">{{ $rm->created_at->translatedFormat('d M Y') }}</p>
                                     <div class="flex items-center gap-2 mt-1">
                                         <span class="inline-flex px-2 py-0.5 rounded bg-blue-600 text-white text-[10px] font-black uppercase shadow-sm">
-                                            POLI: {{ $rm->pendaftaran->poli ?? '-' }}
+                                            POLI: {{ $rm->poli ?? ($rm->pendaftaran->poli ?? '-') }}
                                         </span>
-                                        {{-- INFORMASI DOKTER DITAMBAHKAN DI SINI --}}
+                                        {{-- INFORMASI DOKTER DIPERBAIKI DI SINI --}}
                                         <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-indigo-50 border border-indigo-200 text-indigo-700 text-[10px] font-black uppercase shadow-sm">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                             </svg>
-                                            DOKTER: {{ $rm->pendaftaran->dokter->nama_dokter ?? 'Tidak Diketahui' }}
+                                            DOKTER: {{ $rm->dokter->nama_dokter ?? ($rm->pendaftaran->dokter->nama_dokter ?? 'Tidak Diketahui') }}
                                         </span>
                                     </div>
                                 </div>
@@ -288,22 +288,22 @@
                                         </svg>
                                         <p class="text-xs font-black text-slate-500 uppercase tracking-widest">Keluhan Utama</p>
                                     </div>
-                                    <p class="text-sm font-bold text-slate-800 italic">"{{ $rm->keluhan ?? $rm->pendaftaran->keluhan ?? '-' }}"</p>
+                                    <p class="text-sm font-bold text-slate-800 italic">"{{ $rm->keluhan ?? ($rm->pendaftaran->keluhan ?? '-') }}"</p>
                                 </div>
 
                                 {{-- Pemeriksaan Fisik (Grid) --}}
                                 <div class="md:col-span-12 grid grid-cols-3 gap-4">
                                     <div class="bg-white p-4 rounded-xl border border-slate-200 flex flex-col justify-center items-center text-center shadow-sm">
                                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Berat Badan</span>
-                                        <p class="text-lg font-black text-slate-800">{{ $rm->berat_badan ?? $rm->bb ?? $rm->pendaftaran->berat_badan ?? $rm->pendaftaran->bb ?? '-' }} <span class="text-xs font-bold text-slate-500">kg</span></p>
+                                        <p class="text-lg font-black text-slate-800">{{ $rm->berat_badan ?? ($rm->bb ?? ($rm->pendaftaran->berat_badan ?? ($rm->pendaftaran->bb ?? '-'))) }} <span class="text-xs font-bold text-slate-500">kg</span></p>
                                     </div>
                                     <div class="bg-white p-4 rounded-xl border border-slate-200 flex flex-col justify-center items-center text-center shadow-sm">
                                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Tinggi Badan</span>
-                                        <p class="text-lg font-black text-slate-800">{{ $rm->tinggi_badan ?? $rm->tb ?? $rm->pendaftaran->tinggi_badan ?? $rm->pendaftaran->tb ?? '-' }} <span class="text-xs font-bold text-slate-500">cm</span></p>
+                                        <p class="text-lg font-black text-slate-800">{{ $rm->tinggi_badan ?? ($rm->tb ?? ($rm->pendaftaran->tinggi_badan ?? ($rm->pendaftaran->tb ?? '-'))) }} <span class="text-xs font-bold text-slate-500">cm</span></p>
                                     </div>
                                     <div class="bg-white p-4 rounded-xl border border-slate-200 flex flex-col justify-center items-center text-center shadow-sm">
                                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Tensi Darah</span>
-                                        <p class="text-lg font-black text-slate-800">{{ $rm->tekanan_darah ?? $rm->tensi ?? $rm->pendaftaran->tekanan_darah ?? $rm->pendaftaran->tensi ?? '-' }} <span class="text-xs font-bold text-slate-500">mmHg</span></p>
+                                        <p class="text-lg font-black text-slate-800">{{ $rm->tensi ?? ($rm->tekanan_darah ?? ($rm->pendaftaran->tekanan_darah ?? ($rm->pendaftaran->tensi ?? '-'))) }} <span class="text-xs font-bold text-slate-500">mmHg</span></p>
                                     </div>
                                 </div>
                             </div>
