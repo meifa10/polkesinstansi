@@ -79,7 +79,7 @@
         <form method="GET" action="{{ route('admin.pembayaran') }}" class="grid grid-cols-1 md:grid-cols-12 gap-5 items-end">
             
             {{-- Search Input --}}
-            <div class="md:col-span-4 relative">
+            <div class="md:col-span-5 relative">
                 <label class="block text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">Cari Tagihan</label>
                 <div class="absolute inset-y-0 bottom-0 left-0 pl-4 flex items-center pointer-events-none" style="top: 28px;">
                     <svg class="h-5 w-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -106,18 +106,11 @@
                 </div>
             </div>
 
-            {{-- Filter Tanggal Mulai --}}
-            <div class="md:col-span-2">
-                <label class="block text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">Dari Tanggal</label>
-                <input type="date" name="date_start" value="{{ request('date_start') }}" 
-                    class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-base font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all outline-none">
-            </div>
-
-            {{-- Filter Tanggal Selesai --}}
-            <div class="md:col-span-2">
-                <label class="block text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">Sampai Tanggal</label>
-                <input type="date" name="date_end" value="{{ request('date_end') }}" 
-                    class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-base font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all outline-none">
+            {{-- Filter Tanggal Tunggal --}}
+            <div class="md:col-span-3">
+                <label class="block text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">Tanggal Transaksi</label>
+                <input type="date" name="date" value="{{ request('date') }}" 
+                    class="w-full px-4 py-3.5 bg-slate-50 border border-slate-300 rounded-xl text-base font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all outline-none">
             </div>
 
             {{-- Action Buttons --}}
@@ -127,8 +120,8 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                     </svg>
                 </button>
-                @if(request('q') || request('poli') || request('date_start') || request('date_end'))
-                    <a href="{{ route('admin.pembayaran') }}" class="px-4 py-3.5 bg-rose-50 border border-rose-200 text-rose-600 rounded-xl text-base font-bold hover:bg-rose-100 transition-colors flex items-center justify-center" title="Reset Pencarian & Tanggal">
+                @if(request('q') || request('poli') || request('date'))
+                    <a href="{{ route('admin.pembayaran') }}" class="px-4 py-3.5 bg-rose-50 border border-rose-200 text-rose-600 rounded-xl text-base font-bold hover:bg-rose-100 transition-colors flex items-center justify-center" title="Clear Semua Filter">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
                         </svg>
@@ -249,7 +242,6 @@
                                             Validasi Bayar
                                         </button>
                                     </form>
-                                Endif
                                 @else
                                     {{-- Tombol Cetak Struk --}}
                                     <a href="{{ route('admin.pembayaran.print', $p->id) }}" target="_blank"
@@ -268,7 +260,7 @@
                         <td colspan="6" class="py-24 text-center">
                             <div class="flex flex-col items-center justify-center">
                                 <div class="bg-emerald-50 p-6 rounded-full mb-5 border border-emerald-100 text-emerald-400">
-                                    <svg xmlns="http://www.w3.org/2000/xl" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                                     </svg>
                                 </div>

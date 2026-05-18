@@ -13,7 +13,7 @@ class PembayaranController extends Controller
     {
         $query = Pembayaran::with('pendaftaran');
 
-        // 1. FILTER TANGGAL TUNGGAL (JIKA DIISI)
+        // 1. FILTER SATU TANGGAL (JIKA DIISI)
         if ($request->filled('date')) {
             $query->whereDate('created_at', $request->date);
         }
@@ -37,7 +37,7 @@ class PembayaranController extends Controller
             });
         }
 
-        // 4. HITUNG METRIK SECARA DINAMIS
+        // 4. HITUNG METRIK METRIC SECARA DINAMIS
         $totalPasienLunas = (clone $query)->where('status', 'lunas')->count();
 
         $listBiaya = (clone $query)->pluck('total_biaya');
