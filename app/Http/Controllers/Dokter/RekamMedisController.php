@@ -17,18 +17,21 @@ class RekamMedisController extends Controller
      */
     public function index(Request $request)
     {
-        // Subquery untuk mengambil ID pendaftaran terbaru yang MEMILIKI rekam medis
-        $subQuery = PendaftaranPoli::whereHas('rekamMedis')
-            ->select(DB::raw('MAX(id) as latest_id'))
+        // 1. Inisialisasi builder untuk subquery rekam medis pendaftaran
+        $subQueryBuilder = PendaftaranPoli::whereHas('rekamMedis');
+
+        // 2. Kunci Utama: Filter poli dokter harus dimasukkan ke dalam subquery 
+        // agar MAX(id) yang diambil adalah kunjungan terakhir KHUSUS di poli dokter tersebut.
+        if (Auth::user()->kategori_poli != 'semua_poli') {
+            $subQueryBuilder->where('poli', Auth::user()->kategori_poli);
+        }
+
+        // Ambil ID pendaftaran maksimal setelah disaring berdasarkan poli dokter
+        $subQuery = $subQueryBuilder->select(DB::raw('MAX(id) as latest_id'))
             ->groupBy('nama_pasien', 'no_identitas', 'poli');
 
-        // Mengambil data lengkap pendaftaran berdasarkan filter subquery di atas
+        // 3. Bangun query utama menggunakan hasil filter ID dari subquery di atas
         $query = PendaftaranPoli::whereIn('id', $subQuery);
-
-        // Jika dokter bukan "semua_poli", batasi pasien berdasarkan poli dokter login
-        if (Auth::user()->kategori_poli != 'semua_poli') {
-            $query->where('poli', Auth::user()->kategori_poli);
-        }
 
         // Fitur Pencarian (Sesuai input name="q" di Blade)
         if ($request->filled('q')) {
@@ -39,7 +42,7 @@ class RekamMedisController extends Controller
             });
         }
 
-        // Filter Poliklinik Asal (Sesuai select name="poli" di Blade)
+        // Filter Poliklinik Asal dari Dropdown Select (Jika dokter memilih manual)
         if ($request->filled('poli')) {
             $query->where('poli', $request->poli);
         }
