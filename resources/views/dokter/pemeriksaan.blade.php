@@ -65,7 +65,6 @@
                     </h2>
                     
                     <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
-                        {{-- BB, TB, TENSI (Grid 3 Kolom) --}}
                         <div class="lg:col-span-6 grid grid-cols-3 gap-3 md:gap-4">
                             <div class="bg-slate-50 p-3 md:p-4 rounded-xl border border-slate-200 flex flex-col justify-center">
                                 <span class="text-[10px] md:text-xs font-semibold text-slate-600 mb-1">Berat Badan</span>
@@ -87,7 +86,6 @@
                             </div>
                         </div>
 
-                        {{-- Keluhan --}}
                         <div class="lg:col-span-6 bg-amber-50 p-4 rounded-xl border border-amber-200 flex flex-col justify-center">
                             <span class="text-xs font-bold text-amber-800 mb-2 flex items-center gap-1.5">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -110,14 +108,12 @@
                     </h2>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {{-- Diagnosis Input --}}
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-slate-800">Hasil Diagnosis Medis</label>
                             <textarea name="diagnosis" rows="4" required placeholder="Tuliskan diagnosa secara lengkap..."
                                       class="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl text-base text-slate-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all resize-none placeholder:text-slate-400">{{ old('diagnosis') }}</textarea>
                         </div>
                         
-                        {{-- Tindakan Select --}}
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-slate-800">Tindakan Medis</label>
                             <div class="relative">
@@ -152,10 +148,9 @@
                     </div>
 
                     <div id="obat-wrapper" class="space-y-4">
-                        {{-- Baris Obat Pertama --}}
                         <div class="obat-row flex flex-col md:flex-row items-start md:items-end gap-4 p-4 bg-white border border-slate-300 rounded-xl relative transition-all">
                             
-                            {{-- Pilih Obat (Datalist) --}}
+                            {{-- Pilih Obat --}}
                             <div class="flex-grow w-full md:w-auto space-y-1.5">
                                 <label class="block text-sm font-semibold text-slate-800">Nama Obat</label>
                                 <div class="relative">
@@ -169,20 +164,35 @@
                                 </div>
                             </div>
 
-                            {{-- Kuantitas (Qty) --}}
-                            <div class="w-full md:w-28 space-y-1.5">
-                                <label class="block text-sm font-semibold text-slate-800 md:text-center">Jumlah</label>
-                                <input type="number" name="qty[]" placeholder="0" class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-lg text-base text-slate-900 md:text-center focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all placeholder:text-slate-400" min="1" required>
+                            {{-- Kuantitas & Satuan --}}
+                            <div class="w-full md:w-56 space-y-1.5 flex-shrink-0">
+                                <label class="block text-sm font-semibold text-slate-800">Jumlah & Satuan</label>
+                                <div class="flex items-center gap-2">
+                                    <input type="number" name="qty[]" placeholder="0" class="w-16 md:w-20 px-3 py-2.5 bg-white border border-slate-300 rounded-lg text-base text-slate-900 text-center focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all placeholder:text-slate-400" min="1" required>
+                                    <div class="relative flex-1">
+                                        <select name="satuan[]" class="w-full pl-3 pr-8 py-2.5 bg-white border border-slate-300 rounded-lg text-sm md:text-base text-slate-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all appearance-none cursor-pointer" required>
+                                            <option value="Tablet">Tablet</option>
+                                            <option value="Kapsul">Kapsul</option>
+                                            <option value="Sirup">Sirup</option>
+                                            <option value="Puyer">Puyer</option>
+                                        </select>
+                                        <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             {{-- Aturan Pakai --}}
-                            <div class="w-full md:w-[35%] space-y-1.5">
+                            <div class="w-full md:w-[35%] space-y-1.5 flex-shrink-0">
                                 <label class="block text-sm font-semibold text-slate-800">Aturan Pakai</label>
                                 <input type="text" name="aturan_minum[]" placeholder="Cth: 3 x 1 Sesudah Makan" class="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-lg text-base text-slate-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all placeholder:text-slate-400" required>
                             </div>
 
                             {{-- Tombol Hapus --}}
-                            <button type="button" onclick="hapusObat(this)" class="w-full md:w-auto mt-2 md:mt-0 flex items-center justify-center p-3 bg-white text-rose-600 hover:bg-rose-50 rounded-lg transition-colors border border-rose-200" title="Hapus Obat">
+                            <button type="button" onclick="hapusObat(this)" class="w-full md:w-auto mt-2 md:mt-0 flex items-center justify-center p-3 bg-white text-rose-600 hover:bg-rose-50 rounded-lg transition-colors border border-rose-200 flex-shrink-0" title="Hapus Obat">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                 </svg>
@@ -191,7 +201,6 @@
                         </div>
                     </div>
 
-                    {{-- Datalist Referensi Obat --}}
                     <datalist id="list-obat">
                         @foreach($obat as $o)
                             <option data-id="{{ $o->id }}" value="{{ $o->nama_obat }}">
@@ -219,7 +228,6 @@
     </div>
 </div>
 
-{{-- ================= JAVASCRIPT UNTUK OBAT ================= --}}
 <script>
     function syncObatId(input) {
         const val = input.value;
@@ -241,8 +249,14 @@
         
         const newRow = rows[0].cloneNode(true);
         
+        // Reset inputs to blank
         newRow.querySelectorAll('input').forEach(input => {
             input.value = '';
+        });
+
+        // Reset select explicitly
+        newRow.querySelectorAll('select').forEach(select => {
+            select.selectedIndex = 0;
         });
         
         wrapper.appendChild(newRow);
