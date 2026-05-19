@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\RekamMedis;
 use App\Models\PendaftaranPoli;
 use Illuminate\Http\Request;
-use DB;
+use Illuminate\Support\Facades\DB;
 
 class RekamMedisController extends Controller
 {
