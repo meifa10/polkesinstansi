@@ -132,12 +132,20 @@
 
 <script>
     document.getElementById('exportExcelBtn').addEventListener('click', function () {
+        // Ambil data dinamis dari tampilan komponen untuk disematkan ke lembar judul atas excel
         const namaPasien = document.getElementById('namaPasienHeader').innerText.trim();
+        const tglHariIni = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+        
         const wb = XLSX.utils.book_new();
+        
+        // Pengemasan Susunan Judul Dokumen Excel yang Jauh Lebih Lengkap & Formal
         let excelData = [
-            [`RIWAYAT REKAM MEDIS PASIEN: ${namaPasien}`],
-            [""], 
-            ["NO", "TANGGAL PERIKSA", "KELUHAN", "VITALS (BB/TB/TENSI)", "DIAGNOSIS", "TINDAKAN", "RESEP OBAT", "DOKTER PEMERIKSA"]
+            ["LAPORAN JEJAK RIWAYAT REKAM MEDIS PASIEN - POLKES JOMBANG"],
+            [`Nama Lengkap Pasien : ${namaPasien}`],
+            [`Tanggal Unduh Dokumen: ${tglHariIni}`],
+            ["Klasifikasi Dokumen : Dokumen Arsip Klinis Internal Sah"],
+            [""], // Ruang kosong jeda baris antara judul laporan dengan tabel utama
+            ["NO", "TANGGAL PERIKSA", "KELUHAN PASIEN", "TANDA VITAL (BB/TB/TENSI)", "DIAGNOSIS KLINIS", "TINDAKAN MEDIS", "RESEP OBAT", "DOKTER PEMERIKSA"]
         ];
 
         document.querySelectorAll('#medisTable tbody tr').forEach(row => {
@@ -154,6 +162,8 @@
                 const diagnosis = row.querySelector('.diagnosis-val').innerText.trim();
                 const tindakan = row.querySelector('.tindakan-val').innerText.trim();
                 const resep = row.querySelector('.resep-val').innerText.trim();
+                
+                // Menarik data nama dokter secara real-time dari setiap sel baris tabel HTML
                 const dokter = row.querySelector('.dokter-val').innerText.trim();
 
                 excelData.push([no, tanggal, keluhan, vitals, diagnosis, tindakan, resep, dokter]);
@@ -161,12 +171,20 @@
         });
 
         const ws = XLSX.utils.aoa_to_sheet(excelData);
+        
         ws['!cols'] = [
-            {wch: 5}, {wch: 18}, {wch: 35}, {wch: 28}, {wch: 35}, {wch: 25}, {wch: 40}, {wch: 25}
+            {wch: 6},  // NO
+            {wch: 18}, // TANGGAL PERIKSA
+            {wch: 35}, // KELUHAN PASIEN
+            {wch: 30}, // TANDA VITAL (BB/TB/TENSI)
+            {wch: 35}, // DIAGNOSIS KLINIS
+            {wch: 28}, // TINDAKAN MEDIS
+            {wch: 45}, // RESEP OBAT
+            {wch: 32}  // DOKTER PEMERIKSA (Lebar kolom disesuaikan untuk gelar nama dokter)
         ];
 
-        XLSX.utils.book_append_sheet(wb, ws, "Riwayat Pasien");
-        XLSX.writeFile(wb, `Riwayat_Medis_${namaPasien.replace(/\s+/g, '_')}.xlsx`);
+        XLSX.utils.book_append_sheet(wb, ws, "Riwayat Medis");
+        XLSX.writeFile(wb, `Laporan_Rekam_Medis_${namaPasien.replace(/\s+/g, '_')}.xlsx`);
     });
 </script>
 @endsection
