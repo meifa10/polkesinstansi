@@ -13,21 +13,24 @@ class RekamMedisController extends Controller
 {
     /**
      * Halaman Utama: Menampilkan daftar nama pasien unik
-     * Diubah nama method-nya menjadi 'index' agar sesuai dengan route Laravel
+     * Cocok dengan -> Route::get('/rekam-medis', [DokterRekamMedis::class, 'index'])
      */
     public function index(Request $request)
     {
-        // Menggunakan MAX(id) untuk mendapatkan ID pendaftaran terbaru per kelompok pasien
-        $query = PendaftaranPoli::whereHas('rekamMedis')
-            ->select('nama_pasien', 'no_identitas', 'poli', DB::raw('MAX(id) as id'))
+        // Subquery untuk mengambil ID pendaftaran terbaru yang MEMILIKI rekam medis
+        $subQuery = PendaftaranPoli::whereHas('rekamMedis')
+            ->select(DB::raw('MAX(id) as latest_id'))
             ->groupBy('nama_pasien', 'no_identitas', 'poli');
 
-        // Jika dokter bukan "semua_poli", batasi pasien berdasarkan poli dokter
+        // Mengambil data lengkap pendaftaran berdasarkan filter subquery di atas
+        $query = PendaftaranPoli::whereIn('id', $subQuery);
+
+        // Jika dokter bukan "semua_poli", batasi pasien berdasarkan poli dokter login
         if (Auth::user()->kategori_poli != 'semua_poli') {
             $query->where('poli', Auth::user()->kategori_poli);
         }
 
-        // Fitur Pencarian
+        // Fitur Pencarian (Sesuai input name="q" di Blade)
         if ($request->filled('q')) {
             $search = trim($request->q);
             $query->where(function ($q) use ($search) {
@@ -36,12 +39,12 @@ class RekamMedisController extends Controller
             });
         }
 
-        // Filter berdasarkan Poli
+        // Filter Poliklinik Asal (Sesuai select name="poli" di Blade)
         if ($request->filled('poli')) {
             $query->where('poli', $request->poli);
         }
 
-        // Ambil data menggunakan subquery order atau sorting ID pendaftaran terakhir
+        // Urutkan dari yang terbaru dan pecah menjadi 10 data per halaman
         $pasien = $query->orderBy('id', 'desc')->paginate(10);
 
         return view('dokter.rekammedis.index', compact('pasien'));
@@ -49,20 +52,23 @@ class RekamMedisController extends Controller
 
     /**
      * Halaman Detail: Menampilkan riwayat kronologis rekam medis pasien
+     * Cocok dengan -> Route::get('/rekam-medis/{id}', [DokterRekamMedis::class, 'show'])
      */
-    public function showRekamMedis(Request $request, $id)
+    public function show(Request $request, $id)
     {
         $pasienAcuan = PendaftaranPoli::findOrFail($id);
         $namaPasien = $pasienAcuan->nama_pasien;
 
+        // Ambil riwayat rekam medis berdasarkan kesamaan nama pasien secara kronologis
         $query = PendaftaranPoli::where('nama_pasien', $namaPasien)
             ->with(['rekamMedis', 'dokter']);
 
+        // Saring berdasarkan tanggal (jika dokter memilih tanggal di filter Blade)
         if ($request->filled('tanggal')) {
             $query->whereDate('created_at', $request->tanggal);
         }
 
-        // Fitur Export Download Excel (.xls)
+        // Fitur Export XLS (Excel)
         if ($request->has('download')) {
             $filename = 'Riwayat-Pemeriksaan-' . str_replace(' ', '-', $namaPasien) . '-' . now()->format('d-m-Y') . '.xls';
             $headers = [
@@ -136,6 +142,7 @@ class RekamMedisController extends Controller
             return response($html, 200, $headers);
         }
 
+        // Paginasi riwayat kunjungan untuk tabel detail
         $riwayat = $query->latest()->paginate(10);
         $pasien = $pasienAcuan;
 
