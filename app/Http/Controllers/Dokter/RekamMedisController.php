@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
-class PemeriksaanController extends Controller
+class RekamMedisController extends Controller
 {
     /**
      * Halaman Utama: Menampilkan daftar nama pasien unik
