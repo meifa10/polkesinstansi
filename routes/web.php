@@ -14,6 +14,7 @@ use App\Http\Controllers\Petugas\DashboardController as PetugasDashboardControll
 use App\Http\Controllers\Petugas\PemeriksaanAwalController;
 use App\Http\Controllers\Petugas\PendaftaranController as PetugasPendaftaranController;
 use App\Http\Controllers\Petugas\ObatController;
+use App\Http\Controllers\Dokter\RekamMedisController;
 
 
 
