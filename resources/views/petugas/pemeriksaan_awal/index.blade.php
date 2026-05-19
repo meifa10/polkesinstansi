@@ -9,6 +9,8 @@
     body { 
         font-family: 'Plus Jakarta Sans', sans-serif;
     }
+    /* Memastikan pagination bawaan Tailwind tampil rapi */
+    nav[role="navigation"] { margin-top: 0; }
 </style>
 
 <div class="p-6 lg:p-8 bg-slate-50 min-h-screen">
@@ -40,7 +42,8 @@
             </div>
             <div>
                 <p class="text-sm uppercase font-bold text-slate-400 tracking-wider">Total Antrean</p>
-                <h2 class="text-4xl font-black text-slate-800 leading-none mt-1">{{ $pasien->count() }}</h2>
+                {{-- Menggunakan total() dari Pagination --}}
+                <h2 class="text-4xl font-black text-slate-800 leading-none mt-1">{{ $pasien->total() }}</h2>
             </div>
         </div>
     </div>
@@ -48,14 +51,14 @@
     {{-- SEARCH BOX --}}
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 mb-8 flex flex-col justify-center">
         <label class="block text-sm font-bold text-slate-600 uppercase tracking-wide mb-3">Pencarian Antrean</label>
-        <form method="GET" action="" class="flex flex-col lg:flex-row gap-4">
+        <form method="GET" action="{{ route('petugas.pemeriksaan_awal.index') }}" class="flex flex-col lg:flex-row gap-4">
             <div class="relative flex-grow">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <svg class="h-6 w-6 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
                     </svg>
                 </div>
-                <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama pasien dalam antrean..."
+                <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama pasien, NIK, atau Poliklinik..."
                     class="w-full pl-12 pr-5 py-3.5 bg-slate-50 border border-slate-300 rounded-xl text-base font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all shadow-sm">
             </div>
             <div class="flex gap-3">
@@ -63,7 +66,7 @@
                     Cari Pasien
                 </button>
                 @if(request('q'))
-                    <a href="{{ url()->current() }}" class="bg-slate-100 text-slate-600 px-6 py-3.5 rounded-xl text-base font-bold hover:bg-slate-200 transition-colors border border-slate-300 flex items-center justify-center">
+                    <a href="{{ route('petugas.pemeriksaan_awal.index') }}" class="bg-slate-100 text-slate-600 px-6 py-3.5 rounded-xl text-base font-bold hover:bg-slate-200 transition-colors border border-slate-300 flex items-center justify-center">
                         Reset
                     </a>
                 @endif
@@ -78,21 +81,32 @@
                 <thead>
                     <tr class="bg-emerald-900 text-white text-sm uppercase tracking-widest font-bold">
                         <th class="py-5 px-6 w-16 text-center rounded-tl-xl">No</th>
+                        <th class="py-5 px-6 min-w-[150px]">Waktu Daftar</th>
                         <th class="py-5 px-6 min-w-[300px]">Informasi Pasien</th>
                         <th class="py-5 px-6 min-w-[200px]">Poliklinik Tujuan</th>
-                        <th class="py-5 px-6 min-w-[200px] text-center">Status</th>
-                        <th class="py-5 px-6 min-w-[200px] text-center rounded-tr-xl">Tindakan</th>
+                        <th class="py-5 px-6 min-w-[180px] text-center">Status</th>
+                        <th class="py-5 px-6 min-w-[180px] text-center rounded-tr-xl">Tindakan</th>
                     </tr>
                 </thead>
                 <tbody class="text-base divide-y divide-slate-200">
-                    @forelse($pasien as $item)
+                    @forelse($pasien as $index => $item)
                     <tr class="hover:bg-emerald-50/60 transition-colors group">
                         
-                        {{-- Nomor --}}
+                        {{-- Nomor dengan Pagination Offset --}}
                         <td class="py-5 px-6 text-center text-slate-500 font-bold align-middle text-lg">
-                            {{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}
+                            {{ str_pad($pasien->firstItem() + $index, 2, '0', STR_PAD_LEFT) }}
                         </td>
                         
+                        {{-- Waktu Daftar --}}
+                        <td class="py-5 px-6 align-middle">
+                            <div class="font-extrabold text-slate-800 text-base">
+                                {{ $item->created_at->format('H:i') }} <span class="text-xs text-slate-500">WIB</span>
+                            </div>
+                            <div class="text-xs text-emerald-600 font-bold mt-1 uppercase tracking-wide">
+                                {{ $item->created_at->translatedFormat('d M Y') }}
+                            </div>
+                        </td>
+
                         {{-- Informasi Pasien --}}
                         <td class="py-5 px-6 align-middle">
                             <div class="flex items-center gap-4">
@@ -103,11 +117,14 @@
                                     <p class="font-extrabold text-slate-800 text-lg uppercase tracking-tight group-hover:text-emerald-700 transition-colors">
                                         {{ $item->nama_pasien }}
                                     </p>
-                                    <div class="flex items-center gap-1.5 mt-1">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd" d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd" />
-                                        </svg>
-                                        <p class="text-sm font-bold text-slate-500 uppercase tracking-wider">ID: #PX-{{ $item->id + 1000 }}</p>
+                                    <div class="flex items-center gap-3 mt-1">
+                                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                                            ID: <span class="text-slate-700">#PX-{{ $item->id + 1000 }}</span>
+                                        </p>
+                                        <span class="w-1 h-1 bg-slate-300 rounded-full"></span>
+                                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                                            NIK: <span class="text-slate-700">{{ $item->nik ?? 'Tidak Ada' }}</span>
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -126,7 +143,6 @@
                         {{-- Status --}}
                         <td class="py-5 px-6 align-middle text-center">
                             @php
-                                // Menyamakan warna badge status dengan halaman pendaftaran
                                 $statusStyles = [
                                     'menunggu_petugas' => [
                                         'bg' => 'bg-amber-100', 'text' => 'text-amber-800', 'border' => 'border-amber-300', 'dot' => 'bg-amber-500', 'pulse' => true, 'label' => 'Menunggu Petugas'
@@ -170,7 +186,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="py-20 text-center">
+                        <td colspan="6" class="py-20 text-center">
                             <div class="flex flex-col items-center justify-center">
                                 <div class="bg-emerald-50 p-6 rounded-full mb-5 border border-emerald-100">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -179,7 +195,11 @@
                                 </div>
                                 <h3 class="text-xl font-bold text-slate-800 mb-2">Tidak Ada Antrean</h3>
                                 <p class="text-slate-500 text-base max-w-md">
-                                    Saat ini tidak ada pasien yang menunggu untuk dilakukan pemeriksaan awal (Triage).
+                                    @if(request('q'))
+                                        Pencarian untuk "<strong>{{ request('q') }}</strong>" tidak ditemukan. Coba gunakan kata kunci lain.
+                                    @else
+                                        Saat ini tidak ada pasien yang menunggu untuk dilakukan pemeriksaan awal (Triage).
+                                    @endif
                                 </p>
                             </div>
                         </td>
@@ -190,11 +210,15 @@
         </div>
         
         {{-- PAGINATION / FOOTER INFO --}}
-        @if($pasien->count() > 0)
-        <div class="px-8 py-5 bg-slate-50 border-t border-slate-200 flex justify-between items-center">
-            <p class="text-sm font-bold text-slate-500 uppercase tracking-widest">
-                Menampilkan Total <span class="text-emerald-600">{{ $pasien->count() }}</span> Pasien
+        @if($pasien->total() > 0)
+        <div class="px-8 py-5 bg-slate-50 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p class="text-sm font-bold text-slate-500 uppercase tracking-widest text-center md:text-left">
+                Menampilkan <span class="text-emerald-600">{{ $pasien->firstItem() }} - {{ $pasien->lastItem() }}</span> 
+                dari <span class="text-emerald-600">{{ $pasien->total() }}</span> Pasien
             </p>
+            <div class="w-full md:w-auto">
+                {{ $pasien->links() }}
+            </div>
         </div>
         @endif
     </div>

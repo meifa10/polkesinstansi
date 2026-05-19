@@ -5,20 +5,31 @@ namespace App\Http\Controllers\Petugas;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\PendaftaranPoli;
-use App\Models\RekamMedis;      
+use App\Models\RekamMedis;
 
 class PemeriksaanAwalController extends Controller
 {
     /**
      * Menampilkan daftar pasien yang menunggu pemeriksaan awal oleh petugas
      */
-    public function index()
+    public function index(Request $request)
     {
-        // PERUBAHAN DISINI: Mengubah 'desc' menjadi 'asc' agar pasien yang 
-        // mendaftar pertama kali muncul di urutan paling atas (Urutan Antrean Benar)
-        $pasien = PendaftaranPoli::where('status', 'menunggu_petugas')
-                    ->orderBy('created_at', 'asc')
-                    ->get();
+        // Inisialisasi query dengan filter status dan urutan antrean terlama (asc)
+        $query = PendaftaranPoli::where('status', 'menunggu_petugas')
+                    ->orderBy('created_at', 'asc');
+
+        // Fitur Pencarian berdasarkan Nama, NIK, atau Poli
+        if ($request->has('q') && $request->q != '') {
+            $search = $request->q;
+            $query->where(function($q) use ($search) {
+                $q->where('nama_pasien', 'like', '%' . $search . '%')
+                  ->orWhere('nik', 'like', '%' . $search . '%')
+                  ->orWhere('poli', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Menggunakan pagination (10 data per halaman) & mempertahankan query string pencarian
+        $pasien = $query->paginate(10)->withQueryString();
 
         return view('petugas.pemeriksaan_awal.index', compact('pasien'));
     }
@@ -56,19 +67,19 @@ class PemeriksaanAwalController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'berat_badan' => 'required|numeric',
+            'berat_badan'  => 'required|numeric',
             'tinggi_badan' => 'required|numeric',
-            'tensi' => 'required|string|max:20',
-            'keluhan' => 'required|string',
+            'tensi'        => 'required|string|max:20',
+            'keluhan'      => 'required|string',
         ]);
 
         $pasien = PendaftaranPoli::findOrFail($id);
 
-        $pasien->berat_badan = $request->berat_badan;
+        $pasien->berat_badan  = $request->berat_badan;
         $pasien->tinggi_badan = $request->tinggi_badan;
-        $pasien->tensi = $request->tensi;
-        $pasien->keluhan = $request->keluhan;
-        $pasien->status = 'diproses_dokter';
+        $pasien->tensi        = $request->tensi;
+        $pasien->keluhan      = $request->keluhan;
+        $pasien->status       = 'diproses_dokter';
         $pasien->save();
 
         return redirect()
