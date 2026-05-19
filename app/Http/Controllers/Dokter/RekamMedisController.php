@@ -7,14 +7,23 @@ use App\Models\RekamMedis;
 use App\Models\PendaftaranPoli;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
-class RekamMedisController extends Controller
+class PemeriksaanController extends Controller
 {
-    public function index(Request $request)
+    /**
+     * Halaman Utama: Menampilkan daftar nama pasien unik
+     */
+    public function rekamMedis(Request $request)
     {
         $query = PendaftaranPoli::whereHas('rekamMedis')
             ->select('nama_pasien', 'no_identitas', 'poli', DB::raw('MAX(id) as id'))
             ->groupBy('nama_pasien', 'no_identitas', 'poli');
+
+        // Jika dokter bukan "semua_poli", batasi pasien berdasarkan poli dokter
+        if (Auth::user()->kategori_poli != 'semua_poli') {
+            $query->where('poli', Auth::user()->kategori_poli);
+        }
 
         if ($request->filled('q')) {
             $search = trim($request->q);
@@ -30,10 +39,13 @@ class RekamMedisController extends Controller
 
         $pasien = $query->latest('id')->paginate(10);
 
-        return view('dokter.rekam_medis.index', compact('pasien'));
+        return view('dokter.rekammedis.index', compact('pasien'));
     }
 
-    public function show(Request $request, $id)
+    /**
+     * Halaman Detail: Menampilkan riwayat kronologis rekam medis pasien
+     */
+    public function showRekamMedis(Request $request, $id)
     {
         $pasienAcuan = PendaftaranPoli::findOrFail($id);
         $namaPasien = $pasienAcuan->nama_pasien;
@@ -121,35 +133,6 @@ class RekamMedisController extends Controller
         $riwayat = $query->latest()->paginate(10);
         $pasien = $pasienAcuan;
 
-        return view('dokter.rekam_medis.show', compact('pasien', 'riwayat'));
-    }
-
-    public function store(Request $request)
-    {
-        $request->validate([
-            'pendaftaran_id' => 'required',
-            'keluhan'        => 'required',
-            'diagnosis'      => 'required',
-            'tindakan'       => 'required',
-            'resep'          => 'nullable',
-        ]);
-
-        RekamMedis::create([
-            'pendaftaran_id' => $request->pendaftaran_id,
-            'dokter_id'      => auth()->id(),
-            'keluhan'        => $request->keluhan,
-            'diagnosis'      => $request->diagnosis,
-            'tindakan'       => $request->tindakan,
-            'resep'          => $request->resep,
-        ]);
-
-        PendaftaranPoli::where('id', $request->pendaftaran_id)
-            ->update([
-                'status' => 'menunggu'
-            ]);
-
-        return redirect()
-            ->route('dokter.pasien')
-            ->with('success', 'Rekam medis berhasil disimpan');
+        return view('dokter.rekammedis.show', compact('pasien', 'riwayat'));
     }
 }
