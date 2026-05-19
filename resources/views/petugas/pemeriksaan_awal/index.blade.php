@@ -123,7 +123,7 @@
                                         </p>
                                         <span class="w-1 h-1 bg-slate-300 rounded-full"></span>
                                         <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                            NIK: <span class="text-slate-700">{{ $item->nik ?? 'Tidak Ada' }}</span>
+                                            NIK: <span class="text-slate-700">{{ $item->pasien->nik ?? $item->nik ?? 'Tidak Ada' }}</span>
                                         </p>
                                     </div>
                                 </div>

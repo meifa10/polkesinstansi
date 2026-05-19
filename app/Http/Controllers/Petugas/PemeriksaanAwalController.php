@@ -9,34 +9,32 @@ use App\Models\RekamMedis;
 
 class PemeriksaanAwalController extends Controller
 {
-    /**
-     * Menampilkan daftar pasien yang menunggu pemeriksaan awal oleh petugas
-     */
-    public function index(Request $request)
+    
+public function index(Request $request)
     {
-        // Inisialisasi query dengan filter status dan urutan antrean terlama (asc)
-        $query = PendaftaranPoli::where('status', 'menunggu_petugas')
+        
+        $query = PendaftaranPoli::with('pasien')
+                    ->where('status', 'menunggu_petugas')
                     ->orderBy('created_at', 'asc');
 
-        // Fitur Pencarian berdasarkan Nama, NIK, atau Poli
         if ($request->has('q') && $request->q != '') {
             $search = $request->q;
             $query->where(function($q) use ($search) {
                 $q->where('nama_pasien', 'like', '%' . $search . '%')
-                  ->orWhere('nik', 'like', '%' . $search . '%')
-                  ->orWhere('poli', 'like', '%' . $search . '%');
+                  ->orWhere('poli', 'like', '%' . $search . '%')
+                  ->orWhereHas('pasien', function($qPasien) use ($search) {
+                      $qPasien->where('nik', 'like', '%' . $search . '%');
+                  })
+                  ->orWhere('nik', 'like', '%' . $search . '%');
             });
         }
 
-        // Menggunakan pagination (10 data per halaman) & mempertahankan query string pencarian
         $pasien = $query->paginate(10)->withQueryString();
 
         return view('petugas.pemeriksaan_awal.index', compact('pasien'));
     }
 
-    /**
-     * Menampilkan form input pemeriksaan awal (Triage / Vital Sign)
-     */
+  
     public function edit($id)
     {
         $pasien = PendaftaranPoli::findOrFail($id);
@@ -61,9 +59,7 @@ class PemeriksaanAwalController extends Controller
         return view('petugas.pemeriksaan_awal.edit', compact('pasien', 'kunjungan', 'rekamMedis'));
     }
 
-    /**
-     * Menyimpan data pemeriksaan awal dan meneruskan pasien ke dokter
-     */
+ 
     public function update(Request $request, $id)
     {
         $request->validate([
