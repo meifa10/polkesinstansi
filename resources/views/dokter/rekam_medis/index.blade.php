@@ -11,7 +11,7 @@
     {{-- HEADER --}}
     <div class="mb-8">
         <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100 text-emerald-800 text-sm font-bold uppercase mb-3 border border-emerald-200">
-            ADMIN / REKAM MEDIS
+            DOKTER / REKAM MEDIS
         </div>
         <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight">
             Laporan <span class="text-emerald-600">Pemeriksaan Pasien</span>
@@ -31,12 +31,12 @@
                         <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
                     </svg>
                 </div>
-                <input type="text" id="searchInput" placeholder="Masukkan Nama Pasien..."
+                <input type="text" id="searchInput" placeholder="Masukkan Nama Pasien atau NIK..."
                     class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-300 rounded-xl text-base font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all outline-none">
             </div>
 
             <div class="md:col-span-4 relative">
-                <label class="block text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">Poliklinik Asal</label>
+                <label class="block text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">Poliklinik Terakhir</label>
                 <select id="poliFilter" class="w-full px-5 py-3.5 bg-slate-50 border border-slate-300 rounded-xl text-base font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all outline-none appearance-none cursor-pointer">
                     <option value="ALL">Semua Poliklinik</option>
                     <option value="Poli Umum">Poli Umum</option>
@@ -66,26 +66,26 @@
                 </thead>
                 <tbody class="text-base divide-y divide-slate-200">
                     @forelse($pasienList as $index => $item)
-                    <tr class="hover:bg-slate-50 transition-colors group row-pasien" data-poli="{{ $item->pendaftaran->poli ?? '-' }}">
+                    <tr class="hover:bg-slate-50 transition-colors group row-pasien" data-poli="{{ $item->poli_terakhir ?? '-' }}">
                         <td class="py-5 px-6 text-center font-bold text-slate-500">
                             {{ $index + 1 }}
                         </td>
                         <td class="py-5 px-6">
                             <div class="flex items-center gap-4">
                                 <div class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-black text-base uppercase group-hover:bg-emerald-600 transition-colors">
-                                    {{ strtoupper(substr($item->pendaftaran->nama_pasien ?? '?', 0, 1)) }}
+                                    {{ strtoupper(substr($item->nama_pasien ?? '?', 0, 1)) }}
                                 </div>
                                 <div>
                                     <span class="font-extrabold text-slate-800 block uppercase nama-pasien-text">
-                                        {{ $item->pendaftaran->nama_pasien ?? '-' }}
+                                        {{ $item->nama_pasien ?? '-' }}
                                     </span>
-                                    <span class="text-xs text-slate-400 font-medium tracking-wider">NIK: 1234567891234567</span>
+                                    <span class="text-xs text-slate-400 font-bold tracking-wider">NIK: {{ $item->nik ?? '-' }}</span>
                                 </div>
                             </div>
                         </td>
                         <td class="py-5 px-6">
                             <span class="inline-flex px-3 py-1 rounded bg-slate-100 text-slate-700 text-xs font-bold uppercase border border-slate-200">
-                                {{ $item->pendaftaran->poli ?? '-' }}
+                                {{ $item->poli_terakhir ?? '-' }}
                             </span>
                         </td>
                         <td class="py-5 px-6 text-center">
@@ -94,7 +94,7 @@
                             </span>
                         </td>
                         <td class="py-5 px-6 text-center">
-                            <a href="{{ route('dokter.rekammedis.riwayat', $item->pendaftaran_id) }}" 
+                            <a href="{{ route('dokter.rekammedis.riwayat', \Illuminate\Support\Facades\Crypt::encryptString($item->nama_pasien)) }}" 
                                class="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide transition-all active:scale-95 shadow-md shadow-emerald-600/10">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -106,7 +106,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="py-16 text-center text-slate-500 font-medium">Belum ada pasien yang diperiksa.</td>
+                        <td colspan="5" class="py-16 text-center text-slate-500 font-medium uppercase tracking-wide text-sm">Belum ada pasien yang diperiksa.</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -116,6 +116,7 @@
 </div>
 
 <script>
+    // Live Search Client Side
     function filterTable() {
         const search = document.getElementById('searchInput').value.toLowerCase();
         const filter = document.getElementById('poliFilter').value;
@@ -123,14 +124,17 @@
 
         rows.forEach(row => {
             const poli = row.getAttribute('data-poli');
-            const nama = row.querySelector('.nama-pasien-text').innerText.toLowerCase();
+            const text = row.innerText.toLowerCase();
 
-            if (nama.includes(search) && (filter === 'ALL' || poli === filter)) {
+            if (text.includes(search) && (filter === 'ALL' || poli === filter)) {
                 row.style.display = '';
             } else {
                 row.style.display = 'none';
             }
         });
     }
+
+    document.getElementById('searchInput').addEventListener('keyup', filterTable);
+    document.getElementById('poliFilter').addEventListener('change', filterTable);
 </script>
 @endsection

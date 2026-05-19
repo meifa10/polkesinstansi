@@ -15,15 +15,15 @@
         <a href="{{ route('dokter.rekammedis') }}" class="inline-flex items-center gap-2 bg-white border border-slate-300 px-4 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm">
             ← Kembali ke Daftar Laporan Utama
         </a>
-        <span class="text-xs font-bold bg-slate-200 text-slate-600 px-3 py-1 rounded-md">ID PASIEN: #{{ $pendaftaranUtama->id }}</span>
+        <span class="text-xs font-bold bg-slate-200 text-slate-600 px-3 py-1 rounded-md">STATUS: AKTIF</span>
     </div>
 
     {{-- CARD IDENTITAS PASIEN --}}
     <div class="bg-emerald-950 text-white rounded-2xl p-6 mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-xl">
         <div>
-            <span class="text-xs font-black uppercase tracking-widest bg-emerald-800 text-emerald-200 px-2.5 py-1 rounded mb-2 inline-block">POLI ASAL: {{ $pendaftaranUtama->poli }}</span>
-            <h2 class="text-3xl font-black uppercase tracking-tight" id="namaPasienHeader">{{ $pendaftaranUtama->nama_pasien }}</h2>
-            <p class="text-emerald-300 font-medium text-sm mt-1">Nomor Identitas NIK: <span class="font-mono bg-emerald-900 px-2 py-0.5 rounded text-white text-xs">1234567891234567</span></p>
+            <span class="text-xs font-black uppercase tracking-widest bg-emerald-800 text-emerald-200 px-2.5 py-1 rounded mb-2 inline-block">POLI TERAKHIR: {{ $sampelPendaftaran->poli ?? '-' }}</span>
+            <h2 class="text-3xl font-black uppercase tracking-tight" id="namaPasienHeader">{{ $namaPasien }}</h2>
+            <p class="text-emerald-300 font-medium text-sm mt-1">Nomor Identitas NIK: <span class="font-mono bg-emerald-900 px-2 py-0.5 rounded text-white text-xs">{{ $sampelPendaftaran->nik ?? '-' }}</span></p>
         </div>
         <button id="exportExcelBtn" class="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-3 rounded-xl text-sm font-extrabold uppercase tracking-wide transition-all active:scale-95 shadow-lg shadow-emerald-500/20 cursor-pointer">
             Export Riwayat Pasien (Excel)
@@ -108,7 +108,7 @@
                         </td>
                         <td class="py-5 px-6">
                             <span class="inline-block px-3 py-1.5 border border-slate-300 bg-white rounded-lg font-bold text-slate-700 text-xs text-center min-w-full dokter-val">
-                                {{ $item->dokter->name ?? 'drg. Affrida Wahyu K.D' }}
+                                {{ $item->dokter->name ?? '-' }}
                             </span>
                         </td>
                     </tr>
@@ -121,7 +121,7 @@
             </table>
         </div>
 
-        {{-- PAGINATION LINK (MAKSIMAL 5 DATA) --}}
+        {{-- PAGINATION LINK (MAKSIMAL 5 DATA PER HALAMAN) --}}
         @if($dataRiwayat->hasPages())
         <div class="p-4 border-t border-slate-200 bg-slate-50">
             {{ $dataRiwayat->withQueryString()->links() }}
@@ -131,7 +131,6 @@
 </div>
 
 <script>
-    // Logic Export Excel Khusus Riwayat Pasien Aktif
     document.getElementById('exportExcelBtn').addEventListener('click', function () {
         const namaPasien = document.getElementById('namaPasienHeader').innerText.trim();
         const wb = XLSX.utils.book_new();
@@ -166,7 +165,7 @@
             {wch: 5}, {wch: 18}, {wch: 35}, {wch: 28}, {wch: 35}, {wch: 25}, {wch: 40}, {wch: 25}
         ];
 
-        XXLSX.utils.book_append_sheet(wb, ws, "Riwayat Pasien");
+        XLSX.utils.book_append_sheet(wb, ws, "Riwayat Pasien");
         XLSX.writeFile(wb, `Riwayat_Medis_${namaPasien.replace(/\s+/g, '_')}.xlsx`);
     });
 </script>

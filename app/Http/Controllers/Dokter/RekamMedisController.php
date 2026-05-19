@@ -7,49 +7,55 @@ use App\Models\RekamMedis;
 use App\Models\PendaftaranPoli;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Crypt;
 
 class RekamMedisController extends Controller
 {
     /**
-     * Halaman Utama: Daftar Unik Pasien yang Pernah Diperiksa Dokter Ini
+     * Halaman Utama: Daftar Unik Pasien (Satu Nama Hanya Muncul Sekali)
      */
     public function index(Request $request)
     {
         $dokterId = auth()->id();
 
-        // Query dasar mengambil data pendaftaran yang unik berdasarkan NIK/Nama Pasien untuk dokter ini
-        $query = RekamMedis::with('pendaftaran')
-            ->where('dokter_id', $dokterId)
-            ->select('pendaftaran_id', DB::raw('count(*) as total_kunjungan'), DB::raw('MAX(created_at) as terakhir_periksa'))
-            ->groupBy('pendaftaran_id');
+        // Ambil rekam medis milik dokter ini, gabungkan dengan data pendaftaran
+        $query = RekamMedis::join('pendaftaran_polis', 'rekam_medis.pendaftaran_id', '=', 'pendaftaran_polis.id')
+            ->where('rekam_medis.dokter_id', $dokterId)
+            // Mengelompokkan berdasarkan Nama Pasien agar tidak terjadi duplikasi nama
+            ->select(
+                'pendaftaran_polis.nama_pasien',
+                'pendaftaran_polis.nik',
+                DB::raw('MAX(pendaftaran_polis.poli) as poli_terakhir'),
+                DB::raw('COUNT(rekam_medis.id) as total_kunjungan'),
+                DB::raw('MAX(rekam_medis.created_at) as terakhir_periksa')
+            )
+            ->groupBy('pendaftaran_polis.nama_pasien', 'pendaftaran_polis.nik');
 
-        // Filter Berdasarkan Poliklinik (Jika menggunakan filter live JS, ini opsional tapi bagus untuk backup)
+        // Filter Live / Server-Side jika ada pencarian Poliklinik
         if ($request->filled('poli') && $request->poli !== 'ALL') {
-            $query->whereHas('pendaftaran', function($q) use ($request) {
-                $q->where('poli', $request->poli);
-            });
+            $query->where('pendaftaran_polis.poli', $request->poli);
         }
 
-        // Ambil data pasien (Bisa disesuaikan jumlah per halamannya, misal 10 untuk daftar pasien utama)
-        $pasienList = $query->latest('terakhir_periksa')->get();
+        $pasienList = $query->orderBy('terakhir_periksa', 'desc')->get();
 
         return view('dokter.rekam_medis.index', compact('pasienList'));
     }
 
     /**
-     * Halaman Detail: Riwayat Rekam Medis Spesifik Per Pasien (Maksimal 5 Data per Halaman)
+     * Halaman Detail: Riwayat Rekam Medis Berdasarkan Nama Pasien (Maksimal 5 Data per Halaman)
      */
-    public function riwayat(Request $request, $pendaftaran_id)
+    public function riwayat(Request $request, $nama_pasien_encrypted)
     {
-        // Ambil info pendaftaran dasar untuk header nama pasien
-        $pendaftaranUtama = PendaftaranPoli::findOrFail($pendaftaran_id);
         $dokterId = auth()->id();
+        
+        // Dekripsi nama pasien dari URL aman
+        $namaPasien = Crypt::decryptString($nama_pasien_encrypted);
 
+        // Cari riwayat periksa dokter ini khusus untuk pasien dengan nama tersebut
         $query = RekamMedis::with('pendaftaran')
             ->where('dokter_id', $dokterId)
-            // Mengunci pencarian berdasarkan kesamaan Nama Pasien / NIK agar seluruh riwayatnya terikat
-            ->whereHas('pendaftaran', function($q) use ($pendaftaranUtama) {
-                $q->where('nama_pasien', $pendaftaranUtama->nama_pasien);
+            ->whereHas('pendaftaran', function($q) use ($namaPasien) {
+                $q->where('nama_pasien', $namaPasien);
             });
 
         // Filter pencarian berdasarkan tanggal rekam medis jika diisi
@@ -60,35 +66,9 @@ class RekamMedisController extends Controller
         // Pagination Ketat: Maksimal 5 data per halaman
         $dataRiwayat = $query->latest()->paginate(5);
 
-        return view('dokter.rekam_medis.riwayat', compact('dataRiwayat', 'pendaftaranUtama'));
-    }
+        // Ambil satu sampel data pendaftaran untuk informasi header komponen visual
+        $sampelPendaftaran = PendaftaranPoli::where('nama_pasien', $namaPasien)->latest()->first();
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'pendaftaran_id' => 'required',
-            'keluhan'        => 'required',
-            'diagnosis'      => 'required',
-            'tindakan'       => 'required',
-            'resep'          => 'nullable',
-        ]);
-
-        RekamMedis::create([
-            'pendaftaran_id' => $request->pendaftaran_id,
-            'dokter_id'      => auth()->id(),
-            'keluhan'        => $request->keluhan,
-            'diagnosis'      => $request->diagnosis,
-            'tindakan'       => $request->tindakan,
-            'resep'          => $request->resep,
-        ]);
-
-        PendaftaranPoli::where('id', $request->pendaftaran_id)
-            ->update([
-                'status' => 'selesai'
-            ]);
-
-        return redirect()
-            ->route('dokter.pasien')
-            ->with('success', 'Rekam medis berhasil disimpan');
+        return view('dokter.rekam_medis.riwayat', compact('dataRiwayat', 'namaPasien', 'sampelPendaftaran'));
     }
 }
