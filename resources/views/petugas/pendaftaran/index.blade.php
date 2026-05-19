@@ -13,7 +13,6 @@
 
 <div class="p-6 lg:p-8 bg-slate-50 min-h-screen">
 
-    {{-- HEADER SECTION --}}
     <div class="flex flex-col md:flex-row md:justify-between md:items-end mb-8 gap-4">
         <div>
             <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100 text-emerald-800 text-sm font-bold tracking-wide uppercase mb-3 border border-emerald-200">
@@ -31,7 +30,6 @@
             </p>
         </div>
 
-        {{-- METRIC CARD TOTAL ENTRI --}}
         <div class="bg-white px-8 py-5 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-6 min-w-[240px]">
             <div class="p-4 bg-emerald-50 rounded-xl text-emerald-600 border border-emerald-100">
                 <i class="fa-solid fa-users-medical text-3xl"></i>
@@ -43,11 +41,9 @@
         </div>
     </div>
 
-    {{-- FILTER & SEARCH BOX --}}
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 lg:p-8 mb-8">
         <form method="GET" action="{{ route('petugas.pendaftaran.index') }}" class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
             
-            {{-- Search Input (Nama/NIK) --}}
             <div class="md:col-span-5 relative">
                 <label class="block text-xs font-black text-slate-500 uppercase tracking-wider mb-2">Cari Pasien</label>
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none" style="top: 24px;">
@@ -57,14 +53,12 @@
                     class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all">
             </div>
 
-            {{-- Filter Tanggal --}}
             <div class="md:col-span-3">
                 <label class="block text-xs font-black text-slate-500 uppercase tracking-wider mb-2">Saring Tanggal</label>
-                <input type="date" name="date" value="{{ request('date', date('Y-m-d')) }}" 
+                <input type="date" name="date" value="{{ request('date') }}" 
                     class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all cursor-pointer">
             </div>
 
-            {{-- Dropdown Status --}}
             <div class="md:col-span-2 relative">
                 <label class="block text-xs font-black text-slate-500 uppercase tracking-wider mb-2">Status Alur</label>
                 <select name="status" onchange="this.form.submit()" 
@@ -79,7 +73,6 @@
                 </div>
             </div>
 
-            {{-- Buttons Action --}}
             <div class="md:col-span-2 flex gap-2">
                 <button type="submit" class="flex-1 bg-slate-800 text-white py-3 rounded-xl text-sm font-bold hover:bg-slate-900 transition-colors shadow-sm cursor-pointer uppercase tracking-wider active:scale-98">
                     Filter
@@ -93,7 +86,6 @@
         </form>
     </div>
 
-    {{-- DATA TABLE UTAMA --}}
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse min-w-[1250px]">
@@ -112,20 +104,17 @@
                     @forelse($pendaftaran as $item)
                     <tr class="hover:bg-emerald-50/40 transition-colors group">
                         
-                        {{-- Nomor dengan Urutan Pagination --}}
                         <td class="py-6 px-6 text-center text-slate-400 font-extrabold align-middle">
                             {{ ($pendaftaran->currentPage() - 1) * $pendaftaran->perPage() + $loop->iteration }}
                         </td>
                         
-                        {{-- Waktu Masuk --}}
                         <td class="py-6 px-6 align-middle text-center">
                             <p class="font-extrabold text-slate-800 text-sm">{{ $item->created_at->translatedFormat('d M Y') }}</p>
-                            <span class="text-xs font-bold font-mono text-emerald-600 block mt-1 bg-emerald-50 rounded-md py-0.5 px-2 border border-emerald-100 inline-block">
+                            <span class="text-xs font-bold font-mono text-emerald-600 mt-1 bg-emerald-50 rounded-md py-0.5 px-2 border border-emerald-100 inline-block">
                                 {{ $item->created_at->format('H:i') }} WIB
                             </span>
                         </td>
 
-                        {{-- Biodata Pasien --}}
                         <td class="py-6 px-6 align-middle">
                             <div class="flex items-center gap-4">
                                 <div class="w-11 h-11 rounded-xl bg-emerald-700 text-white flex items-center justify-center font-black text-lg shadow-sm flex-shrink-0 uppercase">
@@ -138,22 +127,19 @@
                             </div>
                         </td>
 
-                        {{-- Keluhan Utama Pasien --}}
                         <td class="py-6 px-6 align-middle italic text-slate-600 font-medium text-sm leading-relaxed max-w-[220px]">
-                            "{-- $item->keluhan ?? 'Tidak ada keluhan tertulis' --}"
+                            "{{ $item->keluhan ?? 'Tidak ada keluhan tertulis' }}"
                         </td>
 
-                        {{-- Unit Layanan & Dokter Tujuan --}}
                         <td class="py-6 px-6 align-middle">
                             <span class="inline-flex px-3 py-1 rounded-md bg-emerald-50 text-emerald-800 text-xs font-black uppercase tracking-wider border border-emerald-200 mb-1.5">
                                 {{ $item->poli }}
                             </span>
                             <p class="text-xs font-bold text-slate-500">
-                                <i class="fa-solid fa-user-doctor-hair text-slate-400 mr-1"></i>Dr. {{ $item->dokter->name ?? 'Belum Ditentukan' }}
+                                <i class="fa-solid fa-user-doctor text-slate-400 mr-1"></i>Dr. {{ $item->dokter->name ?? 'Belum Ditentukan' }}
                             </p>
                         </td>
 
-                        {{-- Tanda Vital Terperinci --}}
                         <td class="py-6 px-6 align-middle">
                             <div class="space-y-1.5 w-full max-w-[200px] mx-auto">
                                 <div class="flex items-center justify-between border-2 border-slate-300 px-2 py-1 rounded-xl bg-white shadow-sm">
@@ -177,7 +163,6 @@
                             </div>
                         </td>
 
-                        {{-- Status Alur --}}
                         <td class="py-6 px-6 align-middle text-center">
                             @php
                                 $statusStyles = [
@@ -222,7 +207,6 @@
             </table>
         </div>
 
-        {{-- NAVIGASI LINKS PAGINATION (MAXIMAL 5 DATA PER HALAMAN) --}}
         @if($pendaftaran->hasPages())
         <div class="p-5 border-t border-slate-200 bg-slate-50 rounded-b-2xl">
             {{ $pendaftaran->withQueryString()->links() }}

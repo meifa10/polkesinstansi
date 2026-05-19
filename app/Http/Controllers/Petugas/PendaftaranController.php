@@ -15,8 +15,6 @@ class PendaftaranController extends Controller
 
         if ($request->filled('date')) {
             $query->whereDate('created_at', $request->date);
-        } else {
-            $query->whereDate('created_at', Carbon::today());
         }
 
         if ($request->filled('q')) {
