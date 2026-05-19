@@ -9,7 +9,6 @@ use App\Models\RekamMedis;
 
 class PemeriksaanAwalController extends Controller
 {
-   
     public function index(Request $request)
     {
         $query = PendaftaranPoli::with('pasien')
@@ -34,11 +33,9 @@ class PemeriksaanAwalController extends Controller
         return view('petugas.pemeriksaan_awal.index', compact('pasien'));
     }
 
-   
     public function edit($id)
     {
         $pasien = PendaftaranPoli::findOrFail($id);
-
         $pasienId = $pasien->user_id;
 
         $kunjungan = collect();
@@ -50,8 +47,7 @@ class PemeriksaanAwalController extends Controller
 
         $rekamMedis = collect();
         if ($pasienId && class_exists('App\Models\RekamMedis')) {
-            $rekamMedis = RekamMedis::where('pasien_id', $pasienId)
-                            ->orWhere('user_id', $pasienId)
+            $rekamMedis = RekamMedis::where('user_id', $pasienId)
                             ->orderBy('created_at', 'desc')
                             ->get();
         }
