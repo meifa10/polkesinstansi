@@ -22,10 +22,10 @@
                 Dokter / Rekam Medis
             </div>
             <h1 class="text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
-                Riwayat <span class="text-emerald-600">Pemeriksaan Medis</span>
+                Data <span class="text-emerald-600">Rekam Medis Pasien</span>
             </h1>
             <p class="text-slate-600 font-medium mt-3 text-base lg:text-lg">
-                Arsip riwayat pemeriksaan klinis pasien, tindakan medis, dan terapi resep obat.
+                Arsip lengkap riwayat pemeriksaan klinis, tindakan medis, dan terapi resep obat.
             </p>
         </div>
 
@@ -89,7 +89,7 @@
         </form>
     </div>
 
-    {{-- DATA TABLE TIMELINE --}}
+    {{-- DATA TABLE --}}
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse min-w-[1300px]" id="medisTable">
@@ -97,20 +97,18 @@
                     <tr class="bg-slate-900 text-white text-xs uppercase tracking-widest font-black">
                         <th class="py-5 px-6 w-16 text-center rounded-tl-2xl">No</th>
                         <th class="py-5 px-6 min-w-[280px]">Data Pasien</th>
-                        <th class="py-5 px-6 min-w-[260px]">Keluhan Utama</th>
-                        <th class="py-5 px-6 min-w-[200px] text-center">Tanda Vital</th>
+                        <th class="py-5 px-6 min-w-[260px]">Keluhan & Vitals</th>
                         <th class="py-5 px-6 min-w-[340px]">Diagnosis & Tindakan Klinis</th>
                         <th class="py-5 px-6 min-w-[260px]">Resep Obat</th>
-                        <th class="py-5 px-6 w-44 text-right rounded-tr-2xl">Tanggal</th>
+                        <th class="py-5 px-6 w-52 text-right rounded-tr-2xl">Timeline Kegiatan</th>
                     </tr>
                 </thead>
 
                 <tbody class="text-base divide-y divide-slate-200">
-                    {{-- LOOP MENGGUNAKAN $data --}}
                     @forelse($data as $item)
                     <tr class="hover:bg-slate-50 transition-colors group" data-poli="{{ $item->pendaftaran->poli ?? '-' }}">
                         
-                        {{-- NO URUT --}}
+                        {{-- NO URUT PAGINATION (Line 113 yang tadinya error) --}}
                         <td class="py-6 px-6 align-top text-center font-bold text-slate-500">
                             <span class="row-number">{{ ($data->currentPage() - 1) * $data->perPage() + $loop->iteration }}</span>
                         </td>
@@ -130,40 +128,33 @@
                                             {{ $item->pendaftaran->poli ?? '-' }}
                                         </span>
                                         <p class="text-xs text-slate-500 font-bold tracking-wider">
-                                            NIK: <span class="text-emerald-600 font-mono font-black">{{ $item->pendaftaran->no_identitas ?? '-' }}</span>
+                                            No Antrean: <span class="text-emerald-600 font-mono font-black">{{ $item->pendaftaran->nomor_antrian ?? '-' }}</span>
                                         </p>
                                     </div>
                                 </div>
                             </div>
                         </td>
 
-                        {{-- KELUHAN --}}
+                        {{-- KELUHAN & VITALS --}}
                         <td class="py-6 px-6 align-top">
-                            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 font-medium text-sm leading-relaxed shadow-sm keluhan-val">
-                                {{ $item->keluhan ?? 'Tidak ada catatan keluhan awal' }}
-                            </div>
-                        </td>
-
-                        {{-- TANDA VITAL --}}
-                        <td class="py-6 px-6 align-top">
-                            <div class="space-y-2.5 w-full max-w-[200px] mx-auto">
-                                <div class="flex items-center justify-between border border-slate-300 p-2.5 rounded-lg bg-white shadow-sm">
-                                    <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Tensi:</span>
-                                    <span class="text-slate-900 font-mono font-bold text-sm">
-                                        <span class="tensi-val">{{ $item->pendaftaran->tensi ?? '-' }}</span> <span class="text-[11px] font-semibold text-slate-600 ml-0.5">mmHg</span>
-                                    </span>
+                            <div class="space-y-3">
+                                <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 font-medium text-sm leading-relaxed shadow-sm keluhan-val">
+                                    {{ $item->pendaftaran->keluhan ?? 'Tidak ada catatan keluhan awal' }}
                                 </div>
-                                <div class="flex items-center justify-between border border-slate-300 p-2.5 rounded-lg bg-white shadow-sm">
-                                    <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Berat:</span>
-                                    <span class="text-slate-900 font-mono font-bold text-sm">
-                                        <span class="bb-val">{{ $item->pendaftaran->berat_badan ?? '-' }}</span> <span class="text-[11px] font-semibold text-slate-600 ml-0.5">kg</span>
-                                    </span>
-                                </div>
-                                <div class="flex items-center justify-between border border-slate-300 p-2.5 rounded-lg bg-white shadow-sm">
-                                    <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Tinggi:</span>
-                                    <span class="text-slate-900 font-mono font-bold text-sm">
-                                        <span class="tb-val">{{ $item->pendaftaran->tinggi_badan ?? '-' }}</span> <span class="text-[11px] font-semibold text-slate-600 ml-0.5">cm</span>
-                                    </span>
+                                
+                                <div class="grid grid-cols-3 gap-2 text-center text-xs font-bold text-slate-700">
+                                    <div class="border border-slate-200 p-2 rounded-lg bg-white shadow-sm">
+                                        <span class="block text-[10px] text-slate-400 uppercase tracking-wide mb-0.5">Berat</span>
+                                        <span class="font-mono font-bold text-slate-900"><span class="bb-val">{{ $item->pendaftaran->berat_badan ?? '-' }}</span> kg</span>
+                                    </div>
+                                    <div class="border border-slate-200 p-2 rounded-lg bg-white shadow-sm">
+                                        <span class="block text-[10px] text-slate-400 uppercase tracking-wide mb-0.5">Tinggi</span>
+                                        <span class="font-mono font-bold text-slate-900"><span class="tb-val">{{ $item->pendaftaran->tinggi_badan ?? '-' }}</span> cm</span>
+                                    </div>
+                                    <div class="border border-slate-200 p-2 rounded-lg bg-white shadow-sm">
+                                        <span class="block text-[10px] text-slate-400 uppercase tracking-wide mb-0.5">Tensi</span>
+                                        <span class="font-mono font-bold text-slate-900 text-[11px]"><span class="tensi-val">{{ $item->pendaftaran->tensi ?? '-' }}</span> mmHg</span>
+                                    </div>
                                 </div>
                             </div>
                         </td>
@@ -172,34 +163,43 @@
                         <td class="py-6 px-6 align-top">
                             <div class="space-y-3">
                                 <div class="p-3.5 rounded-xl bg-rose-50/80 border border-rose-200 text-sm shadow-sm">
-                                    <span class="text-[10px] font-black text-rose-700 block uppercase tracking-widest mb-1.5">Diagnosis Utama</span>
-                                    <p class="font-semibold text-slate-900 leading-relaxed diagnosis-val">{{ $item->diagnosis ?? '-' }}</p>
+                                    <span class="text-[10px] font-black text-rose-700 block uppercase tracking-widest mb-1">Diagnosis</span>
+                                    <p class="font-bold text-slate-900 leading-relaxed text-base diagnosis-val">{{ $item->diagnosis }}</p>
                                 </div>
                                 <div class="p-3.5 rounded-xl bg-blue-50/80 border border-blue-200 text-sm shadow-sm">
-                                    <span class="text-[10px] font-black text-blue-700 block uppercase tracking-widest mb-1.5">Tindakan Klinis</span>
-                                    <p class="font-semibold text-slate-900 leading-relaxed tindakan-val">{{ $item->tindakan ?? '-' }}</p>
+                                    <span class="text-[10px] font-black text-blue-700 block uppercase tracking-widest mb-1">Tindakan Klinis</span>
+                                    <p class="font-semibold text-slate-800 uppercase tracking-wide tindakan-val text-sm">{{ $item->tindakan }}</p>
                                 </div>
                             </div>
                         </td>
 
                         {{-- RESEP OBAT --}}
                         <td class="py-6 px-6 align-top">
-                            @if($item->resep && $item->resep !== '-')
-                                <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl text-xs font-semibold text-slate-900 whitespace-pre-line leading-relaxed shadow-sm resep-val">
+                            @if($item->resep)
+                                <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl text-sm font-semibold text-slate-900 whitespace-pre-line leading-relaxed shadow-sm resep-val">
                                     {{ $item->resep }}
                                 </div>
                             @else
-                                <span class="text-xs text-slate-500 font-semibold italic bg-slate-100 px-3 py-2 rounded-lg border border-slate-200 block text-center resep-val">
+                                <span class="text-sm text-slate-500 font-semibold italic bg-slate-100 px-4 py-3 rounded-xl border border-slate-200 block text-center resep-val">
                                     Tidak ada resep obat
                                 </span>
                             @endif
                         </td>
 
-                        {{-- TIMELINE/TANGGAL --}}
+                        {{-- TIMELINE --}}
                         <td class="py-6 px-6 align-top text-right">
                             <div class="space-y-3 font-mono text-xs">
                                 <div>
-                                    <span class="text-[10px] uppercase font-sans font-black tracking-wider text-emerald-600 block mb-0.5">Waktu Diperiksa</span>
+                                    <span class="text-[10px] uppercase font-sans font-black tracking-wider text-slate-400 block mb-0.5">Waktu Daftar</span>
+                                    <p class="font-bold text-slate-600 text-sm tracking-tight daftar-date-val">
+                                        {{ $item->pendaftaran->created_at ? $item->pendaftaran->created_at->format('d/m/Y') : '-' }}
+                                    </p>
+                                    <span class="text-xs font-semibold text-slate-400 mt-0.5 block daftar-hour-val">
+                                        {{ $item->pendaftaran->created_at ? $item->pendaftaran->created_at->format('H:i') : '-' }} WIB
+                                    </span>
+                                </div>
+                                <div class="pt-2.5 border-t border-slate-100">
+                                    <span class="text-[10px] uppercase font-sans font-black tracking-wider text-emerald-600 block mb-0.5">Selesai Periksa</span>
                                     <p class="font-black text-slate-900 text-sm tracking-tight periksa-date-val">
                                         {{ $item->created_at->format('d/m/Y') }}
                                     </p>
@@ -213,7 +213,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="py-24 text-center">
+                        <td colspan="6" class="py-24 text-center">
                             <div class="flex flex-col items-center justify-center">
                                 <div class="bg-slate-100 p-5 rounded-full text-slate-400 mb-4">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -221,7 +221,7 @@
                                     </svg>
                                 </div>
                                 <h3 class="text-lg font-bold text-slate-800 mb-1 uppercase tracking-wide">Belum Ada Rekam Medis</h3>
-                                <p class="text-slate-500 text-sm max-w-sm">Data riwayat pemeriksaan rekam medis belum tersedia.</p>
+                                <p class="text-slate-500 text-sm max-w-sm">Data rekam medis pemeriksaan pasien belum tersedia.</p>
                             </div>
                         </td>
                     </tr>
@@ -247,7 +247,7 @@
         const rows = document.querySelectorAll('#medisTable tbody tr');
 
         rows.forEach(row => {
-            if (row.cells.length === 1) return; // Skip empty row
+            if (row.cells.length === 1) return;
 
             const poli = row.getAttribute('data-poli');
             const textContent = row.innerText.toLowerCase();
@@ -269,7 +269,7 @@
         let excelData = [
             ["DATA REKAM MEDIS PASIEN POLKES JOMBANG"],
             [""], 
-            ["NO", "NAMA PASIEN", "POLIKLINIK", "KELUHAN", "VITALS (BB/TB/TENSI)", "DIAGNOSIS", "TINDAKAN", "RESEP OBAT", "WAKTU PERIKSA"]
+            ["NO", "NAMA PASIEN", "POLIKLINIK", "KELUHAN", "VITALS (BB/TB/TENSI)", "DIAGNOSIS", "TINDAKAN", "RESEP OBAT", "WAKTU DAFTAR", "WAKTU PERIKSA"]
         ];
 
         document.querySelectorAll('#medisTable tbody tr').forEach(row => {
@@ -288,15 +288,16 @@
                 const tindakan = row.querySelector('.tindakan-val').innerText.trim();
                 const resep = row.querySelector('.resep-val').innerText.trim();
                 
+                const waktuDaftar = row.querySelector('.daftar-date-val').innerText.trim() + ' ' + row.querySelector('.daftar-hour-val').innerText.trim();
                 const waktuPeriksa = row.querySelector('.periksa-date-val').innerText.trim() + ' ' + row.querySelector('.periksa-hour-val').innerText.trim();
 
-                excelData.push([no, nama, poli, keluhan, vitals, diagnosis, tindakan, resep, waktuPeriksa]);
+                excelData.push([no, nama, poli, keluhan, vitals, diagnosis, tindakan, resep, waktuDaftar, waktuPeriksa]);
             }
         });
 
         const ws = XLSX.utils.aoa_to_sheet(excelData);
         ws['!cols'] = [
-            {wch: 5}, {wch: 30}, {wch: 15}, {wch: 35}, {wch: 25}, {wch: 40}, {wch: 30}, {wch: 40}, {wch: 20}
+            {wch: 5}, {wch: 30}, {wch: 15}, {wch: 35}, {wch: 25}, {wch: 40}, {wch: 30}, {wch: 40}, {wch: 20}, {wch: 20}
         ];
 
         XLSX.utils.book_append_sheet(wb, ws, "Rekam Medis");
