@@ -18,45 +18,25 @@ class RekamMedisController extends Controller
     {
         $dokterId = auth()->id();
 
-        // 1. Ambil nama pasien unik yang pernah diperiksa oleh dokter ini
-        $pasienUnikQuery = RekamMedis::where('dokter_id', $dokterId)
-            ->select('pendaftaran_id')
-            ->with('pendaftaran')
-            // Menggunakan chunk/get lalu diproses via Collection agar aman dari struktur tabel pendaftaran_poli
-            ->get()
-            ->map(function ($item) {
-                return [
-                    'nama_pasien' => $item->pendaftaran->nama_pasien ?? null,
-                    'nik'         => $item->pendaftaran->nik ?? '-',
-                    'poli'        => $item->pendaftaran->poli ?? '-',
-                    'created_at'  => $item->created_at
-                ];
-            })
-            ->filter(fn($item) => !is_null($item['nama_pasien']))
-            ->groupBy('nama_pasien');
+        // Ambil rekam medis milik dokter ini, gabungkan dengan data pendaftaran
+        $query = RekamMedis::join('pendaftaran_polis', 'rekam_medis.pendaftaran_id', '=', 'pendaftaran_polis.id')
+            ->where('rekam_medis.dokter_id', $dokterId)
+            // Mengelompokkan berdasarkan Nama Pasien agar tidak terjadi duplikasi nama
+            ->select(
+                'pendaftaran_polis.nama_pasien',
+                'pendaftaran_polis.nik',
+                DB::raw('MAX(pendaftaran_polis.poli) as poli_terakhir'),
+                DB::raw('COUNT(rekam_medis.id) as total_kunjungan'),
+                DB::raw('MAX(rekam_medis.created_at) as terakhir_periksa')
+            )
+            ->groupBy('pendaftaran_polis.nama_pasien', 'pendaftaran_polis.nik');
 
-        // 2. Olah data Grouping menjadi bentuk array terstruktur untuk dibaca di blade template
-        $pasienList = [];
-        foreach ($pasienUnikQuery as $namaPasien => $kunjungan) {
-            // Ambil data kunjungan paling terakhir (terbaru)
-            $terakhir = $kunjungan->sortByDesc('created_at')->first();
-            
-            $pasienList[] = (object) [
-                'nama_pasien'      => $namaPasien,
-                'nik'              => $terakhir['nik'],
-                'poli_terakhir'    => $terakhir['poli'],
-                'total_kunjungan'  => $kunjungan->count(),
-                'terakhir_periksa' => $terakhir['created_at'],
-            ];
-        }
-
-        // 3. Ubah ke bentuk collection dan urutkan berdasarkan pemeriksaan terbaru
-        $pasienList = collect($pasienList)->sortByDesc('terakhir_periksa');
-
-        // 4. Jika ada filter poliklinik dari dropdown view
+        // Filter Live / Server-Side jika ada pencarian Poliklinik
         if ($request->filled('poli') && $request->poli !== 'ALL') {
-            $pasienList = $pasienList->where('poli_terakhir', $request->poli);
+            $query->where('pendaftaran_polis.poli', $request->poli);
         }
+
+        $pasienList = $query->orderBy('terakhir_periksa', 'desc')->get();
 
         return view('dokter.rekam_medis.index', compact('pasienList'));
     }
