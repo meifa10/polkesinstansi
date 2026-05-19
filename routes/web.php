@@ -123,9 +123,12 @@ Route::middleware(['auth', 'role:dokter'])
         Route::post('/pemeriksaan/{id}', [DokterPemeriksaan::class, 'store'])
             ->name('pemeriksaan.store');
 
-        // 🔹 REKAM MEDIS
-        Route::get('/rekam-medis', [DokterPemeriksaan::class, 'rekamMedis'])
-            ->name('rekammedis');
+        // // 🔹 REKAM MEDIS
+        // Route::get('/rekam-medis', [DokterPemeriksaan::class, 'rekamMedis'])
+        //     ->name('rekammedis');
+
+        Route::get('/rekam-medis', [RekamMedisController::class, 'index'])->name('rekammedis');
+        Route::get('/rekam-medis/riwayat/{pendaftaran_id}', [RekamMedisController::class, 'riwayat'])->name('rekammedis.riwayat');
 
         // 🔹 PROFIL
         Route::view('/profil', 'dokter.profil')
