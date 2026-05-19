@@ -13,9 +13,11 @@ class RekamMedisController extends Controller
 {
     /**
      * Halaman Utama: Menampilkan daftar nama pasien unik
+     * Diubah nama method-nya menjadi 'index' agar sesuai dengan route Laravel
      */
-    public function rekamMedis(Request $request)
+    public function index(Request $request)
     {
+        // Menggunakan MAX(id) untuk mendapatkan ID pendaftaran terbaru per kelompok pasien
         $query = PendaftaranPoli::whereHas('rekamMedis')
             ->select('nama_pasien', 'no_identitas', 'poli', DB::raw('MAX(id) as id'))
             ->groupBy('nama_pasien', 'no_identitas', 'poli');
@@ -25,6 +27,7 @@ class RekamMedisController extends Controller
             $query->where('poli', Auth::user()->kategori_poli);
         }
 
+        // Fitur Pencarian
         if ($request->filled('q')) {
             $search = trim($request->q);
             $query->where(function ($q) use ($search) {
@@ -33,11 +36,13 @@ class RekamMedisController extends Controller
             });
         }
 
+        // Filter berdasarkan Poli
         if ($request->filled('poli')) {
             $query->where('poli', $request->poli);
         }
 
-        $pasien = $query->latest('id')->paginate(10);
+        // Ambil data menggunakan subquery order atau sorting ID pendaftaran terakhir
+        $pasien = $query->orderBy('id', 'desc')->paginate(10);
 
         return view('dokter.rekammedis.index', compact('pasien'));
     }
@@ -57,6 +62,7 @@ class RekamMedisController extends Controller
             $query->whereDate('created_at', $request->tanggal);
         }
 
+        // Fitur Export Download Excel (.xls)
         if ($request->has('download')) {
             $filename = 'Riwayat-Pemeriksaan-' . str_replace(' ', '-', $namaPasien) . '-' . now()->format('d-m-Y') . '.xls';
             $headers = [
@@ -84,7 +90,7 @@ class RekamMedisController extends Controller
                 <div class="header">
                     <div class="title">RIWAYAT REKAM MEDIS PASIEN</div>
                     <div class="subtitle">
-                        <b>Nama Pasien:</b> ' . $namaPasien . ' | <b>NIK:</b> ' . $pasienAcuan->no_identitas . '<br>
+                        <b>Nama Pasien:</b> ' . htmlspecialchars($namaPasien) . ' | <b>NIK:</b> ' . htmlspecialchars($pasienAcuan->no_identitas) . '<br>
                         POLKES 05.09.15 JOMBANG<br>
                         Dicetak pada: ' . now()->format('d-m-Y H:i') . ' WIB
                     </div>
@@ -111,13 +117,13 @@ class RekamMedisController extends Controller
                         <tr>
                             <td class="text-center">' . $no++ . '</td>
                             <td class="text-center">' . ($item->created_at ? $item->created_at->format('d-m-Y H:i') : '-') . ' WIB</td>
-                            <td>' . ($item->keluhan ?? '-') . '</td>
-                            <td class="text-center">' . ($item->tensi ?? '-') . ' mmHg</td>
-                            <td class="text-center">' . ($item->berat_badan ?? '-') . ' kg</td>
-                            <td class="text-center">' . ($item->tinggi_badan ?? '-') . ' cm</td>
-                            <td>' . ($item->rekamMedis->diagnosis ?? '-') . '</td>
-                            <td>' . ($item->rekamMedis->tindakan ?? '-') . '</td>
-                            <td>' . (isset($item->rekamMedis->resep) ? str_replace("\n", ", ", $item->rekamMedis->resep) : '-') . '</td>
+                            <td>' . htmlspecialchars($item->keluhan ?? '-') . '</td>
+                            <td class="text-center">' . htmlspecialchars($item->tensi ?? '-') . ' mmHg</td>
+                            <td class="text-center">' . htmlspecialchars($item->berat_badan ?? '-') . ' kg</td>
+                            <td class="text-center">' . htmlspecialchars($item->tinggi_badan ?? '-') . ' cm</td>
+                            <td>' . htmlspecialchars($item->rekamMedis->diagnosis ?? '-') . '</td>
+                            <td>' . htmlspecialchars($item->rekamMedis->tindakan ?? '-') . '</td>
+                            <td>' . (isset($item->rekamMedis->resep) ? htmlspecialchars(str_replace("\n", ", ", $item->rekamMedis->resep)) : '-') . '</td>
                         </tr>';
             }
 
