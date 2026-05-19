@@ -9,10 +9,9 @@ use App\Models\RekamMedis;
 
 class PemeriksaanAwalController extends Controller
 {
-    
-public function index(Request $request)
+   
+    public function index(Request $request)
     {
-        
         $query = PendaftaranPoli::with('pasien')
                     ->where('status', 'menunggu_petugas')
                     ->orderBy('created_at', 'asc');
@@ -22,10 +21,11 @@ public function index(Request $request)
             $query->where(function($q) use ($search) {
                 $q->where('nama_pasien', 'like', '%' . $search . '%')
                   ->orWhere('poli', 'like', '%' . $search . '%')
+                  ->orWhere('no_identitas', 'like', '%' . $search . '%')
                   ->orWhereHas('pasien', function($qPasien) use ($search) {
-                      $qPasien->where('nik', 'like', '%' . $search . '%');
-                  })
-                  ->orWhere('nik', 'like', '%' . $search . '%');
+                      $qPasien->where('nik', 'like', '%' . $search . '%')
+                              ->orWhere('no_identitas', 'like', '%' . $search . '%');
+                  });
             });
         }
 
@@ -34,17 +34,16 @@ public function index(Request $request)
         return view('petugas.pemeriksaan_awal.index', compact('pasien'));
     }
 
-  
+   
     public function edit($id)
     {
         $pasien = PendaftaranPoli::findOrFail($id);
 
-        $pasienId = $pasien->pasien_id ?? $pasien->id_pasien ?? null;
+        $pasienId = $pasien->user_id;
 
         $kunjungan = collect();
         if ($pasienId) {
-            $kunjungan = PendaftaranPoli::where('pasien_id', $pasienId)
-                            ->orWhere('id_pasien', $pasienId)
+            $kunjungan = PendaftaranPoli::where('user_id', $pasienId)
                             ->orderBy('created_at', 'desc')
                             ->get();
         }
@@ -52,6 +51,7 @@ public function index(Request $request)
         $rekamMedis = collect();
         if ($pasienId && class_exists('App\Models\RekamMedis')) {
             $rekamMedis = RekamMedis::where('pasien_id', $pasienId)
+                            ->orWhere('user_id', $pasienId)
                             ->orderBy('created_at', 'desc')
                             ->get();
         }
@@ -59,7 +59,6 @@ public function index(Request $request)
         return view('petugas.pemeriksaan_awal.edit', compact('pasien', 'kunjungan', 'rekamMedis'));
     }
 
- 
     public function update(Request $request, $id)
     {
         $request->validate([

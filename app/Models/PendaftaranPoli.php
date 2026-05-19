@@ -15,7 +15,7 @@ class PendaftaranPoli extends Model
         'user_id',
         'jenis_pasien',
         'nama_pasien',
-        'no_identitas',
+        'no_identitas', 
         'tanggal_lahir',
         'poli',
         'dokter_id', 
@@ -29,13 +29,13 @@ class PendaftaranPoli extends Model
         'created_at' => 'datetime',
     ];
 
-    /**
-     * ==========================================
-     * RELATIONSHIPS
-     * ==========================================
-     */
+ 
 
-    // Langsung ke User karena dokter_id ada di tabel ini
+    public function pasien()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
     public function dokter()
     {
         return $this->belongsTo(User::class, 'dokter_id');
@@ -51,11 +51,7 @@ class PendaftaranPoli extends Model
         return $this->hasOne(Pembayaran::class, 'pendaftaran_id');
     }
 
-    /**
-     * ==========================================
-     * HELPER METHODS
-     * ==========================================
-     */
+   
     
     public function isMenunggu() 
     { 
@@ -67,11 +63,12 @@ class PendaftaranPoli extends Model
         return $this->status === 'selesai'; 
     }
 
-    /**
-     * ==========================================
-     * LOCAL SCOPES (Untuk Kebutuhan Statistik/Chart)
-     * ==========================================
-     */
+    public function getNikAttribute()
+    {
+        return $this->no_identitas;
+    }
+
+
 
     public function scopePoliUmum($query)
     {
