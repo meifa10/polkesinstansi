@@ -47,7 +47,7 @@ class PemeriksaanAwalController extends Controller
 
         $rekamMedis = collect();
         if ($pasienId && class_exists('App\Models\RekamMedis')) {
-            $rekamMedis = RekamMedis::where('user_id', $pasienId)
+            $rekamMedis = RekamMedis::where('pendaftaran_id', $pasien->id)
                             ->orderBy('created_at', 'desc')
                             ->get();
         }
