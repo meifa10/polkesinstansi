@@ -14,10 +14,8 @@ class DashboardController extends Controller
         $today = today();
         $dokterId = Auth::id();
         
-        // PERBAIKAN DI SINI: Menggunakan kolom kategori_poli
         $isSuperDokter = Auth::user()->kategori_poli == 'semua_poli'; 
 
-        // 1. Daftar Pasien yang siap diperiksa (Status: diproses_dokter)
         if ($isSuperDokter) {
             $pasien = PendaftaranPoli::where('status', 'diproses_dokter')
                 ->orderBy('created_at', 'asc')
@@ -29,7 +27,6 @@ class DashboardController extends Controller
                 ->get();
         }
 
-        // 2. Total pasien hari ini
         if ($isSuperDokter) {
             $totalPasienHariIni = PendaftaranPoli::whereDate('created_at', $today)->count();
         } else {
@@ -38,7 +35,6 @@ class DashboardController extends Controller
                 ->count();
         }
 
-        // 3. Pasien Umum hari ini
         if ($isSuperDokter) {
             $totalPasienUmum = PendaftaranPoli::whereDate('created_at', $today)
                 ->where('jenis_pasien', 'UMUM')
@@ -62,7 +58,6 @@ class DashboardController extends Controller
                 ->count();
         }
 
-        // 5. Total rekam medis
         if ($isSuperDokter) {
             $totalRekamMedis = RekamMedis::count(); // Ambil semua data
         } else {

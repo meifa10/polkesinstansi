@@ -10,21 +10,13 @@ use Exception;
 
 class AuthController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | FORM LOGIN
-    |--------------------------------------------------------------------------
-    */
+ 
     public function showLogin()
     {
         return view('auth.login');
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | PROSES LOGIN
-    |--------------------------------------------------------------------------
-    */
+
     public function login(Request $request)
     {
         $request->validate([
@@ -36,22 +28,15 @@ class AuthController extends Controller
             'password.required' => 'Password wajib diisi.'
         ]);
 
-        // Coba login
         if (Auth::attempt([
             'email'    => $request->email,
             'password' => $request->password
         ])) {
 
-            // Regenerate session
             $request->session()->regenerate();
 
             $user = Auth::user();
 
-            /*
-            |--------------------------------------------------------------------------
-            | REDIRECT BERDASARKAN ROLE
-            |--------------------------------------------------------------------------
-            */
             if ($user->role == 'admin') {
                 return redirect()->route('admin.dashboard');
             }
@@ -64,7 +49,6 @@ class AuthController extends Controller
                 return redirect()->route('petugas.dashboard');
             }
 
-            // Jika role tidak dikenali
             Auth::logout();
 
             return redirect()->route('login')
