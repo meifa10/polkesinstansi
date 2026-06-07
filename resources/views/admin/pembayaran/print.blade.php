@@ -102,7 +102,7 @@
         {{-- Jasa Tindakan --}}
         <tr>
             <td>Jasa Dokter & Konsultasi</td>
-            <td class="text-right">Rp {{ number_format($pembayaran->biaya_dokter, 0, ',', '.') }}</td>
+            <td class="text-right">Rp {{ number_format(10000, 0, ',', '.') }}</td>
         </tr>
         {{-- Admin --}}
         <tr>

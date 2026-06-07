@@ -64,7 +64,7 @@
                                 <p class="text-xs text-slate-400">Pemeriksaan medis klinis dasar poli</p>
                             </td>
                             <td class="py-4 text-right font-bold text-slate-900 align-middle">
-                                Rp {{ number_format($pembayaran->biaya_dokter ?? 0, 0, ',', '.') }}
+                                Rp {{ number_format(10000, 0, ',', '.') }}
                             </td>
                         </tr>
                         
@@ -144,7 +144,7 @@
                 <div class="flex gap-2">
                     <a href="{{ route('admin.pembayaran.print', $pembayaran->id) }}" target="_blank"
                        class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs uppercase tracking-wider shadow-lg shadow-blue-100 transition-all active:scale-95 flex items-center gap-2 cursor-pointer">
-                        <svg xmlns="http://www.w3.org/2000/xl" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                         </svg>
                         Cetak Struk / Laporan
