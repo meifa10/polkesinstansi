@@ -31,7 +31,8 @@
 
     {{-- SEARCH BOX --}}
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-6">
-        <form action="{{ route('dokter.stok_obat.index') }}" method="GET" class="flex flex-col md:flex-row gap-4 items-center">
+        {{-- SINKRONISASI 1: Mengubah action form ke dokter.data_obat --}}
+        <form action="{{ route('dokter.data_obat') }}" method="GET" class="flex flex-col md:flex-row gap-4 items-center">
             <div class="relative flex-1 w-full">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <i class="fa-solid fa-magnifying-glass text-slate-400"></i>
@@ -44,7 +45,8 @@
                     Cari
                 </button>
                 @if(request('q'))
-                    <a href="{{ route('dokter.stok_obat.index') }}" class="px-5 py-3 bg-slate-100 text-slate-600 rounded-xl text-base font-bold hover:bg-slate-200 transition-colors border border-slate-300 flex items-center justify-center">
+                    {{-- SINKRONISASI 2: Mengubah tautan reset ke dokter.data_obat --}}
+                    <a href="{{ route('dokter.data_obat') }}" class="px-5 py-3 bg-slate-100 text-slate-600 rounded-xl text-base font-bold hover:bg-slate-200 transition-colors border border-slate-300 flex items-center justify-center">
                         Reset
                     </a>
                 @endif
@@ -88,7 +90,7 @@
                             @else
                                 <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 border border-emerald-200 text-emerald-800 text-xs font-extrabold">
                                     <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                                    {{ $item->stok }} Ter sedia
+                                    {{ $item->stok }} Tersedia
                                 </div>
                             @endif
                         </td>
