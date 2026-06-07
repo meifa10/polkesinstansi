@@ -2,70 +2,66 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Dokter Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dokter Panel - POLKES JOMBANG</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
 
 <body class="bg-gray-100 h-screen overflow-hidden flex">
 
-    <!-- SIDEBAR (FIXED) -->
-    <aside class="w-64 bg-emerald-700 text-white flex flex-col 
-                  shadow-lg fixed left-0 top-0 h-screen">
+    <aside class="w-64 bg-emerald-700 text-white flex flex-col shadow-lg fixed left-0 top-0 h-screen">
 
-        <!-- HEADER + LOGO -->
         <div class="p-6 border-b border-emerald-600 text-center">
-
             <div class="flex justify-center mb-3">
                 <img src="{{ asset('images/logo.png') }}" 
                      alt="Logo Instansi"
                      class="w-20 h-20 object-contain bg-white rounded-full p-2 shadow-md">
             </div>
-
             <h2 class="text-lg font-bold tracking-wide">Panel Dokter</h2>
             <p class="text-sm opacity-80">{{ auth()->user()->name }}</p>
         </div>
 
-        <!-- MENU -->
         <nav class="flex-1 p-4 space-y-2 text-sm overflow-y-auto">
-
             <a href="{{ route('dokter.dashboard') }}" class="menu-link">
-                Dashboard
+                <i class="fa-solidxl fa-solid fa-chart-pie mr-2"></i> Dashboard
             </a>
 
             <a href="{{ route('dokter.pasien') }}" class="menu-link">
-                Daftar Pasien
+                <i class="fa-solid fa-user-injured mr-2"></i> Daftar Pasien
             </a>
 
             <a href="{{ route('dokter.rekammedis') }}" class="menu-link">
-                Rekam Medis
+                <i class="fa-solid fa-notes-medical mr-2"></i> Rekam Medis
+            </a>
+
+            {{-- MENU BARU: DATA OBAT SINKRON REAL-TIME --}}
+            <a href="{{ route('dokter.stok_obat.index') }}" class="menu-link">
+                <i class="fa-solid fa-pills mr-2"></i> Data Stok Obat
             </a>
 
             <a href="{{ route('dokter.profil') }}" class="menu-link">
-                Profil Dokter
+                <i class="fa-solid fa-user-md mr-2"></i> Profil Dokter
             </a>
-
         </nav>
 
-        <!-- LOGOUT -->
-        <form method="POST" action="{{ route('instansi.logout') }}" 
-              class="p-4 border-t border-emerald-600">
+        <form method="POST" action="{{ route('instansi.logout') }}" class="p-4 border-t border-emerald-600">
             @csrf
             <button class="w-full bg-red-500 hover:bg-red-600 py-2 rounded text-sm transition">
-                Logout
+                <i class="fa-solid fa-sign-out-alt mr-1"></i> Logout
             </button>
         </form>
 
     </aside>
 
-    <!-- CONTENT (SCROLLABLE) -->
     <main class="flex-1 ml-64 h-screen overflow-y-auto p-6 bg-gray-100">
         @yield('content')
     </main>
 
-    <!-- STYLE -->
     <style>
         .menu-link {
-            display: block;
+            display: flex;
+            align-items: center;
             padding: 10px 14px;
             border-radius: 8px;
             font-size: 14px;

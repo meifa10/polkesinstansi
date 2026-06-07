@@ -294,3 +294,9 @@ Route::middleware(['auth', 'role:petugas'])
             ->name('stok_obat.destroy');
 
 });
+
+// stok obat dokter
+Route::middleware(['auth', 'role:dokter'])->prefix('dokter')->as('dokter.')->group(function () {
+    // Route bawaan Anda yang lain...
+    Route::get('/stok-obat', [App\Http\Controllers\Dokter\ObatController.php, 'index'])->name('stok_obat.index');
+});
