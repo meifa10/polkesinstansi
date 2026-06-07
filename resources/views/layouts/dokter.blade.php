@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dokter Panel - POLKES JOMBANG</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
 
 <body class="bg-gray-100 h-screen overflow-hidden flex">
@@ -24,31 +23,30 @@
 
         <nav class="flex-1 p-4 space-y-2 text-sm overflow-y-auto">
             <a href="{{ route('dokter.dashboard') }}" class="menu-link">
-                <i class="fa-solidxl fa-solid fa-chart-pie mr-2"></i> Dashboard
+                Dashboard
             </a>
 
             <a href="{{ route('dokter.pasien') }}" class="menu-link">
-                <i class="fa-solid fa-user-injured mr-2"></i> Daftar Pasien
+                Daftar Pasien
             </a>
 
             <a href="{{ route('dokter.rekammedis') }}" class="menu-link">
-                <i class="fa-solid fa-notes-medical mr-2"></i> Rekam Medis
+                Rekam Medis
             </a>
 
-            {{-- MENU BARU: DATA OBAT SINKRON REAL-TIME --}}
             <a href="{{ route('dokter.data_obat') }}" class="menu-link">
-                <i class="fa-solid fa-pills mr-2"></i> Data Stok Obat
+                Data Stok Obat
             </a>
 
             <a href="{{ route('dokter.profil') }}" class="menu-link">
-                <i class="fa-solid fa-user-md mr-2"></i> Profil Dokter
+                Profil Dokter
             </a>
         </nav>
 
         <form method="POST" action="{{ route('instansi.logout') }}" class="p-4 border-t border-emerald-600">
             @csrf
             <button class="w-full bg-red-500 hover:bg-red-600 py-2 rounded text-sm transition">
-                <i class="fa-solid fa-sign-out-alt mr-1"></i> Logout
+                Logout
             </button>
         </form>
 
@@ -60,8 +58,7 @@
 
     <style>
         .menu-link {
-            display: flex;
-            align-items: center;
+            display: block;
             padding: 10px 14px;
             border-radius: 8px;
             font-size: 14px;
