@@ -101,20 +101,19 @@
                     </div>
                 </div>
 
-                {{-- 2. DIAGNOSIS (ICD-10 BASED ON POLI) & TINDAKAN --}}
+                {{-- 2. DIAGNOSIS (ICD-10 LARGER DATASET BERDASARKAN POLI) --}}
                 <div>
                     <h2 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2 border-b border-slate-200 pb-3">
                         <span class="w-2 h-2 rounded-full bg-rose-500"></span> Diagnosis ICD-10 & Tindakan Medis
                     </h2>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {{-- Field Diagnosis dengan ICD-10 Datalist --}}
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-slate-800">Diagnosis Medis (ICD-10)</label>
                             <div class="relative">
                                 <input list="list-icd10" name="diagnosis" required 
                                        value="{{ old('diagnosis') }}" 
-                                       placeholder="Ketik kode penyakit atau nama diagnosis (cth: J00 / Pulpa)..."
+                                       placeholder="Ketik kode ICD-10 atau nama penyakit..."
                                        class="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl text-base text-slate-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all placeholder:text-slate-400">
                                 <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -123,35 +122,84 @@
                                 </div>
                             </div>
 
-                            {{-- MASTER DATA ICD-10 BERDASARKAN FILTER POLI LOGIN / PENDAFTARAN --}}
                             @php
-                                // Mendapatkan nama poli pasien saat ini (atau dari poli akun dokter yang bertugas)
                                 $currentPoli = $pasien->poli ?? auth()->user()->poli ?? 'Poli Umum';
                             @endphp
 
                             <datalist id="list-icd10">
                                 @if(str_contains(strtolower($currentPoli), 'gigi'))
-                                    {{-- Opsi Kode ICD-10 Khusus Poli Gigi --}}
-                                    <option value="K02.9 - Dental Caries, Unspecified (Gigi Berlubang)"></option>
-                                    <option value="K04.0 - Pulpitis (Radang Pulpa Gigi)"></option>
-                                    <option value="K05.3 - Chronic Periodontitis (Radang Jaringan Gusi)"></option>
-                                    <option value="K00.6 - Disturbances in Tooth Eruption (Gangguan Tumbuh Gigi)"></option>
-                                    <option value="K12.1 - Other Forms of Stomatitis (Sariawan/Radang Mulut)"></option>
+                                    {{-- ================= POLI GIGI (20 DIAGNOSA POPULER) ================= --}}
+                                    <option value="K02.9 - Dental Caries, Unspecified (Gigi Berlubang / Karies Gigi)"></option>
+                                    <option value="K04.0 - Pulpitis (Radang Pulpa Akut / Kronis)"></option>
+                                    <option value="K04.1 - Necrosis of Pulp (Gigi Mati / Nekrosis Pulpa)"></option>
+                                    <option value="K05.3 - Chronic Periodontitis (Radang Jaringan Penyangga Gigi)"></option>
+                                    <option value="K05.1 - Chronic Gingivitis (Radang Gusi / Gusi Berdarah)"></option>
+                                    <option value="K04.7 - Periapical Abscess without Sinus (Abses Gigi / Gusi Bengkak)"></option>
+                                    <option value="K00.6 - Disturbances in Tooth Eruption (Persistensi Gigi / Gigi Susu Enggan Tanggal)"></option>
+                                    <option value="K01.1 - Impacted Teeth (Gigi Impaksi / Gigi Geraham Bungsu Terpendam)"></option>
+                                    <option value="K12.1 - Other Forms of Stomatitis (Sariawan / Aphthous Stomatitis)"></option>
+                                    <option value="K03.6 - Deposits [Accretions] on Teeth (Karang Gigi / Calculus Gigi)"></option>
+                                    <option value="K03.0 - Excessive Attrition of Teeth (Gigi Aus / Gigi Attrisi)"></option>
+                                    <option value="K03.1 - Abrasion of Teeth (Abrasi Gigi / Sikat Gigi Terlalu Keras)"></option>
+                                    <option value="K04.2 - Pulp Degeneration (Degenerasi Pulpa)"></option>
+                                    <option value="K04.6 - Periapical Abscess with Sinus (Abses Periapikal dengan Fistula)"></option>
+                                    <option value="K06.0 - Gingival Recession (Gusi Melorot / Resesi Gusi)"></option>
+                                    <option value="K06.1 - Gingival Enlargement (Hiperplasia Gusi)"></option>
+                                    <option value="K07.2 - Anomalies of Dental Arch Relationship (Maloklusi / Gigi Tonggos/Metu)"></option>
+                                    <option value="K08.1 - Loss of Teeth Due to Accident, Extraction (Gigi Ompong)"></option>
+                                    <option value="K10.2 - Inflammatory Conditions of Jaws (Osteitis / Radang Tulang Rahang)"></option>
+                                    <option value="K13.0 - Diseases of Lips (Cheilitis / Bibir Pecah-pecah Kronis)"></option>
+
                                 @elseif(str_contains(strtolower($currentPoli), 'kia') || str_contains(strtolower($currentPoli), 'kb'))
-                                    {{-- Opsi Kode ICD-10 Khusus Poli KIA & KB --}}
-                                    <option value="Z34.9 - Supervision of Normal Pregnancy (Pemeriksaan Kehamilan Normal)"></option>
-                                    <option value="Z30.0 - General Counseling and Advice on Contraception (Konsultasi KB)"></option>
-                                    <option value="A34 - Obstetrical Tetanus (Kesehatan Ibu/Anak)"></option>
+                                    {{-- ================= POLI KIA & KB (20 DIAGNOSA POPULER) ================= --}}
+                                    <option value="Z34.9 - Supervision of Normal Pregnancy, Unspecified (ANC / Kontrol Hamil Normal)"></option>
+                                    <option value="Z30.0 - General Counseling and Advice on Contraception (Konsultasi Awal KB)"></option>
+                                    <option value="Z30.4 - Surveillance of Contraceptive Drugs/Devices (Kontrol KB Suntik/IUD/Implan)"></option>
                                     <option value="O21.0 - Mild Hyperemesis Gravidarum (Mual Muntah Hamil Ringan)"></option>
-                                    <option value="N91.2 - Amenorrhoea, Unspecified (Gangguan Siklus Menstruasi)"></option>
+                                    <option value="N91.2 - Amenorrhoea, Unspecified (Terlambat Haid / Tidak Haid)"></option>
+                                    <option value="N92.0 - Excessive and Frequent Menstruation (Darah Haid Berlebih / Menoragia)"></option>
+                                    <option value="N94.6 - Dysmenorrhoea, Unspecified (Nyeri Haid Berat)"></option>
+                                    <option value="N76.0 - Acute Vaginitis (Keputihan Patologis / Radang Vagina)"></option>
+                                    <option value="Z39.2 - Routine Postpartum Follow-Up (Kontrol Nifas / Pasca Melahirkan)"></option>
+                                    <option value="O13 - Gestational Hypertension (Hipertensi Kehamilan Tanpa Proteinuria)"></option>
+                                    <option value="O14.9 - Preeclampsia, Unspecified (Keracunan Kehamilan / Preeklampsia)"></option>
+                                    <option value="O47.0 - False Labour Before 37 Completed Weeks of Gestation (Ancaman Prematur / Palsu)"></option>
+                                    <option value="Z00.1 - Routine Child Health Examination (Imunisasi / Tumbuh Kembang Balita)"></option>
+                                    <option value="N64.4 - Mastodynia (Nyeri Payudara / Mastalgia)"></option>
+                                    <option value="O91.2 - Non-purulent Mastitis Associated with Childbirth (Radang Payudara Ibu Menyusui)"></option>
+                                    <option value="D50.9 - Iron Deficiency Anemia, Unspecified (Anemia pada Ibu Hamil)"></option>
+                                    <option value="A34 - Obstetrical Tetanus (Kondisi Kebidanan Khusus)"></option>
+                                    <option value="E28.2 - Polycystic Ovarian Syndrome (PCOS / Sel Telur Kecil)"></option>
+                                    <option value="N85.0 - Endometrial Glandular Hyperplasia (Penebalan Dinding Rahim)"></option>
+                                    <option value="Z35.9 - Supervision of High-Risk Pregnancy (Kehamilan Risiko Tinggi)"></option>
+
                                 @else
-                                    {{-- Opsi Kode ICD-10 Khusus Poli Umum (Default) --}}
-                                    <option value="J00 - Acute Nasopharyngitis [Common Cold] (Flu/Batuk Pilek)"></option>
-                                    <option value="K30 - Functional Dyspepsia (Sakit Maag/Asam Lambung)"></option>
-                                    <option value="I10 - Essential (Primary) Hypertension (Tekanan Darah Tinggi)"></option>
-                                    <option value="R50.9 - Fever, Unspecified (Demam)"></option>
-                                    <option value="M79.1 - Myalgia (Nyeri Otot/Pegal Linu)"></option>
-                                    <option value="E11.9 - Type 2 Diabetes Mellitus without Complications"></option>
+                                    {{-- ================= POLI UMUM (25 DIAGNOSA POPULER) ================= --}}
+                                    <option value="J00 - Acute Nasopharyngitis [Common Cold] (Flu / Batuk Pilek Tradisional)"></option>
+                                    <option value="J02.9 - Acute Pharyngitis, Unspecified (Radang Tenggorokan)"></option>
+                                    <option value="J03.9 - Acute Tonsillitis, Unspecified (Amdal / Tonsilitis Akut)"></option>
+                                    <option value="K30 - Functional Dyspepsia (Sakit Maag / Nyeri Lambung / Gerd)"></option>
+                                    <option value="I10 - Essential (Primary) Hypertension (Darah Tinggi / Hipertensi)"></option>
+                                    <option value="R50.9 - Fever, Unspecified (Demam Tanpa Penyebab Khusus)"></option>
+                                    <option value="M79.1 - Myalgia (Nyeri Otot / Pegal Linu / Badan Kaku)"></option>
+                                    <option value="E11.9 - Type 2 Diabetes Mellitus without Complications (Kencing Manis)"></option>
+                                    <option value="R51 - Headache (Sakit Kepala / Cephalgia)"></option>
+                                    <option value="G43.9 - Migraine, Unspecified (Sakit Kepala Sebelah)"></option>
+                                    <option value="A09.9 - Gastroenteritis and Colitis of Infectious Origin (Diare / Muntaber)"></option>
+                                    <option value="L23.9 - Allergic Contact Dermatitis, Unspecified (Gatal Alergi Kulit)"></option>
+                                    <option value="L30.9 - Dermatitis, Unspecified (Eksem / Radang Kulit)"></option>
+                                    <option value="H10.9 - Conjunctivitis, Unspecified (Mata Merah / Belekan)"></option>
+                                    <option value="M10.9 - Gout, Unspecified (Asam Urat Akut)"></option>
+                                    <option value="E78.0 - Pure Hypercholesterolaemia (Kolesterol Tinggi)"></option>
+                                    <option value="J45.9 - Asthma, Unspecified (Asma / Sesak Napas Kambuhan)"></option>
+                                    <option value="R05 - Cough (Batuk Saja)"></option>
+                                    <option value="Z00.0 - General Medical Examination (Medical Check Up / Surat Sehat)"></option>
+                                    <option value="T14.0 - Superficial Injury of Unspecified Body Region (Luka Lecet / Luka Ringan)"></option>
+                                    <option value="B35.9 - Dermatophytosis, Unspecified (Jamur Kulit / Kadas / Kurap)"></option>
+                                    <option value="I95.9 - Hypotension, Unspecified (Tekanan Darah Rendah)"></option>
+                                    <option value="M54.5 - Low Back Pain (Nyeri Punggung Bawah / Boyokan)"></option>
+                                    <option value="A01.0 - Typhoid Fever (Demam Tifoid / Tipes)"></option>
+                                    <option value="N39.0 - Urinary Tract Infection, Site Not Specified (ISK / Anyang-anyangan)"></option>
                                 @endif
                             </datalist>
                         </div>
@@ -237,7 +285,7 @@
                             {{-- Tombol Hapus --}}
                             <button type="button" onclick="hapusObat(this)" class="w-full md:w-auto mt-2 md:mt-0 flex items-center justify-center p-3 bg-white text-rose-600 hover:bg-rose-50 rounded-lg transition-colors border border-rose-200 flex-shrink-0" title="Hapus Obat">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                 </svg>
                                 <span class="md:hidden ml-2 text-sm font-semibold">Hapus Obat</span>
                             </button>
