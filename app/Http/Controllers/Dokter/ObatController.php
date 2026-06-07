@@ -15,10 +15,10 @@ class ObatController extends Controller
         if ($query) {
             $obat = Obat::where('nama_obat', 'LIKE', '%' . $query . '%')
                         ->orderBy('nama_obat', 'asc')
-                        ->paginate(5) 
+                        ->paginate(10) 
                         ->withQueryString(); 
         } else {
-            $obat = Obat::orderBy('nama_obat', 'asc')->paginate(5); 
+            $obat = Obat::orderBy('nama_obat', 'asc')->paginate(10); 
         }
 
         return view('dokter.stok_obat', compact('obat'));
