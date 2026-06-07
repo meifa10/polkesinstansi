@@ -129,7 +129,7 @@
                         <tr class="border-t-2 border-slate-900">
                             <td class="pt-4 text-base font-black text-slate-900 uppercase" colspan="2">Total Tagihan Bersih</td>
                             <td class="pt-4 text-right text-xl font-black text-emerald-600">
-                                Rp {{ number_format((int)$pembayaran->total_biaya, 0, ',', '.') }}
+                                Rp {{ number_format(($pembayaran->total_biaya - $pembayaran->biaya_dokter) + 10000, 0, ',', '.') }}
                             </td>
                         </tr>
                     </tfoot>

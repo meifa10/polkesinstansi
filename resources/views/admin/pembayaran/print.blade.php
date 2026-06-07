@@ -5,9 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>Struk Pembayaran_{{ $pembayaran->payment_ref }}</title>
     <style>
-        @page {
-            margin: 8px;
-        }
+        @page { margin: 8px; }
         body {
             font-family: 'Helvetica', sans-serif;
             color: #000;
@@ -16,31 +14,22 @@
             font-size: 10px;
             line-height: 1.3;
         }
-        .wrapper {
-            width: 100%;
-        }
+        .wrapper { width: 100%; }
         .text-center { text-align: center; }
         .text-right { text-align: right; }
         .divider {
             border-top: 1px dashed #000;
             margin: 6px 0;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+        table { width: 100%; border-collapse: collapse; }
         td { padding: 2px 0; vertical-align: top; }
-        
         .header h2 {
             margin: 0;
             font-size: 12px;
             text-transform: uppercase;
             font-weight: bold;
         }
-        .header p {
-            margin: 1px 0;
-            font-size: 8px;
-        }
+        .header p { margin: 1px 0; font-size: 8px; }
         .total-row td {
             font-weight: bold;
             font-size: 11px;
@@ -154,7 +143,7 @@
 
         <tr class="total-row">
             <td>TOTAL BAYAR</td>
-            <td class="text-right">Rp {{ number_format($pembayaran->total_biaya, 0, ',', '.') }}</td>
+            <td class="text-right">Rp {{ number_format(($pembayaran->total_biaya - $pembayaran->biaya_dokter) + 10000, 0, ',', '.') }}</td>
         </tr>
     </table>
 
