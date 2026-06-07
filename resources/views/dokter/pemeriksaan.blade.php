@@ -2,7 +2,7 @@
 
 @section('content')
 
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
     body { 
@@ -21,7 +21,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                     </svg>
-                    Pemeriksaan Medis
+                    Pemeriksaan Medis ({{ $pasien->poli ?? auth()->user()->poli ?? 'Poli Umum' }})
                 </div>
                 <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight">
                     Formulir <span class="text-emerald-600">Pemeriksaan</span>
@@ -101,19 +101,62 @@
                     </div>
                 </div>
 
-                {{-- 2. DIAGNOSIS & TINDAKAN --}}
+                {{-- 2. DIAGNOSIS (ICD-10 BASED ON POLI) & TINDAKAN --}}
                 <div>
                     <h2 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2 border-b border-slate-200 pb-3">
-                        <span class="w-2 h-2 rounded-full bg-rose-500"></span> Diagnosis & Tindakan Medis
+                        <span class="w-2 h-2 rounded-full bg-rose-500"></span> Diagnosis ICD-10 & Tindakan Medis
                     </h2>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {{-- Field Diagnosis dengan ICD-10 Datalist --}}
                         <div class="space-y-2">
-                            <label class="block text-sm font-semibold text-slate-800">Hasil Diagnosis Medis</label>
-                            <textarea name="diagnosis" rows="4" required placeholder="Tuliskan diagnosa secara lengkap..."
-                                      class="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl text-base text-slate-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all resize-none placeholder:text-slate-400">{{ old('diagnosis') }}</textarea>
+                            <label class="block text-sm font-semibold text-slate-800">Diagnosis Medis (ICD-10)</label>
+                            <div class="relative">
+                                <input list="list-icd10" name="diagnosis" required 
+                                       value="{{ old('diagnosis') }}" 
+                                       placeholder="Ketik kode penyakit atau nama diagnosis (cth: J00 / Pulpa)..."
+                                       class="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl text-base text-slate-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all placeholder:text-slate-400">
+                                <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                </div>
+                            </div>
+
+                            {{-- MASTER DATA ICD-10 BERDASARKAN FILTER POLI LOGIN / PENDAFTARAN --}}
+                            @php
+                                // Mendapatkan nama poli pasien saat ini (atau dari poli akun dokter yang bertugas)
+                                $currentPoli = $pasien->poli ?? auth()->user()->poli ?? 'Poli Umum';
+                            @endphp
+
+                            <datalist id="list-icd10">
+                                @if(str_contains(strtolower($currentPoli), 'gigi'))
+                                    {{-- Opsi Kode ICD-10 Khusus Poli Gigi --}}
+                                    <option value="K02.9 - Dental Caries, Unspecified (Gigi Berlubang)"></option>
+                                    <option value="K04.0 - Pulpitis (Radang Pulpa Gigi)"></option>
+                                    <option value="K05.3 - Chronic Periodontitis (Radang Jaringan Gusi)"></option>
+                                    <option value="K00.6 - Disturbances in Tooth Eruption (Gangguan Tumbuh Gigi)"></option>
+                                    <option value="K12.1 - Other Forms of Stomatitis (Sariawan/Radang Mulut)"></option>
+                                @elseif(str_contains(strtolower($currentPoli), 'kia') || str_contains(strtolower($currentPoli), 'kb'))
+                                    {{-- Opsi Kode ICD-10 Khusus Poli KIA & KB --}}
+                                    <option value="Z34.9 - Supervision of Normal Pregnancy (Pemeriksaan Kehamilan Normal)"></option>
+                                    <option value="Z30.0 - General Counseling and Advice on Contraception (Konsultasi KB)"></option>
+                                    <option value="A34 - Obstetrical Tetanus (Kesehatan Ibu/Anak)"></option>
+                                    <option value="O21.0 - Mild Hyperemesis Gravidarum (Mual Muntah Hamil Ringan)"></option>
+                                    <option value="N91.2 - Amenorrhoea, Unspecified (Gangguan Siklus Menstruasi)"></option>
+                                @else
+                                    {{-- Opsi Kode ICD-10 Khusus Poli Umum (Default) --}}
+                                    <option value="J00 - Acute Nasopharyngitis [Common Cold] (Flu/Batuk Pilek)"></option>
+                                    <option value="K30 - Functional Dyspepsia (Sakit Maag/Asam Lambung)"></option>
+                                    <option value="I10 - Essential (Primary) Hypertension (Tekanan Darah Tinggi)"></option>
+                                    <option value="R50.9 - Fever, Unspecified (Demam)"></option>
+                                    <option value="M79.1 - Myalgia (Nyeri Otot/Pegal Linu)"></option>
+                                    <option value="E11.9 - Type 2 Diabetes Mellitus without Complications"></option>
+                                @endif
+                            </datalist>
                         </div>
                         
+                        {{-- Field Tindakan Medis --}}
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-slate-800">Tindakan Medis</label>
                             <div class="relative">
@@ -194,7 +237,7 @@
                             {{-- Tombol Hapus --}}
                             <button type="button" onclick="hapusObat(this)" class="w-full md:w-auto mt-2 md:mt-0 flex items-center justify-center p-3 bg-white text-rose-600 hover:bg-rose-50 rounded-lg transition-colors border border-rose-200 flex-shrink-0" title="Hapus Obat">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                 </svg>
                                 <span class="md:hidden ml-2 text-sm font-semibold">Hapus Obat</span>
                             </button>
