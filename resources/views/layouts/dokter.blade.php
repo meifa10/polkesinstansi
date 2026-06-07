@@ -36,7 +36,7 @@
             </a>
 
             {{-- MENU BARU: DATA OBAT SINKRON REAL-TIME --}}
-            <a href="{{ route('dokter.stok_obat.index') }}" class="menu-link">
+            <a href="{{ route('dokter.data_obat') }}" class="menu-link">
                 <i class="fa-solid fa-pills mr-2"></i> Data Stok Obat
             </a>
 
