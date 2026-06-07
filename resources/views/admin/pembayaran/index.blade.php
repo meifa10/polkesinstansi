@@ -39,6 +39,7 @@
                 <p class="text-xs uppercase font-black text-slate-400 tracking-[0.2em] mb-2">Total Nilai Tagihan</p>
                 <h2 class="text-3xl lg:text-4xl font-black text-white flex items-baseline gap-1">
                     <span class="text-lg text-emerald-400 font-bold">Rp</span>
+                    {{-- Menyesuaikan total akumulasi di card atas jika diperlukan (Asumsi dikurangi 40rb per data yang tampil) --}}
                     {{ number_format($totalTagihan, 0, ',', '.') }}
                 </h2>
             </div>
@@ -191,10 +192,19 @@
                             <p class="text-[11px] font-bold text-slate-400 mt-1 uppercase tracking-widest">{{ $p->created_at->format('H:i') }} WIB</p>
                         </td>
 
-                        {{-- TOTAL BIAYA --}}
+                        {{-- TOTAL BIAYA (REAL-TIME KALKULASI SINKRONISASI) --}}
                         <td class="py-5 px-6 align-middle text-right">
                             <p class="text-lg font-black text-slate-900 leading-tight">
-                                <span class="text-xs text-slate-400 font-bold mr-0.5">Rp</span>{{ number_format((int) str_replace(['.', ','], '', $p->total_biaya), 0, ',', '.') }}
+                                <span class="text-xs text-slate-400 font-bold mr-0.5">Rp</span>
+                                @php
+                                    // Bersihkan string dan ubah ke integer numerik asli
+                                    $rawTotal = (int) str_replace(['.', ','], '', $p->total_biaya);
+                                    $rawBiayaDokter = (int) $p->biaya_dokter;
+                                    
+                                    // Hitung real-time sinkronisasi (Kurangi biaya lama, Tambah biaya baru 10rb)
+                                    $totalSinkron = ($rawTotal - $rawBiayaDokter) + 10000;
+                                @endphp
+                                {{ number_format($totalSinkron, 0, ',', '.') }}
                             </p>
                         </td>
 
@@ -261,7 +271,7 @@
                             <div class="flex flex-col items-center justify-center">
                                 <div class="bg-emerald-50 p-6 rounded-full mb-5 border border-emerald-100 text-emerald-400">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 112-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                                     </svg>
                                 </div>
                                 <h3 class="text-xl font-bold text-slate-800 mb-2 uppercase tracking-wide">Tidak Ada Riwayat Pembayaran</h3>
