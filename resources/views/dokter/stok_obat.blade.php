@@ -23,15 +23,14 @@
                 <i class="fa-solid fa-boxes-stacked text-2xl"></i>
             </div>
             <div>
-                <p class="text-xs uppercase font-bold text-slate-400 tracking-wider">Jenis Obat Ready</p>
-                <h2 class="text-3xl font-black text-slate-800 leading-none mt-1">{{ $obat->count() }}</h2>
+                <p class="text-xs uppercase font-bold text-slate-400 tracking-wider">Total Jenis Obat</p>
+                <h2 class="text-3xl font-black text-slate-800 leading-none mt-1">{{ $obat->total() }}</h2>
             </div>
         </div>
     </div>
 
     {{-- SEARCH BOX --}}
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-6">
-        {{-- SINKRONISASI 1: Mengubah action form ke dokter.data_obat --}}
         <form action="{{ route('dokter.data_obat') }}" method="GET" class="flex flex-col md:flex-row gap-4 items-center">
             <div class="relative flex-1 w-full">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -41,11 +40,10 @@
                     class="w-full pl-12 pr-5 py-3 bg-slate-50 border border-slate-300 rounded-xl text-base font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all outline-none">
             </div>
             <div class="flex gap-2 w-full md:w-auto">
-                <button type="submit" class="flex-1 md:flex-initial bg-slate-800 text-white px-6 py-3 rounded-xl text-base font-bold hover:bg-slate-900 transition-colors shadow-md">
+                <button type="submit" class="flex-1 md:flex-initial bg-slate-880 bg-slate-800 text-white px-6 py-3 rounded-xl text-base font-bold hover:bg-slate-900 transition-colors shadow-md">
                     Cari
                 </button>
                 @if(request('q'))
-                    {{-- SINKRONISASI 2: Mengubah tautan reset ke dokter.data_obat --}}
                     <a href="{{ route('dokter.data_obat') }}" class="px-5 py-3 bg-slate-100 text-slate-600 rounded-xl text-base font-bold hover:bg-slate-200 transition-colors border border-slate-300 flex items-center justify-center">
                         Reset
                     </a>
@@ -55,7 +53,7 @@
     </div>
 
     {{-- DATA TABLE --}}
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-6">
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
@@ -70,7 +68,8 @@
                     @forelse($obat as $item)
                     <tr class="hover:bg-emerald-50/40 transition-colors">
                         <td class="py-4 px-6 text-center text-slate-500 font-bold align-middle">
-                            {{ $loop->iteration }}
+                            {{-- Menggunakan firstItem agar nomor urut berlanjut di halaman 2 (6, 7, 8...) --}}
+                            {{ $obat->firstItem() + $loop->index }}
                         </td>
                         <td class="py-4 px-6 align-middle">
                             <span class="font-bold text-slate-800 text-lg block">{{ $item->nama_obat }}</span>
@@ -106,5 +105,11 @@
             </table>
         </div>
     </div>
+
+    {{-- NAVIGASI TOMBOL NEXT / PREVIOUS (PAGINATION LINKS) --}}
+    <div class="mt-4 px-2">
+        {!! $obat->links() !!}
+    </div>
+
 </div>
 @endsection
