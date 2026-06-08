@@ -4,7 +4,6 @@
 
 <div class="p-6 lg:p-8 bg-slate-50 min-h-screen font-sans">
 
-    {{-- HEADER SECTION --}}
     <div class="flex flex-col md:flex-row md:justify-between md:items-end mb-8 gap-4">
         <div>
             <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100 text-emerald-800 text-sm font-bold tracking-wide uppercase mb-3 border border-emerald-200">
@@ -22,7 +21,6 @@
             </p>
         </div>
 
-        {{-- METRIC CARD --}}
         <div class="bg-white px-8 py-5 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-6 min-w-[220px]">
             <div class="p-4 bg-emerald-50 rounded-xl text-emerald-600 border border-emerald-100">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -36,8 +34,7 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8 print:hidden">
-        {{-- FORM FILTER LAPORAN --}}
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
         <div class="lg:col-span-12 bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
             <div class="flex items-center justify-between border-b border-slate-100 pb-5 mb-6 gap-4">
                 <div class="flex items-center gap-3">
@@ -49,23 +46,18 @@
                     <h2 class="text-xl font-bold text-slate-800">Penyaringan Data Laporan</h2>
                 </div>
 
-                <button onclick="window.print()" class="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-3 rounded-xl text-base font-bold transition-all shadow-lg shadow-emerald-500/30">
+                <button onclick="unduhPDF()" class="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-3 rounded-xl text-base font-bold transition-all shadow-lg shadow-emerald-500/30---">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                     </svg>
-                    Cetak Dokumen
+                    Cetak Dokumen (PDF)
                 </button>
             </div>
 
-            <form method="GET" action="{{ route('petugas.laporan.diagnosa') }}" class="grid grid-cols-1 md:grid-cols-4 gap-5 items-end">
+            <form method="GET" action="{{ route('petugas.laporan.diagnosa') }}" class="grid grid-cols-1 md:grid-cols-3 gap-5 items-end">
                 <div>
-                    <label class="block text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">Tanggal Mulai</label>
-                    <input type="date" name="tgl_mulai" value="{{ request('tgl_mulai', date('Y-m-d')) }}"
-                        class="w-full px-5 py-3.5 bg-slate-50 border border-slate-300 rounded-xl text-base font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">Tanggal Selesai</label>
-                    <input type="date" name="tgl_selesai" value="{{ request('tgl_selesai', date('Y-m-d')) }}"
+                    <label class="block text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">Pilih Tanggal</label>
+                    <input type="date" name="tanggal" value="{{ request('tanggal', date('Y-m-d')) }}"
                         class="w-full px-5 py-3.5 bg-slate-50 border border-slate-300 rounded-xl text-base font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all outline-none">
                 </div>
                 <div>
@@ -89,7 +81,7 @@
                         <button type="submit" class="w-full bg-slate-800 text-white px-5 py-3.5 rounded-xl font-bold text-base hover:bg-slate-900 transition-colors shadow-md">
                             Tampilkan Data
                         </button>
-                        @if(request('tgl_mulai') || request('tgl_selesai') || request('poli'))
+                        @if(request('tanggal') || request('poli'))
                             <a href="{{ route('petugas.laporan.diagnosa') }}" class="px-5 py-3.5 bg-slate-100 text-slate-600 rounded-xl text-base font-bold hover:bg-slate-200 transition-colors border border-slate-300 flex items-center justify-center">
                                 Reset
                             </a>
@@ -100,12 +92,20 @@
         </div>
     </div>
 
-    {{-- DATA TABLE --}}
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden" id="area-laporan">
+        
+        <div class="hidden print-block px-10 pt-12 pb-6 text-center border-b-4 border-emerald-800">
+            <h1 class="text-2xl font-black text-slate-900 tracking-wider uppercase">LAPORAN KUNJUNGAN PASIEN KELUARAN DIAGNOSA MEDIS</h1>
+            <h2 class="text-xl font-extrabold text-emerald-700 tracking-wide uppercase mt-1">POLIKLINIK KESEHATAN POLKES JOMBANG</h2>
+            <p class="text-sm font-bold text-slate-500 mt-2 uppercase tracking-widest">
+                Parameter: {{ request('poli') ?? 'Semua Poliklinik' }} | Tanggal Rekap: {{ \Carbon\Carbon::parse(request('tanggal', date('Y-m-d')))->translatedFormat('d F Y') }}
+            </p>
+        </div>
+
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
-                    <tr class="bg-emerald-900 text-white text-sm uppercase tracking-widest font-bold">
+                    <tr class="bg-emerald-900 text-white text-sm uppercase tracking-widest font-bold header-print">
                         <th class="py-5 px-6 w-16 text-center rounded-tl-xl">No</th>
                         <th class="py-5 px-6 min-w-[180px]">Tanggal Kunjungan</th>
                         <th class="py-5 px-6 min-w-[220px]">Nama Pasien</th>
@@ -116,7 +116,7 @@
                 </thead>
                 <tbody class="text-base divide-y divide-slate-200">
                     @forelse($laporan as $item)
-                        <tr class="hover:bg-emerald-50/60 transition-colors">
+                        <tr class="hover:bg-emerald-50/60 transition-colors break-inside-avoid">
                             <td class="py-5 px-6 text-center text-slate-500 font-bold align-middle text-lg">
                                 {{ ($laporan->currentPage() - 1) * $laporan->perPage() + $loop->iteration }}
                             </td>
@@ -128,14 +128,14 @@
                                 <span class="font-extrabold text-slate-800 text-lg">{{ $item->nama_pasien }}</span>
                             </td>
                             <td class="py-5 px-6 align-middle">
-                                <span class="inline-flex items-center px-4 py-1.5 rounded-full bg-slate-100 border border-slate-300 text-slate-800 text-sm font-extrabold">
+                                <span class="inline-flex items-center px-4 py-1.5 rounded-full bg-slate-100 border border-slate-300 text-slate-800 text-sm font-extrabold poly-badge">
                                     {{ $item->poli }}
                                 </span>
                             </td>
                             <td class="py-5 px-6 align-middle text-slate-700 font-bold">
                                 {{ $item->nama_dokter ?? '-' }}
                             </td>
-                            <td class="py-5 px-6 align-middle text-rose-700 font-extrabold text-lg">
+                            <td class="py-5 px-6 align-middle text-rose-700 font-extrabold text-lg diag-text">
                                 {{ $item->rekamMedis->diagnosis ?? 'Belum Diisi Dokter' }}
                             </td>
                         </tr>
@@ -161,33 +161,44 @@
         </div>
     </div>
 
-    {{-- NAVIGATION PAGINATION --}}
-    <div class="mt-6 print:hidden">
+    <div class="mt-6">
         {!! $laporan->links() !!}
     </div>
 
 </div>
 
 <style>
+    .print-block { display: none; }
+    
     @media print {
-        body {
-            background-color: #ffffff !important;
-        }
-        main {
-            margin-left: 0 !important;
-            padding: 0 !important;
-        }
-        aside {
-            display: none !important;
-        }
-        .print\:hidden {
-            display: none !important;
-        }
-        .bg-white {
-            border: none !important;
-            box-shadow: none !important;
-        }
+        .print-block { display: block !important; }
+        .header-print { background-color: #064e3b !important; color: #ffffff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .poly-badge { background-color: #f1f5f9 !important; border: 1px solid #cbd5e1 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .diag-text { color: #be123c !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
 </style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+    function unduhPDF() {
+        const element = document.getElementById('area-laporan');
+        
+        const printHeader = element.querySelector('.print-block');
+        if (printHeader) printHeader.classList.remove('hidden');
+
+        const opt = {
+            margin:       [0.5, 0.5, 0.5, 0.5],
+            filename:     'Laporan_Kunjungan_Diagnosa_{{ request('tanggal', date('Y-m-d')) }}.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true, logging: false },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' },
+            pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+        };
+
+        html2pdf().set(opt).from(element).save().then(() => {
+            if (printHeader) printHeader.classList.add('hidden');
+        });
+    }
+</script>
 
 @endsection

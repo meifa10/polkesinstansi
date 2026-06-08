@@ -14,10 +14,8 @@ class LaporanController extends Controller
         $query = PendaftaranPoli::with('rekamMedis')
             ->where('status', 'selesai');
 
-        if ($request->filled('tgl_mulai') && $request->filled('tgl_selesai')) {
-            $startDate = Carbon::parse($request->tgl_mulai)->startOfDay();
-            $endDate = Carbon::parse($request->tgl_selesai)->endOfDay();
-            $query->whereBetween('created_at', [$startDate, $endDate]);
+        if ($request->filled('tanggal')) {
+            $query->whereDate('created_at', $request->tanggal);
         } else {
             $query->whereDate('created_at', Carbon::today());
         }
