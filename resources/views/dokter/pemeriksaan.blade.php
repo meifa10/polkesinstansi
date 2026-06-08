@@ -85,7 +85,7 @@
                             Keluhan Pasien
                         </span>
                         <div class="text-amber-900 font-medium text-sm md:text-base leading-relaxed">
-                            "{ $pasien->keluhan }"
+                            "{{ $pasien->keluhan }}"
                         </div>
                         <input type="hidden" name="keluhan" value="{{ $pasien->keluhan }}">
                     </div>
