@@ -200,7 +200,7 @@
             <tbody style="font-size: 9px; color: #1e293b;">
                 @php $noPdf = 1; @endphp
                 @forelse($laporan as $item)
-                    <tr style="background-color: {{ $noPdf % 2 == 0 ? '#f8fafc' : '#ffffff' }};">
+                    <tr style="background-color: {{ $noPdf % 2 == 0 ? '#f8fafc' : '#ffffff' }}; page-break-inside: avoid; break-inside: avoid;">
                         <td style="padding: 8px; text-align: center; border: 1px solid #cbd5e1; font-weight: bold;">{{ $noPdf++ }}</td>
                         <td style="padding: 8px; border: 1px solid #cbd5e1;">{{ \Carbon\Carbon::parse($item->created_at)->format('H:i') }} WIB</td>
                         <td style="padding: 8px 12px; border: 1px solid #cbd5e1; font-weight: bold; text-transform: uppercase;">{{ $item->nama_pasien }}</td>
@@ -216,7 +216,7 @@
             </tbody>
         </table>
 
-        <table width="100%" style="margin-top: 40px; page-break-inside: avoid;" cellpadding="0" cellspacing="0">
+        <table width="100%" style="margin-top: 40px; page-break-inside: avoid; break-inside: avoid;" cellpadding="0" cellspacing="0">
             <tr>
                 <td width="65%"></td>
                 <td width="35%" style="text-align: center;">
@@ -248,7 +248,7 @@
             image:        { type: 'jpeg', quality: 0.99 },
             html2canvas:  { scale: 2.5, useCORS: true, logging: false },
             jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' },
-            pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+            pagebreak:    { mode: 'css' }
         };
 
         html2pdf().set(opt).from(element).save().then(() => {
