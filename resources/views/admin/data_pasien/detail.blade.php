@@ -52,7 +52,45 @@
                             <div><p class="font-bold">{{ $k->created_at->translatedFormat('d M Y') }}</p><span class="text-[10px] font-black bg-slate-200 px-2 rounded">{{ $k->poli }}</span></div>
                             <div class="accordion-icon transition-transform"><svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" /></svg></div>
                         </summary>
-                        <div class="p-5 border-t bg-white">Status: {{ strtoupper($k->pembayaran->status ?? 'Belum Ada') }}</div>
+                        <div class="p-5 border-t bg-white flex items-center justify-between">
+
+                        <div>
+                            <span class="text-sm font-bold text-slate-600">
+                                Status :
+                            </span>
+
+                            @if(isset($k->pembayaran) && $k->pembayaran->status == 'lunas')
+                                <span class="inline-flex items-center px-3 py-1 rounded-lg bg-emerald-100 text-emerald-700 text-xs font-black uppercase">
+                                    Lunas
+                                </span>
+                            @else
+                                <span class="inline-flex items-center px-3 py-1 rounded-lg bg-amber-100 text-amber-700 text-xs font-black uppercase">
+                                    Belum Bayar
+                                </span>
+                            @endif
+                        </div>
+
+                        @if(isset($k->pembayaran) && $k->pembayaran->status == 'lunas')
+                            <a href="{{ route('pembayaran.struk', $k->pembayaran->id) }}"
+                            target="_blank"
+                            class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-black uppercase hover:bg-blue-700 transition-all">
+
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                    class="h-4 w-4"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M12 4v16m8-8H4"/>
+                                </svg>
+
+                                Unduh Struk
+                            </a>
+                        @endif
+
+                    </div>
                     </details>
                     @empty
                     <p class="text-center py-4 text-slate-400">Belum ada kunjungan.</p>
