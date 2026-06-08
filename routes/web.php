@@ -137,6 +137,8 @@ Route::middleware(['auth', 'role:petugas'])->prefix('petugas')->name('petugas.')
 Route::get('/petugas/laporan-diagnosa', [App\Http\Controllers\Petugas\LaporanController::class, 'diagnosa'])->name('petugas.laporan.diagnosa');
 
 // penyakit 
+Route::post('/petugas/master-penyakit/import', [App\Http\Controllers\Petugas\PenyakitController::class, 'import'])->name('petugas.master_penyakit.import');
+
 Route::resource('/petugas/master-penyakit', App\Http\Controllers\Petugas\PenyakitController::class)->names([
     'index' => 'petugas.master_penyakit.index',
     'store' => 'petugas.master_penyakit.store',
