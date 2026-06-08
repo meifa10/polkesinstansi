@@ -133,3 +133,5 @@ Route::middleware(['auth', 'role:petugas'])->prefix('petugas')->name('petugas.')
     Route::put('/stok-obat/{id}', [PetugasObatController::class, 'update'])->name('stok_obat.update');
     Route::delete('/stok-obat/{id}', [PetugasObatController::class, 'destroy'])->name('stok_obat.destroy');
 });
+
+Route::get('/petugas/laporan-diagnosa', [App\Http\Controllers\Petugas\LaporanController::class, 'diagnosa'])->name('petugas.laporan.diagnosa');
