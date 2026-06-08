@@ -76,9 +76,9 @@
                         <div class="p-6 bg-white border-t space-y-4">
                             <p class="text-sm font-bold italic text-slate-700">Keluhan: "{{ $rm->keluhan ?? optional($rm->pendaftaran)->keluhan ?? '-' }}"</p>
                             <div class="grid grid-cols-3 gap-2">
-                                <div class="bg-slate-50 p-2 rounded text-center"><p class="text-[10px] font-bold text-slate-400">BB</p><p class="font-bold">{{ $rm->berat_badan ?? '-' }} kg</p></div>
-                                <div class="bg-slate-50 p-2 rounded text-center"><p class="text-[10px] font-bold text-slate-400">TB</p><p class="font-bold">{{ $rm->tinggi_badan ?? '-' }} cm</p></div>
-                                <div class="bg-slate-50 p-2 rounded text-center"><p class="text-[10px] font-bold text-slate-400">Tensi</p><p class="font-bold">{{ $rm->tekanan_darah ?? '-' }}</p></div>
+                                <div class="bg-slate-50 p-2 rounded text-center"><p class="text-[10px] font-bold text-slate-400">BB</p><p class="font-bold">{{ optional($rm->pendaftaran)->bb ?? '-' }} kg</p></div>
+                                <div class="bg-slate-50 p-2 rounded text-center"><p class="text-[10px] font-bold text-slate-400">TB</p><p class="font-bold">{{ optional($rm->pendaftaran)->tb ?? '-' }} cm</p></div>
+                                <div class="bg-slate-50 p-2 rounded text-center"><p class="text-[10px] font-bold text-slate-400">Tensi</p><p class="font-bold">{{ optional($rm->pendaftaran)->tensi ?? '-' }}</p></div>
                             </div>
                             <p class="text-sm"><strong class="text-rose-600">Diagnosis:</strong> {{ $rm->diagnosis }}</p>
                             <p class="text-sm"><strong class="text-blue-600">Tindakan:</strong> {{ $rm->tindakan }}</p>
