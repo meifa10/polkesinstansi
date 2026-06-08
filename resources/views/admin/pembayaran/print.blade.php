@@ -86,20 +86,18 @@
 
     <div class="divider"></div>
 
-    {{-- DAFTAR ITEM TRANSAKSI --}}
     <table>
         {{-- Jasa Tindakan --}}
         <tr>
             <td>Jasa Dokter & Konsultasi</td>
-            <td class="text-right">Rp {{ number_format(10000, 0, ',', '.') }}</td>
+            <td class="text-right">Rp {{ number_format($pembayaran->biaya_dokter ?? 0, 0, ',', '.') }}</td>
         </tr>
         {{-- Admin --}}
         <tr>
             <td>Administrasi</td>
-            <td class="text-right">Rp {{ number_format($pembayaran->biaya_admin, 0, ',', '.') }}</td>
+            <td class="text-right">Rp {{ number_format($pembayaran->biaya_admin ?? 0, 0, ',', '.') }}</td>
         </tr>
         
-        {{-- BREAKDOWN DAFTAR OBAT RINCI --}}
         <tr>
             <td colspan="2" style="font-weight: bold; padding-top: 4px;">Obat & Farmasi:</td>
         </tr>
@@ -128,14 +126,6 @@
             <td class="text-right">Rp 0</td>
         </tr>
         @endforelse
-
-        {{-- Cadangan Paket Nominal Obat (Jika total subitem bernilai 0) --}}
-        @if(count($rincianObat) > 0 && collect($rincianObat)->sum('total') == 0)
-        <tr>
-            <td class="item-child" style="font-weight: bold;">Subtotal Paket Obat</td>
-            <td class="text-right" style="vertical-align: bottom;">Rp {{ number_format($pembayaran->total_obat, 0, ',', '.') }}</td>
-        </tr>
-        @endif
         
         <tr>
             <td colspan="2"><div class="divider"></div></td>
@@ -143,7 +133,7 @@
 
         <tr class="total-row">
             <td>TOTAL BAYAR</td>
-            <td class="text-right">Rp {{ number_format(($pembayaran->total_biaya - $pembayaran->biaya_dokter) + 10000, 0, ',', '.') }}</td>
+            <td class="text-right">Rp {{ number_format($pembayaran->total_biaya ?? 0, 0, ',', '.') }}</td>
         </tr>
     </table>
 
