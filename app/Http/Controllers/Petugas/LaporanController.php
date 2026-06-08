@@ -26,7 +26,7 @@ class LaporanController extends Controller
             $query->where('poli', $request->poli);
         }
 
-        $laporan = $query->latest()->get();
+        $laporan = $query->latest()->paginate(10)->withQueryString();
 
         return view('petugas.laporan-diagnosa', compact('laporan'));
     }
