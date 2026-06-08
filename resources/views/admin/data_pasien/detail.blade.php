@@ -339,13 +339,14 @@
                                 </div>
                                 <div class="flex flex-wrap gap-2.5">
                                     @php
-                                        $obatArray = explode(',', $rm->resep);
-                                    @endphp
-                                    @foreach($obatArray as $obat)
-                                    <span class="px-3 py-1.5 bg-emerald-50 border border-emerald-200 text-xs font-extrabold text-emerald-800 rounded-lg shadow-sm uppercase">
-                                        {{ trim($obat) }}
-                                    </span>
-                                    @endforeach
+                                        $obatArray = explode(',', $rm->resep);
+                                    @endphp
+
+                                    @foreach ($obatArray as $obat)
+                                        <span class="px-3 py-1.5 bg-emerald-50 border border-emerald-200 text-xs font-extrabold text-emerald-800 rounded-lg shadow-sm uppercase">
+                                            {{ trim($obat) }}
+                                        </span>
+                                    @endforeach
                                 </div>
                             </div>
                             @endif
