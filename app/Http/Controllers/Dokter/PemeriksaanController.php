@@ -12,6 +12,7 @@ use App\Models\RekamMedis;
 use App\Models\Obat;
 use App\Models\ResepObat;
 use App\Models\Pembayaran;
+use App\Models\Penyakit;
 
 class PemeriksaanController extends Controller
 {
@@ -50,6 +51,12 @@ class PemeriksaanController extends Controller
             ->orderBy('nama_obat', 'asc')
             ->get();
 
+        $currentPoli = $pasien->poli ?? Auth::user()->poli ?? 'Poli Umum';
+        
+        $masterPenyakit = Penyakit::where('poli_tujuan', $currentPoli)
+            ->orderBy('nama_penyakit', 'asc')
+            ->get();
+
         $tindakan = [];
 
         if ($pasien->poli == 'Poli Umum') {
@@ -72,7 +79,8 @@ class PemeriksaanController extends Controller
         return view('dokter.pemeriksaan', compact(
             'pasien',
             'tindakan',
-            'obat'
+            'obat',
+            'masterPenyakit'
         ));
     }
 

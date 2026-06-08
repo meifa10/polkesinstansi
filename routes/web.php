@@ -135,3 +135,11 @@ Route::middleware(['auth', 'role:petugas'])->prefix('petugas')->name('petugas.')
 });
 
 Route::get('/petugas/laporan-diagnosa', [App\Http\Controllers\Petugas\LaporanController::class, 'diagnosa'])->name('petugas.laporan.diagnosa');
+
+// penyakit 
+Route::resource('/petugas/master-penyakit', App\Http\Controllers\Petugas\PenyakitController::class)->names([
+    'index' => 'petugas.master_penyakit.index',
+    'store' => 'petugas.master_penyakit.store',
+    'update' => 'petugas.master_penyakit.update',
+    'destroy' => 'petugas.master_penyakit.destroy',
+]);
