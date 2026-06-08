@@ -199,7 +199,7 @@
             </thead>
             <tbody style="font-size: 9px; color: #1e293b;">
                 @php $noPdf = 1; @endphp
-                @forelse($laporan as $item)
+                @forelse($laporanSemua as $item)
                     <tr style="background-color: {{ $noPdf % 2 == 0 ? '#f8fafc' : '#ffffff' }}; page-break-inside: avoid; break-inside: avoid;">
                         <td style="padding: 8px; text-align: center; border: 1px solid #cbd5e1; font-weight: bold;">{{ $noPdf++ }}</td>
                         <td style="padding: 8px; border: 1px solid #cbd5e1;">{{ \Carbon\Carbon::parse($item->created_at)->format('H:i') }} WIB</td>
