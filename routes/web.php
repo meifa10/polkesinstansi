@@ -145,3 +145,7 @@ Route::resource('/petugas/master-penyakit', App\Http\Controllers\Petugas\Penyaki
     'update' => 'petugas.master_penyakit.update',
     'destroy' => 'petugas.master_penyakit.destroy',
 ]);
+
+// master harga
+Route::get('/petugas/master-harga', [App\Http\Controllers\Petugas\PengaturanController::class, 'index'])->name('petugas.master_harga.index');
+Route::put('/petugas/master-harga', [App\Http\Controllers\Petugas\PengaturanController::class, 'update'])->name('petugas.master_harga.update');

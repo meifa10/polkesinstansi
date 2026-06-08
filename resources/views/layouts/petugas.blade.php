@@ -43,6 +43,9 @@
             <a href="{{ route('petugas.master_penyakit.index') }}" class="menu-link">
                 Master Data Penyakit
             </a>
+            <a href="{{ route('petugas.master_harga.index') }}" class="menu-link">
+                Master Tarif Jasa
+            </a>
         </nav>
 
         <form method="POST" action="{{ route('instansi.logout') }}" class="p-4 border-t border-emerald-600">

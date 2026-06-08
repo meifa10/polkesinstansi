@@ -13,6 +13,7 @@ use App\Models\Obat;
 use App\Models\ResepObat;
 use App\Models\Pembayaran;
 use App\Models\Penyakit;
+use App\Models\Pengaturan;
 
 class PemeriksaanController extends Controller
 {
@@ -155,8 +156,12 @@ class PemeriksaanController extends Controller
                 'resep' => $resepText ?: '-'
             ]);
 
-            $biayaDokter = 50000;
-            $biayaAdmin  = 10000;
+            $getBiayaDokter = Pengaturan::where('key', 'biaya_dokter')->first();
+            $getBiayaAdmin  = Pengaturan::where('key', 'biaya_admin')->first();
+
+            $biayaDokter = $getBiayaDokter ? (int)$getBiayaDokter->value : 10000;
+            $biayaAdmin  = $getBiayaAdmin ? (int)$getBiayaAdmin->value : 10000;
+            
             $totalFinal = ($totalObat + $biayaDokter + $biayaAdmin);
 
             Pembayaran::updateOrCreate(
