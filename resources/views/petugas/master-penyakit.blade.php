@@ -1,40 +1,36 @@
 @extends('layouts.petugas')
 
 @section('content')
+<div class="max-w-7xl mx-auto space-y-6">
 
-<div class="p-6 lg:p-8 bg-slate-50 min-h-screen font-sans">
-
-    <div class="flex flex-col md:flex-row md:justify-between md:items-end mb-8 gap-4">
-        <div>
-            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100 text-emerald-800 text-sm font-bold tracking-wide uppercase mb-3 border border-emerald-200">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-                </svg>
-                Katalog ICD-10
-            </div>
-            <h1 class="text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
-                Master Data <span class="text-emerald-600">Penyakit</span>
-            </h1>
-            <p class="text-slate-600 font-medium mt-3 text-base lg:text-lg">
-                Kelola kamus referensi diagnosa penyakit ICD-10 medis untuk mempermudah operasional pemeriksaan dokter.
-            </p>
+    @if(session('success'))
+        <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-xl flex items-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-600" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+            <span class="font-medium text-sm">{{ session('success') }}</span>
         </div>
+    @endif
 
-        <div class="bg-white px-8 py-5 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-6 min-w-[220px]">
-            <div class="p-4 bg-emerald-50 rounded-xl text-emerald-600 border border-emerald-100">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-            </div>
-            <div>
-                <p class="text-sm uppercase font-bold text-slate-400 tracking-wider">Total Penyakit</p>
-                <h2 class="text-4xl font-black text-slate-800 leading-none mt-1">{{ $penyakit->total() }}</h2>
-            </div>
+    @if(session('error'))
+        <div class="bg-rose-50 border border-rose-200 text-rose-800 p-4 rounded-xl flex items-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-rose-600" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+            </svg>
+            <span class="font-medium text-sm">{{ session('error') }}</span>
         </div>
-    </div>
+    @endif
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
-        <div class="lg:col-span-8 bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+    @if($errors->any())
+        <div class="bg-rose-50 border border-rose-200 text-rose-800 p-4 rounded-xl space-y-1">
+            @foreach($errors->all() as $error)
+                <p class="text-sm font-medium">• {{ $error }}</p>
+            @endforeach
+        </div>
+    @endif
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-12 bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
             <div class="flex items-center gap-3 mb-6 pb-5 border-b border-slate-100">
                 <div class="bg-emerald-100 p-2 rounded-lg text-emerald-600">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
@@ -47,19 +43,19 @@
                 @csrf
                 <div>
                     <label class="block text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">Kode ICD-10</label>
-                    <input type="text" name="kode_icd10" placeholder="Contoh: K04.0" required
+                    <input type="text" name="kode_icd10" placeholder="Contoh: K04.0" required value="{{ old('kode_icd10') }}"
                         class="w-full px-5 py-3.5 bg-slate-50 border border-slate-300 rounded-xl text-base font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all outline-none">
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">Nama Deskripsi Penyakit</label>
-                    <input type="text" name="nama_penyakit" placeholder="Contoh: Pulpitis Radang Pulpa" required
+                    <input type="text" name="nama_penyakit" placeholder="Contoh: Pulpitis Radang Pulpa" required value="{{ old('nama_penyakit') }}"
                         class="w-full px-5 py-3.5 bg-slate-50 border border-slate-300 rounded-xl text-base font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all outline-none">
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">Poli Layanan</label>
                     <div class="flex gap-2">
                         <div class="relative flex-1">
-                            <select name="poli_tujuan" inherit required class="w-full px-4 py-3.5 bg-slate-50 border border-slate-300 rounded-xl text-base font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all outline-none appearance-none cursor-pointer">
+                            <select name="poli_tujuan" required class="w-full px-4 py-3.5 bg-slate-50 border border-slate-300 rounded-xl text-base font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all outline-none appearance-none cursor-pointer">
                                 <option value="Poli Umum">Poli Umum</option>
                                 <option value="Poli Gigi">Poli Gigi</option>
                                 <option value="Poli KIA & KB">Poli KIA & KB</option>
@@ -74,8 +70,10 @@
                 </div>
             </form>
         </div>
+    </div>
 
-        <div class="lg:col-span-4 bg-white rounded-2xl shadow-sm border border-slate-200 p-8 flex flex-col justify-center">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-6 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col justify-center">
             <label class="block text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">Pencarian Cepat</label>
             <form action="{{ route('petugas.master_penyakit.index') }}" method="GET" class="flex flex-col gap-4">
                 <div class="relative">
@@ -84,7 +82,7 @@
                             <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
                         </svg>
                     </div>
-                    <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari kode atau penyakit..."
+                    <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari kode atau nama penyakit..."
                         class="w-full pl-12 pr-5 py-3.5 bg-slate-50 border border-slate-300 rounded-xl text-base font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all outline-none">
                 </div>
                 <div class="flex gap-3">
@@ -99,120 +97,166 @@
                 </div>
             </form>
         </div>
+
+        <div class="lg:col-span-6 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col justify-center">
+            <label class="block text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">Import Data Massal (.CSV)</label>
+            <form action="{{ route('petugas.master_penyakit.import') }}" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4">
+                @csrf
+                <div class="relative">
+                    <input type="file" name="file_excel" accept=".csv" required
+                        class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium text-slate-600 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all outline-none file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer">
+                </div>
+                <div class="flex gap-3">
+                    <button type="submit" class="flex-1 bg-emerald-600 text-white py-3.5 rounded-xl text-base font-bold hover:bg-emerald-700 transition-colors shadow-md">
+                        Unggah & Proses File
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-6 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+            <h3 class="font-bold text-slate-700 text-base">Database Referensi Penyakit Terdaftar</h3>
+            <span class="px-3 py-1 bg-slate-200 text-slate-700 text-xs font-bold rounded-full">Total: {{ $penyakit->total() }} Item</span>
+        </div>
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
-                    <tr class="bg-emerald-900 text-white text-sm uppercase tracking-widest font-bold">
-                        <th class="py-5 px-6 w-16 text-center rounded-tl-xl">No</th>
-                        <th class="py-5 px-6 min-w-[150px]">Kode ICD-10</th>
-                        <th class="py-5 px-6 min-w-[280px]">Nama Deskripsi Penyakit</th>
-                        <th class="py-5 px-6 min-w-[180px]">Poli Unit Pemakai</th>
-                        <th class="py-5 px-6 min-w-[200px] rounded-tr-xl text-center">Aksi</th>
+                    <tr class="bg-slate-100 text-slate-600 uppercase text-xs font-bold border-b border-slate-200">
+                        <th class="py-4 px-6 w-24">No</th>
+                        <th class="py-4 px-6 w-36">Kode ICD-10</th>
+                        <th class="py-4 px-6">Nama Deskripsi Penyakit</th>
+                        <th class="py-4 px-6 w-48">Poli Layanan</th>
+                        <th class="py-4 px-6 w-32 text-center">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="text-base divide-y divide-slate-200">
-                    @forelse($penyakit as $item)
-                    <tr id="view-{{ $item->id }}" class="hover:bg-emerald-50/60 transition-colors">
-                        <td class="py-5 px-6 text-center text-slate-500 font-bold align-middle text-lg">
-                            {{ ($penyakit->currentPage() - 1) * $penyakit->perPage() + $loop->iteration }}
-                        </td>
-                        <td class="py-5 px-6 align-middle">
-                            <span class="font-mono font-black text-rose-700 bg-rose-50 px-3 py-1.5 rounded-lg border border-rose-200 text-base">{{ $item->kode_icd10 }}</span>
-                        </td>
-                        <td class="py-5 px-6 align-middle">
-                            <span class="font-extrabold text-slate-800 text-lg">{{ $item->nama_penyakit }}</span>
-                        </td>
-                        <td class="py-5 px-6 align-middle">
-                            <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-800 text-sm font-extrabold">
-                                {{ $item->poli_tujuan }}
-                            </span>
-                        </td>
-                        <td class="py-5 px-6 align-middle">
-                            <div class="flex items-center justify-center gap-3">
-                                <button type="button" onclick="toggleEdit({{ $item->id }})" class="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-100 text-amber-800 hover:bg-amber-500 hover:text-white font-bold rounded-xl transition-colors border border-amber-300 hover:border-amber-500 text-base">
-                                    Edit
+                <tbody class="divide-y divide-slate-100 text-slate-700 text-sm font-medium">
+                    @forelse($penyakit as $index => $item)
+                        <tr class="hover:bg-slate-50/80 transition-colors">
+                            <td class="py-4 px-6 text-slate-400">{{ $penyakit->firstItem() + $index }}</td>
+                            <td class="py-4 px-6"><span class="bg-slate-100 text-slate-800 font-bold px-2.5 py-1 rounded-md border border-slate-200">{{ $item->kode_icd10 }}</span></td>
+                            <td class="py-4 px-6 text-slate-900 font-semibold">{{ $item->nama_penyakit }}</td>
+                            <td class="py-4 px-6">
+                                @if($item->poli_tujuan == 'Poli Umum')
+                                    <span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-bold border border-blue-100">Poli Umum</span>
+                                @elseif($item->poli_tujuan == 'Poli Gigi')
+                                    <span class="bg-amber-50 text-amber-700 px-3 py-1 rounded-full text-xs font-bold border border-amber-100">Poli Gigi</span>
+                                @else
+                                    <span class="bg-purple-50 text-purple-700 px-3 py-1 rounded-full text-xs font-bold border border-purple-100">Poli KIA & KB</span>
+                                @endif
+                            </td>
+                            <td class="py-4 px-6 flex justify-center items-center gap-2">
+                                <button onclick="openEditModal({{ $item->id }}, '{{ $item->kode_icd10 }}', '{{ addslashes($item->nama_penyakit) }}', '{{ $item->poli_tujuan }}')" class="p-2 bg-slate-100 hover:bg-amber-100 text-slate-600 hover:text-amber-700 rounded-lg transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
                                 </button>
-                                <form action="{{ route('petugas.master_penyakit.destroy', $item->id) }}" method="POST" class="inline">
+                                <form action="{{ route('petugas.master_penyakit.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data penyakit ini?')">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" onclick="return confirm('Hapus data referensi penyakit ini?')" 
-                                        class="inline-flex items-center gap-2 px-5 py-2.5 bg-rose-100 text-rose-800 hover:bg-rose-600 hover:text-white font-bold rounded-xl transition-colors border border-rose-300 hover:border-rose-600 text-base">
-                                        Hapus
+                                    <button type="submit" class="p-2 bg-slate-100 hover:bg-rose-100 text-slate-600 hover:text-rose-700 rounded-lg transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
                                     </button>
                                 </form>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <tr id="edit-{{ $item->id }}" class="hidden bg-emerald-50 border-y-2 border-emerald-400 shadow-inner">
-                        <td class="py-5 px-6 text-center text-emerald-700 font-black align-middle text-lg">
-                            {{ $loop->iteration }}
-                        </td>
-                        <td colspan="4" class="py-5 px-6 align-middle">
-                            <form action="{{ route('petugas.master_penyakit.update', $item->id) }}" method="POST" class="flex flex-wrap md:flex-nowrap items-center gap-4 w-full">
-                                @csrf
-                                @method('PUT')
-                                <div class="w-[150px]">
-                                    <label class="block text-xs font-bold text-emerald-800 uppercase mb-1">Kode ICD-10</label>
-                                    <input type="text" name="kode_icd10" value="{{ $item->kode_icd10 }}" class="w-full px-4 py-3 bg-white border border-emerald-300 rounded-xl text-base focus:ring-2 focus:ring-emerald-500 outline-none font-bold text-slate-800" required>
-                                </div>
-                                <div class="flex-1 min-w-[250px]">
-                                    <label class="block text-xs font-bold text-emerald-800 uppercase mb-1">Nama Deskripsi Penyakit</label>
-                                    <input type="text" name="nama_penyakit" value="{{ $item->nama_penyakit }}" class="w-full px-4 py-3 bg-white border border-emerald-300 rounded-xl text-base focus:ring-2 focus:ring-emerald-500 outline-none font-bold text-slate-800" required>
-                                </div>
-                                <div class="w-[200px]">
-                                    <label class="block text-xs font-bold text-emerald-800 uppercase mb-1">Poli Layanan</label>
-                                    <select name="poli_tujuan" class="w-full px-4 py-3 bg-white border border-emerald-300 rounded-xl text-base focus:ring-2 focus:ring-emerald-500 outline-none font-bold text-slate-800">
-                                        <option value="Poli Umum" {{ $item->poli_tujuan == 'Poli Umum' ? 'selected' : '' }}>Poli Umum</option>
-                                        <option value="Poli Gigi" {{ $item->poli_tujuan == 'Poli Gigi' ? 'selected' : '' }}>Poli Gigi</option>
-                                        <option value="Poli KIA & KB" {{ $item->poli_tujuan == 'Poli KIA & KB' ? 'selected' : '' }}>Poli KIA & KB</option>
-                                    </select>
-                                </div>
-                                <div class="flex gap-2 mt-5">
-                                    <button type="submit" class="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white hover:bg-emerald-700 font-bold rounded-xl transition-colors text-base shadow-md">
-                                        Simpan
-                                    </button>
-                                    <button type="button" onclick="toggleEdit({{ $item->id }})" class="inline-flex items-center gap-2 px-6 py-3 bg-slate-200 text-slate-700 hover:bg-slate-300 font-bold rounded-xl transition-colors text-base border border-slate-300">
-                                        Batal
-                                    </button>
-                                </div>
-                            </form>
-                        </td>
-                    </tr>
+                            </td>
+                        </tr>
                     @empty
-                    <tr>
-                        <td colspan="5" class="py-20 text-center">
-                            <div class="flex flex-col items-center justify-center">
-                                <h3 class="text-xl font-bold text-slate-800 mb-2">Kamus Penyakit Kosong</h3>
-                                <p class="text-slate-500 text-base max-w-md">Belum ada master data penyakit ICD-10 yang diinputkan.</p>
-                            </div>
-                        </td>
-                    </tr>
+                        <tr>
+                            <td colspan="5" class="py-12 text-center text-slate-400 bg-slate-200/20">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-slate-300 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <p class="text-base font-semibold text-slate-500">Data Penyakit Tidak Ditemukan</p>
+                                <p class="text-xs text-slate-400 mt-1">Silakan tambahkan data baru atau sesuaikan kata kunci pencarian Anda.</p>
+                            </td>
+                        </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
+        @if($penyakit->hasPages())
+            <div class="p-6 bg-slate-50 border-t border-slate-200">
+                {{ $penyakit->links() }}
+            </div>
+        @endif
     </div>
-    <div class="mt-6">
-        {!! $penyakit->links() !!}
+</div>
+
+<div id="editModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 transition-all">
+    <div class="bg-white w-full max-w-lg rounded-2xl shadow-xl border border-slate-200 overflow-hidden transform scale-95 opacity-0 transition-all duration-300" id="modalContainer">
+        <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+            <h3 class="font-bold text-slate-800 text-lg">Perbarui Informasi Penyakit</h3>
+            <button onclick="closeEditModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <form id="editForm" method="POST" class="p-6 space-y-4">
+            @csrf
+            @method('PUT')
+            <div>
+                <label class="block text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">Kode ICD-10</label>
+                <input type="text" name="kode_icd10" id="edit_kode_icd10" required
+                    class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-base font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all outline-none">
+            </div>
+            <div>
+                <label class="block text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">Nama Deskripsi Penyakit</label>
+                <input type="text" name="nama_penyakit" id="edit_nama_penyakit" required
+                    class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-base font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all outline-none">
+            </div>
+            <div>
+                <label class="block text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">Poli Layanan</label>
+                <select name="poli_tujuan" id="edit_poli_tujuan" required
+                    class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-base font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all outline-none cursor-pointer">
+                    <option value="Poli Umum">Poli Umum</option>
+                    <option value="Poli Gigi">Poli Gigi</option>
+                    <option value="Poli KIA & KB">Poli KIA & KB</option>
+                </select>
+            </div>
+            <div class="pt-4 border-t border-slate-100 flex justify-end gap-3">
+                <button type="button" onclick="closeEditModal()" class="px-5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl text-sm transition-colors">
+                    Batalkan
+                </button>
+                <button type="submit" class="px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm shadow-md transition-colors">
+                    Simpan Perubahan
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
 <script>
-    function toggleEdit(id) {
-        const viewRow = document.getElementById('view-' + id);
-        const editRow = document.getElementById('edit-' + id);
-        if (!viewRow.classList.contains('hidden')) {
-            viewRow.add('hidden');
-            editRow.classList.remove('hidden');
-        } else {
-            viewRow.classList.remove('hidden');
-            editRow.classList.add('hidden');
-        }
+    function openEditModal(id, kode, nama, poli) {
+        const modal = document.getElementById('editModal');
+        const container = document.getElementById('modalContainer');
+        const form = document.getElementById('editForm');
+        
+        form.action = `/petugas/master-penyakit/${id}`;
+        document.getElementById('edit_kode_icd10').value = kode;
+        document.getElementById('edit_nama_penyakit').value = nama;
+        document.getElementById('edit_poli_tujuan').value = poli;
+        
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            container.classList.remove('scale-95', 'opacity-0');
+            container.classList.add('scale-100', 'opacity-100');
+        }, 20);
+    }
+
+    function closeEditModal() {
+        const modal = document.getElementById('editModal');
+        const container = document.getElementById('modalContainer');
+        
+        container.classList.remove('scale-100', 'opacity-100');
+        container.classList.add('scale-95', 'opacity-0');
+        
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
     }
 </script>
-
 @endsection

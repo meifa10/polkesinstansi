@@ -55,4 +55,36 @@ class PenyakitController extends Controller
 
         return redirect()->route('petugas.master_penyakit.index')->with('success', 'Data penyakit berhasil dihapus.');
     }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file_excel' => 'required|file|mimes:csv,txt'
+        ]);
+
+        $file = $request->file('file_excel');
+        $handle = fopen($file->getRealPath(), 'r');
+        
+        fgetcsv($handle, 1000, ';');
+
+        $imported = 0;
+        while (($data = fgetcsv($handle, 1000, ';')) !== FALSE) {
+            if (empty($data[0]) || empty($data[1]) || empty($data[2])) {
+                continue;
+            }
+
+            Penyakit::updateOrCreate(
+                ['kode_icd10' => trim($data[0])],
+                [
+                    'nama_penyakit' => trim($data[1]),
+                    'poli_tujuan' => trim($data[2])
+                ]
+            );
+            $imported++;
+        }
+
+        fclose($handle);
+
+        return redirect()->route('petugas.master_penyakit.index')->with('success', $imported . ' data penyakit berhasil diimport.');
+    }
 }
