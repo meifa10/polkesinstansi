@@ -57,7 +57,7 @@
             <form method="GET" action="{{ route('petugas.laporan.diagnosa') }}" class="grid grid-cols-1 md:grid-cols-3 gap-5 items-end">
                 <div>
                     <label class="block text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">Pilih Tanggal</label>
-                    <input type="date" name="tanggal" value="{{ request('tanggal') ?: now()->format('Y-m-d') }}" onchange="this.form.submit()"
+                    <input type="date" name="tanggal" value="{{ request('tanggal') }}" onchange="this.form.submit()"
                         class="w-full px-5 py-3.5 bg-slate-50 border border-slate-300 rounded-xl text-base font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all outline-none">
                 </div>
                 <div>

@@ -9,32 +9,33 @@ use Carbon\Carbon;
 
 class LaporanController extends Controller
 {
-    public function diagnosa(Request $request)
-    {
-        $tanggal = $request->filled('tanggal')
-            ? $request->tanggal
-            : Carbon::today()->format('Y-m-d');
+public function diagnosa(Request $request)
+{
+    $query = PendaftaranPoli::with('rekamMedis')
+        ->where('status', 'selesai');
 
-        $query = PendaftaranPoli::with('rekamMedis')
-            ->where('status', 'selesai')
-            ->whereDate('created_at', $tanggal);
-
-        if ($request->filled('poli')) {
-            $query->where('poli', $request->poli);
-        }
-
-        $laporanSemua = (clone $query)
-            ->latest()
-            ->get();
-
-        $laporan = $query
-            ->latest()
-            ->paginate(10)
-            ->withQueryString();
-
-        return view('petugas.laporan-diagnosa', compact(
-            'laporan',
-            'laporanSemua'
-        ));
+    // Filter tanggal hanya jika diisi
+    if ($request->filled('tanggal')) {
+        $query->whereDate('created_at', $request->tanggal);
     }
+
+    // Filter poli hanya jika dipilih
+    if ($request->filled('poli')) {
+        $query->where('poli', $request->poli);
+    }
+
+    $laporanSemua = (clone $query)
+        ->latest()
+        ->get();
+
+    $laporan = $query
+        ->latest()
+        ->paginate(10)
+        ->withQueryString();
+
+    return view('petugas.laporan-diagnosa', compact(
+        'laporan',
+        'laporanSemua'
+    ));
+}
 }
