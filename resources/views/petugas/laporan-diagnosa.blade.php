@@ -57,7 +57,7 @@
             <form method="GET" action="{{ route('petugas.laporan.diagnosa') }}" class="grid grid-cols-1 md:grid-cols-3 gap-5 items-end">
                 <div>
                     <label class="block text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">Pilih Tanggal</label>
-                    <input type="date" name="tanggal" value="{{ request('tanggal', date('Y-m-d')) }}" onchange="this.form.submit()"
+                    <input type="date" name="tanggal" value="{{ request('tanggal') ?: now()->format('Y-m-d') }}" onchange="this.form.submit()"
                         class="w-full px-5 py-3.5 bg-slate-50 border border-slate-300 rounded-xl text-base font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all outline-none">
                 </div>
                 <div>
@@ -168,7 +168,7 @@
                 </td>
                 <td style="text-align: right; vertical-align: middle;">
                     <div style="font-size: 13px; font-weight: bold; color: #059669; letter-spacing: 0.5px; text-transform: uppercase;">DOKUMEN REKAPITULASI KUNJUNGAN</div>
-                    <div style="font-size: 9px; color: #64748b; margin-top: 3px;">TANGGAL REKAP: {{ \Carbon\Carbon::parse(request('tanggal', date('Y-m-d')))->translatedFormat('d F Y') }}</div>
+                    <div style="font-size: 9px; color: #64748b; margin-top: 3px;">TANGGAL REKAP: {{ \Carbon\Carbon::parse(request('tanggal') ?: now()->format('Y-m-d'))->translatedFormat('d F Y') }}</div>
                 </td>
             </tr>
         </table>
@@ -244,7 +244,7 @@
 
         const opt = {
             margin:       [0.4, 0.4, 0.4, 0.4],
-            filename:     'Laporan_Kunjungan_Diagnosa_{{ request('tanggal', date('Y-m-d')) }}.pdf',
+            filename: 'Laporan_Kunjungan_Diagnosa_{{ request('tanggal') ?: now()->format('Y-m-d') }}.pdf',
             image:        { type: 'jpeg', quality: 0.99 },
             html2canvas:  { scale: 2.5, useCORS: true, logging: false },
             jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' },

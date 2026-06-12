@@ -11,22 +11,30 @@ class LaporanController extends Controller
 {
     public function diagnosa(Request $request)
     {
-        $query = PendaftaranPoli::with('rekamMedis')
-            ->where('status', 'selesai');
+        $tanggal = $request->filled('tanggal')
+            ? $request->tanggal
+            : Carbon::today()->format('Y-m-d');
 
-        if ($request->filled('tanggal')) {
-            $query->whereDate('created_at', $request->tanggal);
-        } else {
-            $query->whereDate('created_at', Carbon::today());
-        }
+        $query = PendaftaranPoli::with('rekamMedis')
+            ->where('status', 'selesai')
+            ->whereDate('created_at', $tanggal);
 
         if ($request->filled('poli')) {
             $query->where('poli', $request->poli);
         }
 
-        $laporanSemua = $query->clone()->latest()->get();
-        $laporan = $query->latest()->paginate(10)->withQueryString();
+        $laporanSemua = (clone $query)
+            ->latest()
+            ->get();
 
-        return view('petugas.laporan-diagnosa', compact('laporan', 'laporanSemua'));
+        $laporan = $query
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('petugas.laporan-diagnosa', compact(
+            'laporan',
+            'laporanSemua'
+        ));
     }
 }
