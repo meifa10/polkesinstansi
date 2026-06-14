@@ -95,10 +95,10 @@
                         </td>
                         <td class="px-6 py-4">
                             <div class="flex flex-col gap-1 text-[11px] font-bold text-slate-600">
-                                {{-- Menggunakan nama kolom sesuai database: tensi, bb, tb --}}
+                                {{-- Menggunakan nama kolom yang sesuai dengan gambar database Anda --}}
                                 <span>❤️ Tensi: {{ $item->rekamMedis?->tensi ?? '-' }}</span>
-                                <span>⚖️ BB: {{ $item->rekamMedis?->bb ?? '-' }} kg</span>
-                                <span>📏 TB: {{ $item->rekamMedis?->tb ?? '-' }} cm</span>
+                                <span>⚖️ BB: {{ $item->rekamMedis?->berat_badan ?? '-' }} kg</span>
+                                <span>📏 TB: {{ $item->rekamMedis?->tinggi_badan ?? '-' }} cm</span>
                             </div>
                         </td>
                         <td class="px-6 py-4 max-w-[200px]">
