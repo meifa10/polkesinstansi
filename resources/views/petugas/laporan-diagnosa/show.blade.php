@@ -1,98 +1,91 @@
 @extends('layouts.petugas')
 
 @section('content')
-<div class="p-4 md:p-8 bg-slate-50 min-h-screen">
+<style> body { font-family: 'Plus Jakarta Sans', sans-serif; } </style>
+
+<div class="p-6 lg:p-8 bg-slate-50 min-h-screen">
     
-    {{-- Tombol Kembali --}}
+    {{-- Navigasi Kembali --}}
     <div class="mb-6">
-        <a href="{{ route('petugas.laporan.diagnosa') }}" class="inline-flex items-center text-sm font-semibold text-slate-600 hover:text-emerald-700 transition">
+        <a href="{{ route('petugas.laporan.diagnosa') }}" class="inline-flex items-center text-sm font-bold text-slate-500 hover:text-emerald-700 transition">
             <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-            Kembali ke Daftar Laporan Utama
+            Kembali ke Daftar Pasien
         </a>
     </div>
 
-    {{-- Card Header Pasien --}}
-    <div class="bg-[#0f2d26] rounded-3xl p-8 mb-6 text-white shadow-xl relative overflow-hidden">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    {{-- Header Laporan yang Aesthetic --}}
+    <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 mb-8 text-white shadow-2xl relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-500 rounded-full mix-blend-overlay filter blur-3xl opacity-20 -mr-16 -mt-16"></div>
+        
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 relative z-10">
             <div>
-                <span class="px-3 py-1 bg-emerald-500/20 text-emerald-300 text-[10px] font-bold uppercase tracking-wider rounded-full">POLI ASAL: {{ $pasien->poli }}</span>
-                <h1 class="text-3xl font-black mt-3 uppercase">{{ $pasien->nama_pasien }}</h1>
-                <p class="text-emerald-100/80 font-medium">Nomor Identitas NIK: {{ $pasien->no_identitas }}</p>
+                <div class="flex items-center gap-2 text-emerald-400 text-xs font-black uppercase tracking-widest mb-2">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
+                    Laporan Rekam Medis Pasien
+                </div>
+                <h1 class="text-4xl font-black uppercase tracking-tight">{{ $pasien->nama_pasien }}</h1>
+                <p class="text-slate-300 font-medium mt-1">NIK: {{ $pasien->no_identitas }} | Poli: {{ $pasien->poli }}</p>
             </div>
             
-            {{-- Tombol Export Excel --}}
-            <a href="{{ route('petugas.laporan.diagnosa.show', [$pasien->id, 'download' => 'excel']) }}" 
-               class="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 px-6 py-3 rounded-2xl font-bold text-sm transition shadow-lg">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                Export Riwayat Pasien (Excel)
-            </a>
+            <div class="flex gap-3">
+                <div class="text-right">
+                    <p class="text-[10px] text-slate-400 uppercase font-bold">Total Kunjungan</p>
+                    <p class="text-2xl font-black text-emerald-400">{{ $riwayat->total() }}</p>
+                </div>
+                <a href="{{ route('petugas.laporan.diagnosa.show', [$pasien->id, 'download' => 'excel']) }}" 
+                   class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 px-6 py-4 rounded-2xl font-black text-xs transition shadow-lg shadow-emerald-900/50">
+                    UNDUH EXCEL
+                </a>
+            </div>
         </div>
-        <div class="absolute top-0 right-0 p-4 bg-white/10 rounded-bl-3xl text-xs font-bold">ID PASIEN: #{{ $pasien->id }}</div>
-    </div>
-
-    {{-- Filter --}}
-    <div class="bg-white rounded-3xl border border-slate-200 p-6 mb-6 shadow-sm">
-        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Saring Riwayat Tanggal</p>
-        <form method="GET" action="{{ route('petugas.laporan.diagnosa.show', $pasien->id) }}" class="flex gap-3">
-            <input type="date" name="tanggal" value="{{ request('tanggal') }}" class="bg-slate-50 border border-slate-200 rounded-2xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-            <button type="submit" class="bg-slate-800 hover:bg-slate-900 text-white px-8 py-2.5 rounded-2xl font-bold text-sm transition">FILTER</button>
-        </form>
     </div>
 
     {{-- Tabel Riwayat --}}
     <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+            <h2 class="font-bold text-slate-800">Riwayat Perawatan Terakhir</h2>
+            <form method="GET" action="{{ route('petugas.laporan.diagnosa.show', $pasien->id) }}" class="flex gap-2">
+                <input type="date" name="tanggal" value="{{ request('tanggal') }}" class="text-xs bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 outline-none">
+                <button type="submit" class="bg-slate-900 text-white text-xs font-bold px-4 py-2 rounded-lg">FILTER</button>
+            </form>
+        </div>
+
         <div class="overflow-x-auto">
-            <table class="w-full text-left">
+            <table class="w-full text-left border-collapse">
                 <thead>
-                    <tr class="bg-slate-900 text-white text-[10px] uppercase tracking-widest">
-                        <th class="px-6 py-5 w-20">NO</th>
-                        <th class="px-6 py-5">WAKTU KUNJUNGAN</th>
-                        <th class="px-6 py-5">KELUHAN UTAMA</th>
-                        <th class="px-6 py-5">TANDA-TANDA VITAL</th>
-                        <th class="px-6 py-5">DIAGNOSIS & TINDAKAN</th>
-                        <th class="px-6 py-5">RESEP OBAT</th>
-                        <th class="px-6 py-5">DOKTER</th>
+                    <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase tracking-widest">
+                        <th class="px-6 py-4">Waktu</th>
+                        <th class="px-6 py-4">Keluhan</th>
+                        <th class="px-6 py-4">Vital Sign (Tensi/BB/TB)</th>
+                        <th class="px-6 py-4">Diagnosis & Tindakan</th>
+                        <th class="px-6 py-4">Resep</th>
+                        <th class="px-6 py-4">Dokter</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
-                    @forelse($riwayat as $index => $item)
+                    @forelse($riwayat as $item)
                     <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="px-6 py-6 font-bold text-slate-400">{{ $index + 1 }}</td>
-                        <td class="px-6 py-6">
+                        <td class="px-6 py-4">
                             <div class="font-bold text-slate-800">{{ $item->created_at->format('d M Y') }}</div>
-                            <div class="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md text-[10px] inline-block font-bold mt-1">
-                                {{ $item->created_at->format('H:i') }} WIB
+                            <div class="text-[10px] text-slate-400 font-bold">{{ $item->created_at->format('H:i') }} WIB</div>
+                        </td>
+                        <td class="px-6 py-4"><span class="text-xs bg-slate-100 px-2 py-1 rounded-md">{{ $item->keluhan ?? '-' }}</span></td>
+                        <td class="px-6 py-4">
+                            <div class="text-[10px] font-bold space-y-1">
+                                <div><span class="text-rose-500">T:</span> {{ $item->tensi ?? '-' }}</div>
+                                <div><span class="text-sky-500">BB:</span> {{ $item->berat_badan ?? '-' }}kg</div>
+                                <div><span class="text-amber-500">TB:</span> {{ $item->tinggi_badan ?? '-' }}cm</div>
                             </div>
                         </td>
-                        <td class="px-6 py-6 text-sm text-slate-600 italic">
-                            {{ $item->keluhan ?? 'Tidak ada keluhan tertulis' }}
+                        <td class="px-6 py-4">
+                            <div class="text-xs font-bold text-emerald-700">{{ $item->rekamMedis?->diagnosis ?? '-' }}</div>
+                            <div class="text-[10px] text-slate-500 mt-0.5 italic">{{ $item->rekamMedis?->tindakan ?? '-' }}</div>
                         </td>
-                        <td class="px-6 py-6">
-                            <div class="space-y-1.5">
-                                <div class="bg-slate-50 border rounded-lg px-3 py-1.5 text-[11px] font-bold text-slate-600">TENSI: <span class="text-emerald-700">{{ $item->tensi ?? '-' }} mmHg</span></div>
-                                <div class="bg-slate-50 border rounded-lg px-3 py-1.5 text-[11px] font-bold text-slate-600">BERAT: <span class="text-emerald-700">{{ $item->berat_badan ?? '-' }} kg</span></div>
-                                <div class="bg-slate-50 border rounded-lg px-3 py-1.5 text-[11px] font-bold text-slate-600">TINGGI: <span class="text-emerald-700">{{ $item->tinggi_badan ?? '-' }} cm</span></div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-6">
-                            <div class="bg-rose-50 border border-rose-100 rounded-xl p-3 mb-2">
-                                <p class="text-[9px] font-bold text-rose-800 uppercase">Diagnosis Utama</p>
-                                <p class="text-xs font-bold text-rose-900">{{ $item->rekamMedis?->diagnosis ?? '-' }}</p>
-                            </div>
-                            <div class="bg-blue-50 border border-blue-100 rounded-xl p-3">
-                                <p class="text-[9px] font-bold text-blue-800 uppercase">Tindakan Klinis</p>
-                                <p class="text-xs font-bold text-blue-900">{{ $item->rekamMedis?->tindakan ?? '-' }}</p>
-                            </div>
-                        </td>
-                        <td class="px-6 py-6 text-xs text-slate-500 italic bg-slate-50 rounded-xl">
-                            {{ $item->rekamMedis?->resep ?? 'Tidak ada resep obat' }}
-                        </td>
-                        <td class="px-6 py-6 text-xs font-bold text-slate-700">
-                            {{ $item->dokter?->name ?? '-' }}
-                        </td>
+                        <td class="px-6 py-4 text-[11px] text-slate-600 bg-amber-50 rounded italic">{{ $item->rekamMedis?->resep ?? '-' }}</td>
+                        <td class="px-6 py-4 text-xs font-bold text-slate-700">{{ $item->dokter?->name ?? '-' }}</td>
                     </tr>
                     @empty
-                    <tr><td colspan="7" class="text-center py-10 text-slate-400">Data tidak ditemukan.</td></tr>
+                    <tr><td colspan="6" class="text-center py-10 text-slate-400 italic">Data tidak ditemukan</td></tr>
                     @endforelse
                 </tbody>
             </table>
