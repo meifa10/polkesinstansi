@@ -135,9 +135,11 @@ Route::middleware(['auth', 'role:petugas'])->prefix('petugas')->name('petugas.')
 });
 
 //laporan petugas
+// Rute untuk daftar pasien
 Route::get('/petugas/laporan', [LaporanController::class, 'index'])->name('petugas.laporan.index');
-Route::get('/petugas/laporan/riwayat/{nik}', [LaporanController::class, 'riwayat'])->name('petugas.laporan.riwayat');
 
+// Rute untuk riwayat pasien
+Route::get('/petugas/laporan/riwayat/{nik}', [LaporanController::class, 'riwayat'])->name('petugas.laporan.riwayat');
 // penyakit 
 Route::post('/petugas/master-penyakit/import', [App\Http\Controllers\Petugas\PenyakitController::class, 'import'])->name('petugas.master_penyakit.import');
 
