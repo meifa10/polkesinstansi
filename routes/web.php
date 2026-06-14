@@ -135,7 +135,6 @@ Route::middleware(['auth', 'role:petugas'])->prefix('petugas')->name('petugas.')
 });
 
 //laporan petugas
-Route::get('/petugas/laporan-diagnosa', [App\Http\Controllers\Petugas\LaporanController::class, 'diagnosa'])->name('petugas.laporan.diagnosa');
 Route::get('/petugas/laporan', [LaporanController::class, 'index'])->name('petugas.laporan.index');
 Route::get('/petugas/laporan/riwayat/{nik}', [LaporanController::class, 'riwayat'])->name('petugas.laporan.riwayat');
 
