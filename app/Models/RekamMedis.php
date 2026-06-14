@@ -16,8 +16,8 @@ class RekamMedis extends Model
         'tindakan',
         'resep',
         'tensi',  
-        'bb',  
-        'tb',
+        'berat_badan', 
+        'tinggi_badan',
     ];
 
     /**
