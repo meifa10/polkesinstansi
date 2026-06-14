@@ -138,12 +138,12 @@ Route::middleware(['auth', 'role:petugas'])->prefix('petugas')->name('petugas.')
 
 Route::get(
     '/laporan-diagnosa',
-    [LaporanController::class, 'diagnosa']
+    [PetugasLaporanController::class, 'diagnosa']
 )->name('petugas.laporan.diagnosa');
 
 Route::get(
     '/laporan-diagnosa/{id}',
-    [LaporanController::class, 'show']
+    [PetugasLaporanController::class, 'show']
 )->name('petugas.laporan.diagnosa.show');
 
 // penyakit 
