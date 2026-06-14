@@ -37,7 +37,7 @@
             <a href="{{ route('petugas.stok_obat.index') }}" class="menu-link">
                 Stok Obat
             </a>
-            <a href="{{ route('petugas.laporan.diagnosa') }}" class="menu-link">
+            <a href="{{ route('petugas.laporan.index') }}" class="menu-link">
                 Laporan Diagnosa
             </a>
             <a href="{{ route('petugas.master_penyakit.index') }}" class="menu-link">
