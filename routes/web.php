@@ -134,7 +134,15 @@ Route::middleware(['auth', 'role:petugas'])->prefix('petugas')->name('petugas.')
     Route::delete('/stok-obat/{id}', [PetugasObatController::class, 'destroy'])->name('stok_obat.destroy');
 });
 
-Route::get('/petugas/laporan-diagnosa', [App\Http\Controllers\Petugas\LaporanController::class, 'diagnosa'])->name('petugas.laporan.diagnosa');
+Route::get(
+    '/laporan-diagnosa',
+    [LaporanController::class, 'diagnosa']
+)->name('petugas.laporan.diagnosa');
+
+Route::get(
+    '/laporan-diagnosa/{id}',
+    [LaporanController::class, 'show']
+)->name('petugas.laporan.diagnosa.show');
 
 // penyakit 
 Route::post('/petugas/master-penyakit/import', [App\Http\Controllers\Petugas\PenyakitController::class, 'import'])->name('petugas.master_penyakit.import');
