@@ -11,33 +11,31 @@ class LaporanController extends Controller
 {
     public function diagnosa(Request $request)
     {
-        // Mengambil daftar pasien unik yang sudah selesai berobat
-        $query = PendaftaranPoli::where('status', 'selesai');
+        $query = PendaftaranPoli::with('rekamMedis')
+            ->where('status', 'selesai');
 
-        if ($request->filled('q')) {
-            $query->where('nama_pasien', 'like', '%' . $request->q . '%');
+        // Filter tanggal hanya jika diisi
+        if ($request->filled('tanggal')) {
+            $query->whereDate('created_at', $request->tanggal);
         }
+
+        // Filter poli hanya jika dipilih
         if ($request->filled('poli')) {
             $query->where('poli', $request->poli);
         }
 
-        $pasien = $query->select('id', 'nama_pasien', 'no_identitas', 'poli')
-            ->distinct()
+        $laporanSemua = (clone $query)
+            ->latest()
+            ->get();
+
+        $laporan = $query
+            ->latest()
             ->paginate(10)
             ->withQueryString();
 
-        return view('petugas.laporan-diagnosa', compact('pasien'));
-    }
-
-    public function showRiwayat(Request $request, $id)
-    {
-        $pasien = PendaftaranPoli::findOrFail($id);
-        
-        // Mengambil semua rekam medis untuk pasien tersebut
-        $riwayat = \App\Models\RekamMedis::whereHas('pendaftaran', function($q) use ($pasien) {
-            $q->where('nama_pasien', $pasien->nama_pasien);
-        })->latest()->paginate(10);
-
-        return view('petugas.laporan-show', compact('pasien', 'riwayat'));
+        return view('petugas.laporan-diagnosa', compact(
+            'laporan',
+            'laporanSemua'
+        ));
     }
 }
