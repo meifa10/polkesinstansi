@@ -5,37 +5,29 @@ namespace App\Http\Controllers\Petugas;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\PendaftaranPoli;
-use Carbon\Carbon;
 
 class LaporanController extends Controller
 {
-    public function diagnosa(Request $request)
+    public function index()
     {
-        $query = PendaftaranPoli::with('rekamMedis')
-            ->where('status', 'selesai');
+        $laporan = PendaftaranPoli::where('status', 'selesai')
+            ->select('nama_pasien', 'nik', 'poli')
+            ->groupBy('nama_pasien', 'nik', 'poli')
+            ->paginate(10);
 
-        // Filter tanggal hanya jika diisi
-        if ($request->filled('tanggal')) {
-            $query->whereDate('created_at', $request->tanggal);
-        }
+        return view('petugas.index-pasien', compact('laporan'));
+    }
 
-        // Filter poli hanya jika dipilih
-        if ($request->filled('poli')) {
-            $query->where('poli', $request->poli);
-        }
-
-        $laporanSemua = (clone $query)
-            ->latest()
+    public function riwayat($nik)
+    {
+        $riwayat = PendaftaranPoli::with('rekamMedis')
+            ->where('nik', $nik)
+            ->where('status', 'selesai')
+            ->orderBy('created_at', 'desc')
             ->get();
 
-        $laporan = $query
-            ->latest()
-            ->paginate(10)
-            ->withQueryString();
+        $namaPasien = $riwayat->first()->nama_pasien ?? 'Tidak Ditemukan';
 
-        return view('petugas.laporan-diagnosa', compact(
-            'laporan',
-            'laporanSemua'
-        ));
+        return view('petugas.riwayat-pasien', compact('riwayat', 'namaPasien'));
     }
 }
