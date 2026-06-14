@@ -95,7 +95,13 @@
                         </td>
                         <td class="px-6 py-4">
                             <div class="flex flex-col gap-1 text-[11px] font-bold text-slate-600">
-                                {{-- Menggunakan nama kolom yang sesuai dengan gambar database Anda --}}
+                                {{-- DEBUGGING: Menampilkan isi mentah dari database --}}
+                                <div class="text-[9px] text-red-500">
+                                    RAW DATA: {{ $item->rekamMedis?->tensi ?? 'NULL' }} | 
+                                    {{ $item->rekamMedis?->berat_badan ?? 'NULL' }} | 
+                                    {{ $item->rekamMedis?->tinggi_badan ?? 'NULL' }}
+                                </div>
+                                
                                 <span>❤️ Tensi: {{ $item->rekamMedis?->tensi ?? '-' }}</span>
                                 <span>⚖️ BB: {{ $item->rekamMedis?->berat_badan ?? '-' }} kg</span>
                                 <span>📏 TB: {{ $item->rekamMedis?->tinggi_badan ?? '-' }} cm</span>
