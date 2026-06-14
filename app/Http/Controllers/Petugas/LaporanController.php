@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Petugas;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\PendaftaranPoli;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class LaporanController extends Controller
 {
@@ -41,12 +42,48 @@ class LaporanController extends Controller
     {
         $pasien = PendaftaranPoli::findOrFail($id);
 
-        $riwayat = PendaftaranPoli::with('rekamMedis')
+        $query = PendaftaranPoli::with(['rekamMedis', 'dokter'])
             ->where('no_identitas', $pasien->no_identitas)
-            ->where('status', 'selesai')
-            ->when($request->tanggal, function ($q) use ($request) {
-                $q->whereDate('created_at', $request->tanggal);
-            })
+            ->where('status', 'selesai');
+
+        if ($request->filled('tanggal')) {
+            $query->whereDate('created_at', $request->tanggal);
+        }
+
+        if ($request->download == 'excel') {
+
+            $data = $query->latest()->get();
+
+            return response()->streamDownload(function () use ($data) {
+
+                $file = fopen('php://output', 'w');
+
+                fputcsv($file, [
+                    'Tanggal',
+                    'Keluhan',
+                    'Diagnosis',
+                    'Tindakan',
+                    'Resep',
+                    'Dokter'
+                ]);
+
+                foreach ($data as $item) {
+                    fputcsv($file, [
+                        $item->created_at->format('d-m-Y H:i'),
+                        $item->rekamMedis?->keluhan,
+                        $item->rekamMedis?->diagnosis,
+                        $item->rekamMedis?->tindakan,
+                        $item->rekamMedis?->resep,
+                        $item->dokter?->name
+                    ]);
+                }
+
+                fclose($file);
+
+            }, 'Riwayat_'.$pasien->nama_pasien.'.csv');
+        }
+
+        $riwayat = $query
             ->latest()
             ->paginate(10)
             ->withQueryString();
@@ -59,4 +96,5 @@ class LaporanController extends Controller
             )
         );
     }
+    
 }

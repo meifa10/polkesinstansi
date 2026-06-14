@@ -31,6 +31,51 @@
 </div>
 
 <div class="bg-gradient-to-r from-emerald-900 to-slate-900 text-white rounded-3xl p-8 mb-8">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+
+        <div>
+            <div class="inline-flex px-3 py-1 rounded bg-emerald-500/20 text-emerald-300 text-xs font-bold uppercase mb-3">
+                {{ $pasien->poli }}
+            </div>
+
+            <h1 class="text-3xl lg:text-4xl font-black uppercase">
+                {{ $pasien->nama_pasien }}
+            </h1>
+
+            <p class="mt-3 text-emerald-100">
+                NIK :
+                <span class="font-bold">
+                    {{ $pasien->no_identitas }}
+                </span>
+            </p>
+        </div>
+
+        <form method="GET"
+              action="{{ route('petugas.laporan.diagnosa.show',$pasien->id) }}">
+            <input type="hidden" name="tanggal" value="{{ request('tanggal') }}">
+
+            <button type="submit"
+                    name="download"
+                    value="excel"
+                    class="inline-flex items-center gap-2 px-6 py-4 bg-emerald-500 hover:bg-emerald-600 rounded-2xl font-extrabold text-white shadow-lg">
+
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     class="h-5 w-5"
+                     fill="none"
+                     viewBox="0 0 24 24"
+                     stroke="currentColor"
+                     stroke-width="2">
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+
+                Export Excel
+            </button>
+        </form>
+
+    </div>
+</div>
     <div class="inline-flex px-3 py-1 rounded bg-emerald-500/20 text-emerald-300 text-xs font-bold uppercase mb-3">
         {{ $pasien->poli }}
     </div>
