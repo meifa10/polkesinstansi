@@ -8,7 +8,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\PemeriksaanController as AdminPemeriksaan;
 use App\Http\Controllers\Admin\DataPasienController;
 use App\Http\Controllers\Admin\PembayaranController;
-use App\Http\Controllers\Admin\LaporanController;
+use App\Http\Controllers\Admin\LaporanController as AdminLaporanController;
 use App\Http\Controllers\Admin\PendaftaranController as AdminPendaftaranController;
 use App\Http\Controllers\Admin\JadwalDokterController;
 
@@ -17,6 +17,8 @@ use App\Http\Controllers\Petugas\DashboardController as PetugasDashboardControll
 use App\Http\Controllers\Petugas\PemeriksaanAwalController;
 use App\Http\Controllers\Petugas\PendaftaranController as PetugasPendaftaranController;
 use App\Http\Controllers\Petugas\ObatController as PetugasObatController;
+use App\Http\Controllers\Petugas\LaporanController as PetugasLaporanController;
+
 
 // Controller Dokter
 use App\Http\Controllers\Dokter\DashboardController as DokterDashboardController;
