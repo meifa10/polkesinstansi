@@ -61,14 +61,14 @@ class LaporanController extends Controller
                 foreach ($data as $item) {
                     fputcsv($file, [
                         $item->created_at->format('d-m-Y H:i'),
-                        $item->rekamMedis?->keluhan,
-                        $item->rekamMedis?->tensi,
-                       $item->rekamMedis?->berat_badan, 
-                        $item->rekamMedis?->tinggi_badan,
-                        $item->rekamMedis?->diagnosis,
-                        $item->rekamMedis?->tindakan,
-                        $item->rekamMedis?->resep,
-                        $item->dokter?->name
+                        $item->keluhan ?? '-',           
+                        $item->tensi ?? '-',             
+                        $item->berat_badan ?? '-',       
+                        $item->tinggi_badan ?? '-',     
+                        $item->rekamMedis?->diagnosis ?? '-',
+                        $item->rekamMedis?->tindakan ?? '-',
+                        $item->rekamMedis?->resep ?? '-',
+                        $item->dokter?->name ?? '-'
                     ]);
                 }
                 fclose($file);
