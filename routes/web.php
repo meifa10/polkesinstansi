@@ -134,7 +134,13 @@ Route::middleware(['auth', 'role:petugas'])->prefix('petugas')->name('petugas.')
     Route::delete('/stok-obat/{id}', [PetugasObatController::class, 'destroy'])->name('stok_obat.destroy');
 });
 
-Route::get('/petugas/laporan-diagnosa', [App\Http\Controllers\Petugas\LaporanController::class, 'diagnosa'])->name('petugas.laporan.diagnosa');
+Route::prefix('petugas')->name('petugas.')->group(function () {
+    // Menampilkan daftar pasien (Index)
+    Route::get('/laporan', [App\Http\Controllers\Petugas\LaporanController::class, 'diagnosa'])->name('laporan.diagnosa');
+    
+    // Menampilkan riwayat detail pasien (Show)
+    Route::get('/laporan/{id}', [App\Http\Controllers\Petugas\LaporanController::class, 'showRiwayat'])->name('laporan.show');
+});
 
 // penyakit 
 Route::post('/petugas/master-penyakit/import', [App\Http\Controllers\Petugas\PenyakitController::class, 'import'])->name('petugas.master_penyakit.import');
