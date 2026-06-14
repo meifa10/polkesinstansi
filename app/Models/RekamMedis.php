@@ -15,6 +15,9 @@ class RekamMedis extends Model
         'diagnosis',
         'tindakan',
         'resep',
+        'tensi',  
+        'berat',  
+        'tinggi',
     ];
 
     /**

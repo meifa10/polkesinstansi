@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Petugas;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\PendaftaranPoli;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class LaporanController extends Controller
 {
@@ -50,51 +49,34 @@ class LaporanController extends Controller
             $query->whereDate('created_at', $request->tanggal);
         }
 
+        // Export Excel
         if ($request->download == 'excel') {
-
             $data = $query->latest()->get();
 
             return response()->streamDownload(function () use ($data) {
-
                 $file = fopen('php://output', 'w');
-
-                fputcsv($file, [
-                    'Tanggal',
-                    'Keluhan',
-                    'Diagnosis',
-                    'Tindakan',
-                    'Resep',
-                    'Dokter'
-                ]);
+                // Header CSV
+                fputcsv($file, ['Tanggal', 'Keluhan', 'Tensi', 'BB (kg)', 'TB (cm)', 'Diagnosis', 'Tindakan', 'Resep', 'Dokter']);
 
                 foreach ($data as $item) {
                     fputcsv($file, [
                         $item->created_at->format('d-m-Y H:i'),
                         $item->rekamMedis?->keluhan,
+                        $item->rekamMedis?->tensi,
+                        $item->rekamMedis?->berat,
+                        $item->rekamMedis?->tinggi,
                         $item->rekamMedis?->diagnosis,
                         $item->rekamMedis?->tindakan,
                         $item->rekamMedis?->resep,
                         $item->dokter?->name
                     ]);
                 }
-
                 fclose($file);
-
-            }, 'Riwayat_'.$pasien->nama_pasien.'.csv');
+            }, 'Riwayat_' . $pasien->nama_pasien . '.csv');
         }
 
-        $riwayat = $query
-            ->latest()
-            ->paginate(10)
-            ->withQueryString();
+        $riwayat = $query->latest()->paginate(10)->withQueryString();
 
-        return view(
-            'petugas.laporan-diagnosa.show',
-            compact(
-                'pasien',
-                'riwayat'
-            )
-        );
+        return view('petugas.laporan-diagnosa.show', compact('pasien', 'riwayat'));
     }
-    
 }
