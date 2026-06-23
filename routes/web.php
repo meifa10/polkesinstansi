@@ -79,8 +79,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/pembayaran/print/{id}', [PembayaranController::class, 'printStruk'])->name('pembayaran.print'); 
 
     // Laporan Bulanan
-    Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan');
-    Route::get('/laporan/pdf/{bulan}/{tahun}', [LaporanController::class, 'exportPdf'])->name('laporan.pdf');
+    Route::get('/laporan', [AdminLaporanController::class, 'index'])->name('laporan');
+    Route::get('/laporan/pdf/{bulan}/{tahun}', [AdminLaporanController::class, 'exportPdf'])->name('laporan.pdf');
 });
 
 
